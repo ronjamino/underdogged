@@ -36,6 +36,8 @@ def fetch_upcoming_fixtures(league_code="PL", limit=10):
 
     return pd.DataFrame(fixtures)
 
+fetch_fixtures = fetch_upcoming_fixtures
+
 if __name__ == "__main__":
     df = fetch_upcoming_fixtures()
     print(df)

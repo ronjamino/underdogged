@@ -1,0 +1,573 @@
+home_team,away_team,match_date,avg_goal_diff_h2h,h2h_home_winrate,label
+Crystal Palace,Arsenal,2022-08-05,1.5,0.5,away_win
+Leeds,Wolves,2022-08-06,-0.5,0.5,home_win
+Everton,Chelsea,2022-08-06,0.5,0.5,away_win
+Tottenham,Southampton,2022-08-06,-0.5,0.0,home_win
+Man United,Brighton,2022-08-07,3.0,0.5,away_win
+West Ham,Man City,2022-08-07,0.5,0.0,away_win
+Leicester,Brentford,2022-08-07,0.0,1.0,draw
+Brighton,Newcastle,2022-08-13,0.5,0.0,draw
+Aston Villa,Everton,2022-08-13,1.0,1.0,home_win
+Arsenal,Leicester,2022-08-13,0.0,1.0,home_win
+Southampton,Leeds,2022-08-13,0.5,0.5,draw
+Brentford,Man United,2022-08-13,0.5,0.0,home_win
+Chelsea,Tottenham,2022-08-14,-0.5,1.0,draw
+Liverpool,Crystal Palace,2022-08-15,0.5,1.0,draw
+Tottenham,Wolves,2022-08-20,-1.5,0.5,home_win
+Crystal Palace,Aston Villa,2022-08-20,-0.5,0.0,home_win
+Leicester,Southampton,2022-08-20,1.5,0.5,away_win
+West Ham,Brighton,2022-08-21,1.0,0.0,away_win
+Leeds,Chelsea,2022-08-21,-1.0,0.0,home_win
+Newcastle,Man City,2022-08-21,0.5,0.0,draw
+Man United,Liverpool,2022-08-22,-0.5,0.0,home_win
+Southampton,Man United,2022-08-27,0.0,0.0,away_win
+Brentford,Everton,2022-08-27,0.0,1.0,draw
+Brighton,Leeds,2022-08-27,0.0,0.0,home_win
+Chelsea,Leicester,2022-08-27,-1.5,0.5,home_win
+Man City,Crystal Palace,2022-08-27,-1.0,0.0,home_win
+Aston Villa,West Ham,2022-08-28,-1.0,0.0,away_win
+Wolves,Newcastle,2022-08-28,1.0,0.5,draw
+Crystal Palace,Brentford,2022-08-30,0.0,0.0,draw
+Leeds,Everton,2022-08-30,1.5,0.0,draw
+Southampton,Chelsea,2022-08-30,-2.0,0.0,home_win
+West Ham,Tottenham,2022-08-31,1.5,0.5,draw
+Liverpool,Newcastle,2022-08-31,0.5,1.0,home_win
+Arsenal,Aston Villa,2022-08-31,0.5,1.0,home_win
+Leicester,Man United,2022-09-01,1.0,0.5,away_win
+Everton,Liverpool,2022-09-03,-0.5,0.0,draw
+Brentford,Leeds,2022-09-03,-0.5,0.0,home_win
+Chelsea,West Ham,2022-09-03,1.0,0.5,home_win
+Newcastle,Crystal Palace,2022-09-03,0.5,0.5,draw
+Wolves,Southampton,2022-09-03,0.5,1.0,home_win
+Aston Villa,Man City,2022-09-03,0.0,0.0,draw
+Brighton,Leicester,2022-09-04,0.5,0.5,home_win
+Man United,Arsenal,2022-09-04,1.5,0.5,home_win
+Aston Villa,Southampton,2022-09-16,2.5,0.5,home_win
+Tottenham,Leicester,2022-09-17,0.5,1.0,home_win
+Wolves,Man City,2022-09-17,-1.5,0.0,away_win
+Brentford,Arsenal,2022-09-18,1.5,0.5,away_win
+Everton,West Ham,2022-09-18,0.0,0.0,home_win
+Arsenal,Tottenham,2022-10-01,2.5,0.5,home_win
+Crystal Palace,Chelsea,2022-10-01,1.0,0.0,away_win
+Liverpool,Brighton,2022-10-01,-1.0,0.5,draw
+Southampton,Everton,2022-10-01,2.0,0.5,away_win
+West Ham,Wolves,2022-10-01,1.0,0.5,home_win
+Man City,Man United,2022-10-02,0.5,1.0,home_win
+Leeds,Aston Villa,2022-10-02,-1.5,0.0,draw
+Chelsea,Wolves,2022-10-08,0.0,0.0,home_win
+Man City,Southampton,2022-10-08,0.0,0.0,home_win
+Newcastle,Brentford,2022-10-08,-1.0,0.5,home_win
+Brighton,Tottenham,2022-10-08,-1.5,0.5,away_win
+Everton,Man United,2022-10-09,0.5,0.5,away_win
+Arsenal,Liverpool,2022-10-09,1.0,0.0,home_win
+Crystal Palace,Leeds,2022-10-09,0.5,0.0,home_win
+Brentford,Brighton,2022-10-14,0.5,0.0,home_win
+Tottenham,Everton,2022-10-15,2.5,0.5,home_win
+Leicester,Crystal Palace,2022-10-15,0.5,0.5,draw
+Liverpool,Man City,2022-10-16,0.0,0.0,home_win
+Southampton,West Ham,2022-10-16,-0.5,0.5,draw
+Aston Villa,Chelsea,2022-10-16,0.5,0.0,away_win
+Leeds,Arsenal,2022-10-16,-1.0,0.0,away_win
+Man United,Newcastle,2022-10-16,1.5,0.5,draw
+Crystal Palace,Wolves,2022-10-18,0.0,1.0,home_win
+Brentford,Chelsea,2022-10-19,-2.0,0.5,draw
+Liverpool,West Ham,2022-10-19,1.0,0.5,home_win
+Newcastle,Everton,2022-10-19,1.5,0.5,home_win
+Man United,Tottenham,2022-10-19,-1.0,1.0,home_win
+Leicester,Leeds,2022-10-20,0.5,0.5,home_win
+Everton,Crystal Palace,2022-10-22,1.5,0.5,home_win
+Man City,Brighton,2022-10-22,0.0,1.0,home_win
+Chelsea,Man United,2022-10-22,0.0,0.0,draw
+Aston Villa,Brentford,2022-10-23,0.5,0.0,home_win
+Wolves,Leicester,2022-10-23,1.0,0.5,away_win
+Southampton,Arsenal,2022-10-23,2.0,0.5,draw
+Tottenham,Newcastle,2022-10-23,1.5,1.0,away_win
+Crystal Palace,Southampton,2022-10-29,-0.5,0.5,home_win
+Newcastle,Aston Villa,2022-10-29,1.5,0.5,home_win
+Liverpool,Leeds,2022-10-29,1.5,1.0,away_win
+Brighton,Chelsea,2022-10-29,0.0,0.0,home_win
+Brentford,Wolves,2022-10-29,-1.5,0.5,draw
+Leicester,Man City,2022-10-29,1.0,0.0,away_win
+Man United,West Ham,2022-10-30,0.0,1.0,home_win
+Wolves,Brighton,2022-11-05,-2.0,0.5,away_win
+Everton,Leicester,2022-11-05,-0.5,0.5,away_win
+Tottenham,Liverpool,2022-11-06,0.0,0.0,away_win
+West Ham,Crystal Palace,2022-11-06,-0.5,0.5,away_win
+Chelsea,Arsenal,2022-11-06,-2.0,0.5,away_win
+Aston Villa,Man United,2022-11-06,-0.5,0.5,home_win
+Southampton,Newcastle,2022-11-06,-0.5,0.0,away_win
+Man City,Brentford,2022-11-12,0.5,1.0,away_win
+Tottenham,Leeds,2022-11-12,-1.5,1.0,home_win
+Newcastle,Chelsea,2022-11-12,-1.0,0.0,home_win
+Wolves,Arsenal,2022-11-12,0.0,0.0,away_win
+West Ham,Leicester,2022-11-12,1.5,0.5,away_win
+Liverpool,Southampton,2022-11-12,1.5,1.0,home_win
+Brighton,Aston Villa,2022-11-13,0.0,0.0,away_win
+Arsenal,West Ham,2022-12-26,0.5,1.0,home_win
+Southampton,Brighton,2022-12-26,0.0,0.0,away_win
+Leicester,Newcastle,2022-12-26,2.5,0.5,away_win
+Aston Villa,Liverpool,2022-12-26,0.0,0.0,away_win
+Brentford,Tottenham,2022-12-26,1.0,0.0,draw
+Everton,Wolves,2022-12-26,0.0,0.0,away_win
+Leeds,Man City,2022-12-28,1.5,0.0,away_win
+Liverpool,Leicester,2022-12-30,1.5,0.5,home_win
+West Ham,Brentford,2022-12-30,0.5,0.0,away_win
+Newcastle,Leeds,2022-12-31,-0.5,0.5,draw
+Wolves,Man United,2022-12-31,-1.0,0.5,away_win
+Man City,Everton,2022-12-31,1.0,1.0,draw
+Brighton,Arsenal,2022-12-31,-0.5,0.5,away_win
+Tottenham,Aston Villa,2023-01-01,-1.5,1.0,away_win
+Brentford,Liverpool,2023-01-02,1.5,0.0,home_win
+Arsenal,Newcastle,2023-01-03,2.0,0.5,draw
+Everton,Brighton,2023-01-03,-1.5,0.5,away_win
+Aston Villa,Wolves,2023-01-04,0.0,0.0,draw
+Crystal Palace,Tottenham,2023-01-04,3.0,0.5,away_win
+Leeds,West Ham,2023-01-04,-1.0,0.5,draw
+Chelsea,Man City,2023-01-05,0.0,0.0,away_win
+Aston Villa,Leeds,2023-01-13,-1.0,0.3333333333333333,home_win
+Everton,Southampton,2023-01-14,1.0,0.6666666666666666,away_win
+Man United,Man City,2023-01-14,1.3333333333333333,0.0,home_win
+Brighton,Liverpool,2023-01-14,-0.6666666666666666,0.0,home_win
+Wolves,West Ham,2023-01-14,1.3333333333333333,0.3333333333333333,home_win
+Chelsea,Crystal Palace,2023-01-15,0.3333333333333333,1.0,home_win
+Tottenham,Arsenal,2023-01-15,2.3333333333333335,0.3333333333333333,away_win
+Crystal Palace,Man United,2023-01-18,1.0,0.5,draw
+Man City,Tottenham,2023-01-19,0.0,0.0,home_win
+Leicester,Brighton,2023-01-21,1.3333333333333333,0.0,draw
+Liverpool,Chelsea,2023-01-21,0.0,0.0,draw
+West Ham,Everton,2023-01-21,0.3333333333333333,0.6666666666666666,home_win
+Crystal Palace,Newcastle,2023-01-21,0.3333333333333333,0.0,draw
+Southampton,Aston Villa,2023-01-21,2.0,0.3333333333333333,away_win
+Leeds,Brentford,2023-01-22,0.6666666666666666,0.3333333333333333,draw
+Man City,Wolves,2023-01-22,-2.0,1.0,home_win
+Arsenal,Man United,2023-01-22,1.6666666666666667,0.3333333333333333,home_win
+Brentford,Southampton,2023-02-04,3.0,0.5,home_win
+Everton,Arsenal,2023-02-04,2.5,0.5,home_win
+Aston Villa,Leicester,2023-02-04,0.5,0.5,away_win
+Man United,Crystal Palace,2023-02-04,0.6666666666666666,0.3333333333333333,home_win
+Wolves,Liverpool,2023-02-04,0.5,0.0,home_win
+Newcastle,West Ham,2023-02-04,-1.0,0.0,draw
+Tottenham,Man City,2023-02-05,0.6666666666666666,0.6666666666666666,home_win
+Man United,Leeds,2023-02-08,1.0,1.0,draw
+Leicester,Tottenham,2023-02-11,1.6666666666666667,0.0,home_win
+West Ham,Chelsea,2023-02-11,1.0,0.3333333333333333,draw
+Arsenal,Brentford,2023-02-11,0.0,0.6666666666666666,draw
+Southampton,Wolves,2023-02-11,0.6666666666666666,0.0,away_win
+Crystal Palace,Brighton,2023-02-11,0.0,0.0,draw
+Man City,Aston Villa,2023-02-12,0.0,0.6666666666666666,home_win
+Leeds,Man United,2023-02-12,0.6666666666666666,0.0,away_win
+Liverpool,Everton,2023-02-13,-0.3333333333333333,0.6666666666666666,home_win
+Arsenal,Man City,2023-02-15,2.0,0.0,away_win
+Aston Villa,Arsenal,2023-02-18,0.6666666666666666,0.0,away_win
+Brentford,Crystal Palace,2023-02-18,0.0,0.0,draw
+Chelsea,Southampton,2023-02-18,-1.0,0.6666666666666666,away_win
+Everton,Leeds,2023-02-18,1.0,0.3333333333333333,home_win
+Newcastle,Liverpool,2023-02-18,0.6666666666666666,0.0,away_win
+Man United,Leicester,2023-02-19,0.3333333333333333,0.3333333333333333,home_win
+Tottenham,West Ham,2023-02-19,1.0,0.3333333333333333,home_win
+Everton,Aston Villa,2023-02-25,1.0,0.0,away_win
+Leeds,Southampton,2023-02-25,0.3333333333333333,0.0,home_win
+Leicester,Arsenal,2023-02-25,0.6666666666666666,0.0,away_win
+Crystal Palace,Liverpool,2023-02-25,0.3333333333333333,0.0,draw
+Tottenham,Chelsea,2023-02-26,-0.3333333333333333,0.0,home_win
+Arsenal,Everton,2023-03-01,2.0,0.3333333333333333,home_win
+Liverpool,Wolves,2023-03-01,1.3333333333333333,0.6666666666666666,home_win
+Brighton,West Ham,2023-03-04,0.0,0.6666666666666666,home_win
+Aston Villa,Crystal Palace,2023-03-04,0.3333333333333333,0.3333333333333333,home_win
+Man City,Newcastle,2023-03-04,0.3333333333333333,0.6666666666666666,home_win
+Southampton,Leicester,2023-03-04,0.6666666666666666,0.3333333333333333,home_win
+Wolves,Tottenham,2023-03-04,-0.6666666666666666,0.3333333333333333,home_win
+Chelsea,Leeds,2023-03-04,0.3333333333333333,0.6666666666666666,home_win
+Liverpool,Man United,2023-03-05,0.0,0.6666666666666666,home_win
+Leeds,Brighton,2023-03-11,0.3333333333333333,0.0,draw
+Everton,Brentford,2023-03-11,0.0,0.0,home_win
+Leicester,Chelsea,2023-03-11,-0.6666666666666666,0.0,away_win
+Crystal Palace,Man City,2023-03-11,0.0,0.3333333333333333,away_win
+Man United,Southampton,2023-03-12,-0.3333333333333333,0.3333333333333333,draw
+West Ham,Aston Villa,2023-03-12,-1.0,1.0,draw
+Newcastle,Wolves,2023-03-12,0.6666666666666666,0.3333333333333333,home_win
+Southampton,Brentford,2023-03-15,3.0,0.3333333333333333,away_win
+Brighton,Crystal Palace,2023-03-15,0.0,0.0,home_win
+Brentford,Leicester,2023-03-18,0.0,0.0,draw
+Chelsea,Everton,2023-03-18,0.0,0.3333333333333333,draw
+Southampton,Tottenham,2023-03-18,0.6666666666666666,0.3333333333333333,draw
+Wolves,Leeds,2023-03-18,0.0,0.0,away_win
+Arsenal,Crystal Palace,2023-03-19,0.3333333333333333,0.3333333333333333,home_win
+Man City,Liverpool,2023-04-01,0.3333333333333333,0.0,home_win
+Arsenal,Leeds,2023-04-01,-1.0,1.0,home_win
+Brighton,Brentford,2023-04-01,1.0,0.6666666666666666,draw
+Crystal Palace,Leicester,2023-04-01,0.3333333333333333,0.0,home_win
+Chelsea,Aston Villa,2023-04-01,-0.3333333333333333,1.0,away_win
+Newcastle,Man United,2023-04-02,1.0,0.0,home_win
+West Ham,Southampton,2023-04-02,-0.3333333333333333,0.0,home_win
+Everton,Tottenham,2023-04-03,2.3333333333333335,0.0,draw
+Chelsea,Liverpool,2023-04-04,0.0,0.0,draw
+Leicester,Aston Villa,2023-04-04,-0.3333333333333333,0.3333333333333333,away_win
+Man United,Brentford,2023-04-05,1.6666666666666667,0.6666666666666666,home_win
+West Ham,Newcastle,2023-04-05,-0.6666666666666666,0.3333333333333333,away_win
+Brentford,Newcastle,2023-04-08,0.6666666666666666,0.0,away_win
+Man United,Everton,2023-04-08,0.0,0.3333333333333333,home_win
+Wolves,Chelsea,2023-04-08,1.0,0.0,home_win
+Southampton,Man City,2023-04-08,1.3333333333333333,0.0,away_win
+Tottenham,Brighton,2023-04-08,-1.3333333333333333,0.6666666666666666,home_win
+Leeds,Crystal Palace,2023-04-09,0.6666666666666666,0.3333333333333333,away_win
+Liverpool,Arsenal,2023-04-09,1.0,0.6666666666666666,draw
+Aston Villa,Newcastle,2023-04-15,2.3333333333333335,0.3333333333333333,home_win
+Wolves,Brentford,2023-04-15,-1.0,0.3333333333333333,home_win
+Chelsea,Brighton,2023-04-15,1.0,0.0,away_win
+Man City,Leicester,2023-04-15,0.3333333333333333,1.0,home_win
+Southampton,Crystal Palace,2023-04-15,0.0,0.0,away_win
+West Ham,Arsenal,2023-04-16,1.0,0.0,draw
+Leeds,Liverpool,2023-04-17,0.6666666666666666,0.3333333333333333,away_win
+Arsenal,Southampton,2023-04-21,1.3333333333333333,0.3333333333333333,draw
+Brentford,Aston Villa,2023-04-22,1.6666666666666667,0.3333333333333333,draw
+Crystal Palace,Everton,2023-04-22,2.0,0.3333333333333333,draw
+Leicester,Wolves,2023-04-22,-0.6666666666666666,0.6666666666666666,home_win
+Newcastle,Tottenham,2023-04-23,0.6666666666666666,0.3333333333333333,home_win
+Leeds,Leicester,2023-04-25,1.0,0.0,draw
+Wolves,Crystal Palace,2023-04-25,0.3333333333333333,0.0,home_win
+Chelsea,Brentford,2023-04-26,-1.3333333333333333,0.3333333333333333,away_win
+West Ham,Liverpool,2023-04-26,1.0,0.3333333333333333,away_win
+Man City,Arsenal,2023-04-26,0.6666666666666666,1.0,home_win
+Tottenham,Man United,2023-04-27,0.0,0.0,draw
+Everton,Newcastle,2023-04-27,1.3333333333333333,0.3333333333333333,away_win
+Crystal Palace,West Ham,2023-04-29,-0.6666666666666666,0.3333333333333333,home_win
+Brighton,Wolves,2023-04-29,-1.6666666666666667,0.6666666666666666,home_win
+Man United,Aston Villa,2023-04-30,0.3333333333333333,0.0,home_win
+Newcastle,Southampton,2023-04-30,-1.3333333333333333,0.6666666666666666,home_win
+Liverpool,Tottenham,2023-04-30,-0.3333333333333333,0.3333333333333333,home_win
+Leicester,Everton,2023-05-01,-1.0,0.3333333333333333,draw
+Arsenal,Chelsea,2023-05-02,-1.6666666666666667,0.6666666666666666,home_win
+Man City,West Ham,2023-05-03,-0.3333333333333333,0.6666666666666666,home_win
+Brighton,Man United,2023-05-04,1.6666666666666667,0.6666666666666666,home_win
+Man City,Leeds,2023-05-06,0.3333333333333333,1.0,home_win
+Tottenham,Crystal Palace,2023-05-06,0.6666666666666666,0.6666666666666666,home_win
+Wolves,Aston Villa,2023-05-06,0.0,0.6666666666666666,home_win
+Liverpool,Brentford,2023-05-06,1.6666666666666667,0.3333333333333333,home_win
+West Ham,Man United,2023-05-07,0.3333333333333333,0.0,home_win
+Newcastle,Arsenal,2023-05-07,1.3333333333333333,0.3333333333333333,away_win
+Brighton,Everton,2023-05-08,-2.0,0.6666666666666666,away_win
+Leeds,Newcastle,2023-05-13,-0.3333333333333333,0.0,draw
+Man United,Wolves,2023-05-13,-1.0,0.6666666666666666,home_win
+Aston Villa,Tottenham,2023-05-13,-1.6666666666666667,0.3333333333333333,home_win
+Everton,Man City,2023-05-14,0.6666666666666666,0.0,away_win
+Arsenal,Brighton,2023-05-14,-1.0,0.3333333333333333,away_win
+Brentford,West Ham,2023-05-14,-0.3333333333333333,1.0,home_win
+Leicester,Liverpool,2023-05-15,1.3333333333333333,0.3333333333333333,away_win
+Newcastle,Brighton,2023-05-18,0.3333333333333333,0.3333333333333333,home_win
+Wolves,Everton,2023-05-20,-0.3333333333333333,1.0,draw
+Liverpool,Aston Villa,2023-05-20,-0.6666666666666666,1.0,draw
+Tottenham,Brentford,2023-05-20,0.6666666666666666,0.3333333333333333,away_win
+Man City,Chelsea,2023-05-21,-0.3333333333333333,1.0,home_win
+West Ham,Leeds,2023-05-21,-0.6666666666666666,0.3333333333333333,home_win
+Brighton,Southampton,2023-05-21,-0.6666666666666666,0.3333333333333333,home_win
+Newcastle,Leicester,2023-05-22,0.6666666666666666,0.6666666666666666,draw
+Brighton,Man City,2023-05-24,0.6666666666666666,0.0,draw
+Man United,Chelsea,2023-05-25,0.0,0.0,home_win
+Leicester,West Ham,2023-05-28,0.3333333333333333,0.3333333333333333,home_win
+Leeds,Tottenham,2023-05-28,-0.6666666666666666,0.0,away_win
+Brentford,Man City,2023-05-28,0.0,0.3333333333333333,home_win
+Aston Villa,Brighton,2023-05-28,-0.3333333333333333,1.0,home_win
+Arsenal,Wolves,2023-05-28,-0.6666666666666666,1.0,home_win
+Chelsea,Newcastle,2023-05-28,-0.3333333333333333,0.6666666666666666,draw
+Southampton,Liverpool,2023-05-28,1.6666666666666667,0.0,draw
+Burnley,Man City,2023-08-11,0.0,0.0,away_win
+Newcastle,Aston Villa,2023-08-12,2.5,0.5,home_win
+Everton,Fulham,2023-08-12,-1.0,0.0,away_win
+Bournemouth,West Ham,2023-08-12,-1.0,0.0,draw
+Arsenal,Nott'm Forest,2023-08-12,3.0,0.5,home_win
+Brentford,Tottenham,2023-08-13,0.0,0.25,draw
+Chelsea,Liverpool,2023-08-13,0.0,0.0,draw
+Man United,Wolves,2023-08-14,-0.25,0.75,home_win
+Liverpool,Bournemouth,2023-08-19,5.0,0.5,home_win
+Fulham,Brentford,2023-08-19,1.0,0.5,away_win
+Tottenham,Man United,2023-08-19,0.0,0.0,home_win
+Man City,Newcastle,2023-08-19,0.75,0.75,home_win
+Wolves,Brighton,2023-08-19,0.25,0.25,away_win
+Aston Villa,Everton,2023-08-20,0.25,1.0,home_win
+West Ham,Chelsea,2023-08-20,0.75,0.25,home_win
+Crystal Palace,Arsenal,2023-08-21,1.0,0.25,away_win
+Bournemouth,Tottenham,2023-08-26,-1.0,0.5,away_win
+Everton,Wolves,2023-08-26,-0.25,0.0,away_win
+Arsenal,Fulham,2023-08-26,-1.0,1.0,draw
+Brentford,Crystal Palace,2023-08-26,0.0,0.0,draw
+Brighton,West Ham,2023-08-26,1.0,0.75,away_win
+Man United,Nott'm Forest,2023-08-26,0.5,1.0,home_win
+Burnley,Aston Villa,2023-08-27,-1.0,0.0,away_win
+Newcastle,Liverpool,2023-08-27,0.0,0.0,away_win
+Brentford,Bournemouth,2023-09-02,1.0,0.5,draw
+Burnley,Tottenham,2023-09-02,1.0,0.5,away_win
+Chelsea,Nott'm Forest,2023-09-02,0.0,0.0,away_win
+Man City,Fulham,2023-09-02,0.0,1.0,home_win
+Brighton,Newcastle,2023-09-02,1.0,0.0,home_win
+Crystal Palace,Wolves,2023-09-03,0.75,0.75,home_win
+Liverpool,Aston Villa,2023-09-03,-0.5,0.75,home_win
+Arsenal,Man United,2023-09-03,1.5,0.5,home_win
+Aston Villa,Crystal Palace,2023-09-16,0.5,0.5,home_win
+West Ham,Man City,2023-09-16,0.5,0.0,away_win
+Wolves,Liverpool,2023-09-16,1.5,0.25,away_win
+Newcastle,Brentford,2023-09-16,0.25,0.75,home_win
+Man United,Brighton,2023-09-16,1.5,0.25,away_win
+Bournemouth,Chelsea,2023-09-17,0.0,0.0,draw
+Everton,Arsenal,2023-09-17,2.5,0.5,away_win
+Burnley,Man United,2023-09-23,1.0,0.0,away_win
+Man City,Nott'm Forest,2023-09-23,3.0,0.5,home_win
+Brentford,Everton,2023-09-23,0.25,0.5,away_win
+Crystal Palace,Fulham,2023-09-23,-1.5,0.0,draw
+Chelsea,Aston Villa,2023-09-24,-0.75,0.75,away_win
+Arsenal,Tottenham,2023-09-24,1.25,0.75,draw
+Brighton,Bournemouth,2023-09-24,-0.5,1.0,home_win
+Liverpool,West Ham,2023-09-24,0.5,0.75,home_win
+Aston Villa,Brighton,2023-09-30,0.0,1.0,home_win
+Wolves,Man City,2023-09-30,-0.75,0.0,home_win
+Bournemouth,Arsenal,2023-09-30,-1.0,0.0,away_win
+Man United,Crystal Palace,2023-09-30,0.75,0.5,away_win
+Newcastle,Burnley,2023-09-30,0.0,1.0,home_win
+Tottenham,Liverpool,2023-09-30,0.0,0.0,home_win
+Nott'm Forest,Brentford,2023-10-01,0.5,0.0,draw
+Fulham,Chelsea,2023-10-02,0.5,0.5,away_win
+Crystal Palace,Nott'm Forest,2023-10-07,0.5,0.0,draw
+Man United,Brentford,2023-10-07,1.5,0.75,home_win
+Burnley,Chelsea,2023-10-07,-2.0,0.0,away_win
+Everton,Bournemouth,2023-10-07,2.0,0.5,home_win
+Wolves,Aston Villa,2023-10-08,0.25,0.75,draw
+Arsenal,Man City,2023-10-08,1.25,0.0,home_win
+West Ham,Newcastle,2023-10-08,-1.5,0.25,draw
+Brighton,Liverpool,2023-10-08,0.25,0.25,draw
+Newcastle,Crystal Palace,2023-10-21,0.25,0.25,home_win
+Chelsea,Arsenal,2023-10-21,-0.75,0.25,draw
+Man City,Brighton,2023-10-21,0.5,0.75,home_win
+Bournemouth,Wolves,2023-10-21,-0.5,0.5,away_win
+Liverpool,Everton,2023-10-21,0.25,0.75,home_win
+Brentford,Burnley,2023-10-21,2.0,0.5,home_win
+Aston Villa,West Ham,2023-10-22,-0.75,0.0,home_win
+Tottenham,Fulham,2023-10-23,0.0,1.0,home_win
+Crystal Palace,Tottenham,2023-10-27,0.75,0.25,away_win
+Wolves,Newcastle,2023-10-28,0.75,0.25,draw
+Chelsea,Brentford,2023-10-28,-1.5,0.25,away_win
+West Ham,Everton,2023-10-29,0.75,0.75,away_win
+Man United,Man City,2023-10-29,1.25,0.25,away_win
+Liverpool,Nott'm Forest,2023-10-29,1.0,0.5,home_win
+Brighton,Fulham,2023-10-29,0.0,0.0,draw
+Newcastle,Arsenal,2023-11-04,0.5,0.25,home_win
+Fulham,Man United,2023-11-04,0.0,0.0,away_win
+Everton,Brighton,2023-11-04,-2.5,0.5,draw
+Burnley,Crystal Palace,2023-11-04,0.0,0.0,away_win
+Brentford,West Ham,2023-11-04,0.25,1.0,home_win
+Man City,Bournemouth,2023-11-04,0.5,1.0,home_win
+Nott'm Forest,Aston Villa,2023-11-05,1.0,0.0,home_win
+Tottenham,Chelsea,2023-11-06,0.25,0.25,away_win
+Wolves,Tottenham,2023-11-11,-0.25,0.5,home_win
+Arsenal,Burnley,2023-11-11,-0.5,0.5,home_win
+Crystal Palace,Everton,2023-11-11,1.5,0.25,away_win
+Bournemouth,Newcastle,2023-11-11,0.0,0.0,home_win
+Aston Villa,Fulham,2023-11-12,2.0,0.5,home_win
+Liverpool,Brentford,2023-11-12,1.5,0.5,home_win
+West Ham,Nott'm Forest,2023-11-12,2.5,0.5,home_win
+Chelsea,Man City,2023-11-12,0.0,0.0,draw
+Man City,Liverpool,2023-11-25,1.0,0.25,draw
+Newcastle,Chelsea,2023-11-25,-0.25,0.25,home_win
+Burnley,West Ham,2023-11-25,0.0,0.0,away_win
+Nott'm Forest,Brighton,2023-11-25,1.0,0.5,away_win
+Brentford,Arsenal,2023-11-25,0.0,0.25,away_win
+Tottenham,Aston Villa,2023-11-26,-1.0,0.5,away_win
+Everton,Man United,2023-11-26,0.5,0.25,away_win
+Fulham,Wolves,2023-11-27,0.0,0.0,home_win
+Newcastle,Man United,2023-12-02,1.25,0.25,home_win
+Nott'm Forest,Everton,2023-12-02,0.0,0.0,away_win
+Arsenal,Wolves,2023-12-02,0.75,1.0,home_win
+Man City,Tottenham,2023-12-03,0.75,0.25,draw
+Bournemouth,Aston Villa,2023-12-03,2.5,0.5,draw
+Liverpool,Fulham,2023-12-03,0.5,0.5,home_win
+Chelsea,Brighton,2023-12-03,0.5,0.0,home_win
+West Ham,Crystal Palace,2023-12-03,-0.25,0.25,draw
+Wolves,Burnley,2023-12-05,0.5,0.0,home_win
+Man United,Chelsea,2023-12-06,0.75,0.25,home_win
+Aston Villa,Man City,2023-12-06,0.5,0.0,home_win
+Fulham,Nott'm Forest,2023-12-06,0.5,1.0,home_win
+Crystal Palace,Bournemouth,2023-12-06,0.0,1.0,away_win
+Brighton,Brentford,2023-12-06,0.75,0.5,home_win
+Tottenham,West Ham,2023-12-07,1.25,0.5,away_win
+Everton,Newcastle,2023-12-07,0.25,0.25,home_win
+Aston Villa,Arsenal,2023-12-09,0.0,0.0,home_win
+Wolves,Nott'm Forest,2023-12-09,0.5,0.5,draw
+Crystal Palace,Liverpool,2023-12-09,0.25,0.0,away_win
+Brighton,Burnley,2023-12-09,-2.0,0.5,draw
+Man United,Bournemouth,2023-12-09,1.0,1.0,away_win
+Tottenham,Newcastle,2023-12-10,1.75,0.5,home_win
+Fulham,West Ham,2023-12-10,0.5,0.0,home_win
+Everton,Chelsea,2023-12-10,0.0,0.25,home_win
+Nott'm Forest,Tottenham,2023-12-15,0.0,0.0,away_win
+Burnley,Everton,2023-12-16,1.5,0.5,away_win
+Man City,Crystal Palace,2023-12-16,-0.25,0.5,draw
+Newcastle,Fulham,2023-12-16,-1.0,1.0,home_win
+West Ham,Wolves,2023-12-17,1.25,0.5,home_win
+Arsenal,Brighton,2023-12-17,-1.5,0.25,home_win
+Liverpool,Man United,2023-12-17,1.75,0.75,draw
+Brentford,Aston Villa,2023-12-17,1.25,0.25,away_win
+Crystal Palace,Brighton,2023-12-21,0.25,0.0,draw
+West Ham,Man United,2023-12-23,0.5,0.25,home_win
+Nott'm Forest,Bournemouth,2023-12-23,-0.5,0.0,away_win
+Tottenham,Everton,2023-12-23,1.75,0.5,home_win
+Liverpool,Arsenal,2023-12-23,0.75,0.5,draw
+Wolves,Chelsea,2023-12-24,1.0,0.25,home_win
+Man United,Aston Villa,2023-12-26,0.5,0.25,home_win
+Burnley,Liverpool,2023-12-26,0.5,0.0,away_win
+Newcastle,Nott'm Forest,2023-12-26,0.5,1.0,away_win
+Bournemouth,Fulham,2023-12-26,0.5,0.5,home_win
+Brentford,Wolves,2023-12-27,-0.25,0.25,away_win
+Chelsea,Crystal Palace,2023-12-27,0.5,1.0,home_win
+Everton,Man City,2023-12-27,-0.25,0.0,away_win
+Arsenal,West Ham,2023-12-28,0.75,0.75,away_win
+Brighton,Tottenham,2023-12-28,-0.75,0.25,home_win
+Aston Villa,Burnley,2023-12-30,-1.3333333333333333,0.6666666666666666,home_win
+Nott'm Forest,Man United,2023-12-30,0.6666666666666666,0.0,home_win
+Crystal Palace,Brentford,2023-12-30,0.0,0.0,home_win
+Wolves,Everton,2023-12-30,-0.4,0.8,home_win
+Fulham,Arsenal,2023-12-31,-0.6666666666666666,0.0,home_win
+Tottenham,Bournemouth,2023-12-31,-1.3333333333333333,0.6666666666666666,home_win
+Liverpool,Newcastle,2024-01-01,-0.2,1.0,home_win
+West Ham,Brighton,2024-01-02,0.4,0.2,draw
+Chelsea,Fulham,2024-01-13,-0.3333333333333333,0.3333333333333333,home_win
+Newcastle,Man City,2024-01-13,0.8,0.0,away_win
+Everton,Aston Villa,2024-01-14,1.0,0.0,draw
+Man United,Tottenham,2024-01-14,0.4,0.6,draw
+Arsenal,Crystal Palace,2024-01-20,0.6,0.6,home_win
+Brentford,Nott'm Forest,2024-01-20,0.3333333333333333,0.3333333333333333,home_win
+Bournemouth,Liverpool,2024-01-21,4.0,0.3333333333333333,away_win
+Brighton,Wolves,2024-01-22,-0.4,0.8,draw
+Nott'm Forest,Arsenal,2024-01-30,2.3333333333333335,0.3333333333333333,away_win
+Fulham,Everton,2024-01-30,-1.0,0.6666666666666666,draw
+Aston Villa,Newcastle,2024-01-30,2.8,0.4,away_win
+Tottenham,Brentford,2024-01-31,0.0,0.2,home_win
+Man City,Burnley,2024-01-31,-1.0,1.0,home_win
+Liverpool,Chelsea,2024-01-31,0.0,0.0,home_win
+West Ham,Bournemouth,2024-02-01,-0.6666666666666666,0.6666666666666666,draw
+Wolves,Man United,2024-02-01,0.0,0.2,away_win
+Everton,Tottenham,2024-02-03,1.6,0.0,draw
+Brighton,Crystal Palace,2024-02-03,0.2,0.2,home_win
+Man United,West Ham,2024-02-04,0.8,0.6,home_win
+Chelsea,Wolves,2024-02-04,1.0,0.2,away_win
+Arsenal,Liverpool,2024-02-04,0.6,0.2,home_win
+Bournemouth,Nott'm Forest,2024-02-04,-0.6666666666666666,0.6666666666666666,draw
+Brentford,Man City,2024-02-05,0.25,0.5,away_win
+Nott'm Forest,Newcastle,2024-02-10,-0.3333333333333333,0.3333333333333333,away_win
+Man City,Everton,2024-02-10,-0.6,0.8,home_win
+Fulham,Bournemouth,2024-02-10,1.3333333333333333,0.0,home_win
+Liverpool,Burnley,2024-02-10,-0.3333333333333333,1.0,home_win
+Tottenham,Brighton,2024-02-10,-0.2,0.6,home_win
+Wolves,Brentford,2024-02-10,-0.8,0.6,away_win
+Aston Villa,Man United,2024-02-11,0.6,0.4,away_win
+West Ham,Arsenal,2024-02-11,0.2,0.2,away_win
+Crystal Palace,Chelsea,2024-02-12,0.6,0.0,away_win
+Nott'm Forest,West Ham,2024-02-17,2.0,0.3333333333333333,home_win
+Burnley,Arsenal,2024-02-17,0.3333333333333333,0.0,away_win
+Fulham,Aston Villa,2024-02-17,2.0,0.3333333333333333,away_win
+Man City,Chelsea,2024-02-17,0.0,0.8,draw
+Brentford,Liverpool,2024-02-17,1.8,0.2,away_win
+Newcastle,Bournemouth,2024-02-17,0.6666666666666666,0.0,draw
+Tottenham,Wolves,2024-02-17,0.0,0.4,away_win
+Everton,Crystal Palace,2024-02-19,1.0,0.6,draw
+Man City,Brentford,2024-02-20,-0.2,0.6,home_win
+Man United,Fulham,2024-02-24,-0.3333333333333333,1.0,away_win
+Aston Villa,Nott'm Forest,2024-02-24,1.3333333333333333,0.3333333333333333,home_win
+Brighton,Everton,2024-02-24,-2.0,0.4,draw
+Crystal Palace,Burnley,2024-02-24,-0.6666666666666666,0.3333333333333333,home_win
+Bournemouth,Man City,2024-02-24,2.0,0.0,away_win
+Arsenal,Newcastle,2024-02-24,0.6,0.4,home_win
+West Ham,Brentford,2024-02-26,0.4,0.0,home_win
+Brentford,Chelsea,2024-03-02,-1.6,0.6,draw
+Fulham,Brighton,2024-03-02,0.0,0.6666666666666666,home_win
+Newcastle,Wolves,2024-03-02,0.6,0.4,home_win
+Tottenham,Crystal Palace,2024-03-02,0.4,0.8,home_win
+Nott'm Forest,Liverpool,2024-03-02,1.6666666666666667,0.3333333333333333,away_win
+Everton,West Ham,2024-03-02,0.4,0.4,away_win
+Man City,Man United,2024-03-03,0.4,0.8,home_win
+Man United,Everton,2024-03-09,-0.2,0.6,home_win
+Wolves,Fulham,2024-03-09,0.3333333333333333,0.0,home_win
+Arsenal,Brentford,2024-03-09,-0.2,0.6,home_win
+West Ham,Burnley,2024-03-10,-0.3333333333333333,0.3333333333333333,draw
+Liverpool,Man City,2024-03-10,0.8,0.2,draw
+Brighton,Nott'm Forest,2024-03-10,0.3333333333333333,0.3333333333333333,home_win
+Aston Villa,Tottenham,2024-03-10,-1.0,0.6,away_win
+Chelsea,Newcastle,2024-03-11,0.4,0.4,home_win
+Burnley,Brentford,2024-03-16,2.3333333333333335,0.3333333333333333,home_win
+Fulham,Tottenham,2024-03-16,0.6666666666666666,0.0,home_win
+West Ham,Aston Villa,2024-03-17,0.0,0.6,draw
+Brentford,Man United,2024-03-30,1.4,0.2,draw
+Aston Villa,Wolves,2024-03-30,0.2,0.0,home_win
+Nott'm Forest,Crystal Palace,2024-03-30,0.3333333333333333,0.3333333333333333,draw
+Chelsea,Burnley,2024-03-30,-2.3333333333333335,0.6666666666666666,draw
+Bournemouth,Everton,2024-03-30,2.3333333333333335,0.3333333333333333,home_win
+Newcastle,West Ham,2024-03-30,-1.2,0.2,home_win
+Man City,Arsenal,2024-03-31,1.2,0.8,draw
+Liverpool,Brighton,2024-03-31,0.2,0.2,home_win
+Nott'm Forest,Fulham,2024-04-02,2.0,0.0,home_win
+Newcastle,Everton,2024-04-02,0.8,0.6,draw
+Burnley,Wolves,2024-04-02,0.6666666666666666,0.3333333333333333,draw
+West Ham,Tottenham,2024-04-02,0.8,0.4,draw
+Bournemouth,Crystal Palace,2024-04-02,-0.6666666666666666,0.3333333333333333,home_win
+Brentford,Brighton,2024-04-03,0.8,0.2,draw
+Man City,Aston Villa,2024-04-03,0.6,0.6,home_win
+Chelsea,Man United,2024-04-04,0.8,0.0,home_win
+Fulham,Newcastle,2024-04-06,0.3333333333333333,0.0,away_win
+Brighton,Arsenal,2024-04-06,-0.8,0.4,away_win
+Everton,Burnley,2024-04-06,0.3333333333333333,0.6666666666666666,home_win
+Wolves,West Ham,2024-04-06,1.6,0.4,away_win
+Crystal Palace,Man City,2024-04-06,-0.2,0.2,away_win
+Aston Villa,Brentford,2024-04-06,0.8,0.4,draw
+Tottenham,Nott'm Forest,2024-04-07,-0.6666666666666666,1.0,home_win
+Man United,Liverpool,2024-04-07,1.4,0.2,draw
+Newcastle,Tottenham,2024-04-13,2.0,0.4,home_win
+Burnley,Brighton,2024-04-13,-1.3333333333333333,0.3333333333333333,draw
+Nott'm Forest,Wolves,2024-04-13,0.3333333333333333,0.0,draw
+Bournemouth,Man United,2024-04-13,-0.3333333333333333,0.3333333333333333,draw
+Liverpool,Crystal Palace,2024-04-14,0.0,0.6,away_win
+West Ham,Fulham,2024-04-14,2.0,0.6666666666666666,away_win
+Arsenal,Aston Villa,2024-04-14,0.2,0.8,away_win
+Chelsea,Everton,2024-04-15,0.4,0.2,home_win
+Wolves,Arsenal,2024-04-20,0.8,0.0,away_win
+Crystal Palace,West Ham,2024-04-21,-0.2,0.4,home_win
+Fulham,Liverpool,2024-04-21,0.6666666666666666,0.0,away_win
+Aston Villa,Bournemouth,2024-04-21,1.6666666666666667,0.3333333333333333,home_win
+Everton,Nott'm Forest,2024-04-21,-0.3333333333333333,0.3333333333333333,home_win
+Arsenal,Chelsea,2024-04-23,-0.6,0.6,home_win
+Wolves,Bournemouth,2024-04-24,-0.6666666666666666,0.3333333333333333,away_win
+Crystal Palace,Newcastle,2024-04-24,1.0,0.0,home_win
+Everton,Liverpool,2024-04-24,0.6,0.0,home_win
+Brighton,Man City,2024-04-25,0.6,0.0,away_win
+Man United,Burnley,2024-04-27,0.3333333333333333,0.6666666666666666,draw
+Fulham,Crystal Palace,2024-04-27,-1.0,0.3333333333333333,draw
+West Ham,Liverpool,2024-04-27,0.8,0.2,draw
+Aston Villa,Chelsea,2024-04-27,-0.8,0.4,draw
+Everton,Brentford,2024-04-27,-0.2,0.4,home_win
+Bournemouth,Brighton,2024-04-28,0.3333333333333333,0.0,home_win
+Tottenham,Arsenal,2024-04-28,1.0,0.2,away_win
+Nott'm Forest,Man City,2024-04-28,2.6666666666666665,0.0,away_win
+Chelsea,Tottenham,2024-05-02,-0.4,0.6,home_win
+Man City,Wolves,2024-05-04,-0.4,0.8,home_win
+Burnley,Newcastle,2024-05-04,0.6666666666666666,0.0,away_win
+Brentford,Fulham,2024-05-04,-0.3333333333333333,0.6666666666666666,draw
+Arsenal,Bournemouth,2024-05-04,-2.0,1.0,home_win
+Brighton,Aston Villa,2024-05-05,1.0,0.0,home_win
+Chelsea,West Ham,2024-05-05,1.0,0.4,home_win
+Liverpool,Tottenham,2024-05-05,0.2,0.4,home_win
+Crystal Palace,Man United,2024-05-06,0.4,0.4,home_win
+Bournemouth,Brentford,2024-05-11,0.6666666666666666,0.0,away_win
+Nott'm Forest,Chelsea,2024-05-11,-0.3333333333333333,0.3333333333333333,away_win
+Wolves,Crystal Palace,2024-05-11,0.8,0.2,away_win
+Newcastle,Brighton,2024-05-11,1.2,0.4,draw
+Fulham,Man City,2024-05-11,1.3333333333333333,0.0,away_win
+Tottenham,Burnley,2024-05-11,-0.3333333333333333,0.6666666666666666,home_win
+Man United,Arsenal,2024-05-12,1.6,0.4,away_win
+Aston Villa,Liverpool,2024-05-13,0.2,0.0,draw
+Tottenham,Man City,2024-05-14,0.6,0.6,away_win
+Brighton,Chelsea,2024-05-15,0.6,0.4,away_win
+Man United,Newcastle,2024-05-15,1.2,0.2,home_win
+Arsenal,Everton,2024-05-19,1.8,0.6,home_win
+Brentford,Newcastle,2024-05-19,0.4,0.0,away_win
+Man City,West Ham,2024-05-19,0.0,0.8,home_win
+Brighton,Man United,2024-05-19,0.8,0.8,away_win
+Chelsea,Bournemouth,2024-05-19,0.0,0.6666666666666666,home_win
+Liverpool,Wolves,2024-05-19,0.8,0.8,home_win
+Crystal Palace,Aston Villa,2024-05-19,0.8,0.2,home_win

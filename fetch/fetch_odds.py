@@ -1,61 +1,29 @@
-# fetch/fetch_odds.py
-
-import os
-import requests
 import pandas as pd
-from dotenv import load_dotenv
+import os
+from utils.team_name_map import normalize_team
 
-load_dotenv()
-API_KEY = os.getenv("ODDS_API_KEY")
-BASE_URL = "https://api.the-odds-api.com/v4/sports/soccer_epl/odds"
+def fetch_odds():
+    # Fake/mock odds data for example (replace with real API call if needed)
+    data = [
+        {"commence_time": "2025-04-12T11:30:00Z", "home_team": "Manchester City", "away_team": "Crystal Palace", "home_odds": 1.50, "away_odds": 5.50, "draw_odds": 4.33},
+        {"commence_time": "2025-04-12T14:00:00Z", "home_team": "Southampton", "away_team": "Aston Villa", "home_odds": 5.50, "away_odds": 1.53, "draw_odds": 4.20},
+        # Add more rows as needed...
+    ]
+    df = pd.DataFrame(data)
 
-def fetch_match_odds(region="uk", market="h2h"):
-    """Fetch head-to-head match odds from The Odds API"""
-    params = {
-        "apiKey": API_KEY,
-        "regions": region,
-        "markets": market,
-        "oddsFormat": "decimal"
-    }
+    # Normalize team names
+    df["home_team"] = df["home_team"].apply(normalize_team)
+    df["away_team"] = df["away_team"].apply(normalize_team)
 
-    response = requests.get(BASE_URL, params=params)
+    # Make sure directory exists
+    os.makedirs("data/raw", exist_ok=True)
 
-    if response.status_code != 200:
-        raise Exception(f"API Error: {response.status_code} - {response.text}")
+    # Save to CSV
+    df.to_csv("data/raw/odds.csv", index=False)
+    print("✅ Odds saved to data/raw/odds.csv")
 
-    matches = response.json()
-    odds_data = []
-
-    for match in matches:
-        if not match.get("bookmakers"):
-            continue
-
-        home = match["home_team"]
-        away = match["away_team"]
-        commence = match["commence_time"]
-
-        # We'll just use the first listed bookmaker
-        bookmaker = match["bookmakers"][0]
-        outcomes = bookmaker["markets"][0]["outcomes"]
-
-        odds_entry = {
-            "commence_time": commence,
-            "home_team": home,
-            "away_team": away
-        }
-
-        for outcome in outcomes:
-            if outcome["name"] == home:
-                odds_entry["home_odds"] = outcome["price"]
-            elif outcome["name"] == away:
-                odds_entry["away_odds"] = outcome["price"]
-            elif outcome["name"].lower() == "draw":
-                odds_entry["draw_odds"] = outcome["price"]
-
-        odds_data.append(odds_entry)
-
-    return pd.DataFrame(odds_data)
+    return df
 
 if __name__ == "__main__":
-    df = fetch_match_odds()
-    print(df)
+    odds_df = fetch_odds()
+    print(odds_df)

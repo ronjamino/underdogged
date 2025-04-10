@@ -1,0 +1,4 @@
+match_date,home_team,away_team,avg_goal_diff_h2h,h2h_home_winrate,predicted_result,predicted_proba,confidence_label,home_odds,away_odds,draw_odds
+2025-04-12 11:30:00+00:00,Man City,Crystal Palace,0.25,0.5,away_win,0.9244186507936508,0.92 (away_win),,,
+2025-04-12 14:00:00+00:00,Brighton,Leicester,1.3333333333333333,0.6666666666666666,home_win,0.835,0.83 (home_win),,,
+2025-04-13 13:00:00+00:00,Wolves,Tottenham,0.75,0.75,away_win,0.7131904761904763,0.71 (away_win),,,
