@@ -7,7 +7,7 @@ from utils.team_name_map import normalize_team
 
 MODEL_PATH = "models/random_forest_model.pkl"
 ODDS_PATH = "data/raw/odds.csv"
-CONFIDENCE_THRESHOLD = 0.5
+CONFIDENCE_THRESHOLD = 0.0
 
 LABELS = ["home_win", "draw", "away_win"]
 

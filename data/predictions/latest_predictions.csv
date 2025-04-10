@@ -1,4 +1,9 @@
 match_date,home_team,away_team,avg_goal_diff_h2h,h2h_home_winrate,predicted_result,predicted_proba,confidence_label,home_odds,away_odds,draw_odds
-2025-04-12 11:30:00+00:00,Man City,Crystal Palace,0.25,0.5,away_win,0.9244186507936508,0.92 (away_win),,,
-2025-04-12 14:00:00+00:00,Brighton,Leicester,1.3333333333333333,0.6666666666666666,home_win,0.835,0.83 (home_win),,,
-2025-04-13 13:00:00+00:00,Wolves,Tottenham,0.75,0.75,away_win,0.7131904761904763,0.71 (away_win),,,
+2025-04-13 13:00:00+00:00,Wolves,Tottenham,0.5,0.6666666666666666,home_win,0.8180584415584413,0.82 (home_win),,,
+2025-04-12 16:30:00+00:00,Arsenal,Brentford,0.6666666666666666,0.6666666666666666,home_win,0.6348095238095238,0.63 (home_win),,,
+2025-04-13 13:00:00+00:00,Liverpool,West Ham,0.6666666666666666,0.6666666666666666,home_win,0.6348095238095238,0.63 (home_win),,,
+2025-04-12 11:30:00+00:00,Man City,Crystal Palace,0.5,0.5,home_win,0.5065616834146245,0.51 (home_win),,,
+2025-04-14 19:00:00+00:00,Bournemouth,Fulham,0.5,0.5,home_win,0.5065616834146245,0.51 (home_win),,,
+2025-04-12 14:00:00+00:00,Southampton,Aston Villa,-1.25,0.25,home_win,0.4427142857142858,0.44 (home_win),5.5,1.53,4.2
+2025-04-13 15:30:00+00:00,Newcastle,Man United,-0.16666666666666666,0.3333333333333333,home_win,0.41772427409192114,0.42 (home_win),,,
+2025-04-12 14:00:00+00:00,Brighton,Leicester,1.0,0.5,away_win,0.3988270550828599,0.40 (away_win),,,

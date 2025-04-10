@@ -28,7 +28,7 @@ def fetch_historic_results(season_code):
     df["away_team"] = df["away_team"].apply(normalize_team)
 
     # Parse date column
-    df["date"] = pd.to_datetime(df["date"], errors="coerce", utc=True)
+    df["date"] = pd.to_datetime(df["date"], format="%d/%m/%Y", errors="coerce", utc=True)
 
     # Drop rows missing required values
     df = df.dropna(subset=["date", "home_team", "away_team", "home_goals", "away_goals"])

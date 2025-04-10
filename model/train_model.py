@@ -11,9 +11,32 @@ def train_model():
     # Load your features
     df = pd.read_csv("data/processed/training_data.csv")
 
+    # Drop rows where 'result' is NaN and check if there are still NaN values
+    df = df.dropna(subset=['result'])
+
+    # Check for any NaN values in the dataframe after dropping 'result' NaNs
+    if df.isna().sum().any():
+        print("⚠️ There are still NaN values in the dataset after cleaning!")
+        print(df.isna().sum())
+        return
+
     # Select input features and target
     X = df[["avg_goal_diff_h2h", "h2h_home_winrate"]]
-    y = df["label"]
+    y = df["result"]
+
+    # Map shorthand values to full labels
+    result_map = {"A": "away_win", "H": "home_win", "D": "draw"}
+    y = y.map(result_map)
+
+    # Check if there are any NaN values after mapping
+    if y.isna().sum() > 0:
+        print(f"⚠️ There are {y.isna().sum()} NaN values after mapping the result column.")
+        print("🚨 Rows with NaN in result after mapping:")
+        print(y[y.isna()])
+
+        # Optionally, drop the NaN values or handle them as needed
+        df = df.dropna(subset=["result"])
+        y = df["result"].map(result_map)
 
     # Encode target labels as numbers
     label_map = {"home_win": 0, "draw": 1, "away_win": 2}
