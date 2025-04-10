@@ -7,7 +7,7 @@ from utils.team_name_map import normalize_team
 
 MODEL_PATH = "models/random_forest_model.pkl"
 ODDS_PATH = "data/raw/odds.csv"
-CONFIDENCE_THRESHOLD = 0.6
+CONFIDENCE_THRESHOLD = 0.5
 
 LABELS = ["home_win", "draw", "away_win"]
 
@@ -42,11 +42,11 @@ def build_prediction_features(fixtures, history):
         for _, match in h2h.iterrows():
             if match["home_team"] == home:
                 goal_diffs.append(match["home_goals"] - match["away_goals"])
-                if match["label"] == "home_win":
+                if match["result"] == "H":
                     home_wins += 1
             else:
                 goal_diffs.append(match["away_goals"] - match["home_goals"])
-                if match["label"] == "away_win":
+                if match["result"] == "A":
                     home_wins += 1
 
         features.append({

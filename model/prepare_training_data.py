@@ -1,5 +1,3 @@
-# model/prepare_training_data.py
-
 import pandas as pd
 from fetch.fetch_historic_results import fetch_historic_results
 from fetch.fetch_historic_results import fetch_historic_results_multi
@@ -11,7 +9,7 @@ def build_features(df, h2h_window=5):
     df = df.sort_values("date")
 
     # Create result as 1 (home win), 0 (draw), -1 (away win)
-    df["outcome_code"] = df["label"].map({"home_win": 1, "draw": 0, "away_win": -1})
+    df["outcome_code"] = df["result"].map({"H": 1, "D": 0, "A": -1})
 
     feature_rows = []
 
@@ -52,7 +50,7 @@ def build_features(df, h2h_window=5):
             "match_date": current_date,
             "avg_goal_diff_h2h": avg_goal_diff,
             "h2h_home_winrate": h2h_winrate,
-            "label": row["label"]
+            "result": row["result"]  # Replace 'label' with 'result'
         })
 
     return pd.DataFrame(feature_rows)
