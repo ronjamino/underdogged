@@ -6,7 +6,6 @@ from fetch.fetch_historic_results import fetch_historic_results_multi
 from utils.team_name_map import normalize_team
 
 MODEL_PATH = "models/random_forest_model.pkl"
-ODDS_PATH = "data/raw/odds.csv"
 CONFIDENCE_THRESHOLD = 0.0
 
 LABELS = ["home_win", "draw", "away_win"]
@@ -49,12 +48,25 @@ def build_prediction_features(fixtures, history):
                 if match["result"] == "A":
                     home_wins += 1
 
+        # Calculate recent form for the home and away teams
+        home_form = history[(history["home_team"] == home) | (history["away_team"] == home)]
+        away_form = history[(history["home_team"] == away) | (history["away_team"] == away)]
+
+        # Select last 10 games for form calculation
+        home_form = home_form.sort_values("date").tail(10)
+        away_form = away_form.sort_values("date").tail(10)
+
+        home_form_winrate = home_form[home_form["result"] == "H"].shape[0] / len(home_form)
+        away_form_winrate = away_form[away_form["result"] == "A"].shape[0] / len(away_form)
+
         features.append({
             "match_date": fixture_date,
             "home_team": home,
             "away_team": away,
             "avg_goal_diff_h2h": sum(goal_diffs) / len(goal_diffs),
-            "h2h_home_winrate": home_wins / len(h2h)
+            "h2h_home_winrate": home_wins / len(h2h),
+            "home_form_winrate": home_form_winrate,
+            "away_form_winrate": away_form_winrate
         })
 
     return pd.DataFrame(features)
@@ -75,7 +87,11 @@ def predict_fixtures():
         print("😕 No fixtures with sufficient H2H data to predict.")
         return
 
-    X = features_df[["avg_goal_diff_h2h", "h2h_home_winrate"]]
+    # Update the feature set to include the new form-based features
+    X = features_df[[
+        "avg_goal_diff_h2h", "h2h_home_winrate", "home_form_winrate", "away_form_winrate"
+    ]]
+    
     predicted_classes = model.predict(X)
     predicted_probas = model.predict_proba(X)
 
@@ -95,24 +111,9 @@ def predict_fixtures():
         print("\n🎯 Confident Predictions (sorted by confidence):")
         print(confident_preds[["match_date", "home_team", "away_team", "predicted_result", "confidence_label"]])
 
-    # Merge odds if available
-    if os.path.exists(ODDS_PATH):
-        odds_df = pd.read_csv(ODDS_PATH)
-        odds_df["home_team"] = odds_df["home_team"].apply(normalize_team)
-        odds_df["away_team"] = odds_df["away_team"].apply(normalize_team)
-
         # Normalize datetimes to the same format
         confident_preds["match_date"] = pd.to_datetime(confident_preds["match_date"]).dt.floor("min")
-        odds_df["commence_time"] = pd.to_datetime(odds_df["commence_time"]).dt.floor("min")
 
-        merged = confident_preds.merge(
-            odds_df,
-            left_on=["match_date", "home_team", "away_team"],
-            right_on=["commence_time", "home_team", "away_team"],
-            how="left"
-        ).drop(columns=["commence_time"])
-    else:
-        print("⚠️ Odds file not found — skipping odds merge.")
         merged = confident_preds
 
     os.makedirs("data/predictions", exist_ok=True)

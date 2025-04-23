@@ -1,9 +1,9 @@
-match_date,home_team,away_team,avg_goal_diff_h2h,h2h_home_winrate,predicted_result,predicted_proba,confidence_label,home_odds,away_odds,draw_odds
-2025-04-13 13:00:00+00:00,Wolves,Tottenham,0.5,0.6666666666666666,home_win,0.8180584415584413,0.82 (home_win),,,
-2025-04-12 16:30:00+00:00,Arsenal,Brentford,0.6666666666666666,0.6666666666666666,home_win,0.6348095238095238,0.63 (home_win),,,
-2025-04-13 13:00:00+00:00,Liverpool,West Ham,0.6666666666666666,0.6666666666666666,home_win,0.6348095238095238,0.63 (home_win),,,
-2025-04-12 11:30:00+00:00,Man City,Crystal Palace,0.5,0.5,home_win,0.5065616834146245,0.51 (home_win),,,
-2025-04-14 19:00:00+00:00,Bournemouth,Fulham,0.5,0.5,home_win,0.5065616834146245,0.51 (home_win),,,
-2025-04-12 14:00:00+00:00,Southampton,Aston Villa,-1.25,0.25,home_win,0.4427142857142858,0.44 (home_win),5.5,1.53,4.2
-2025-04-13 15:30:00+00:00,Newcastle,Man United,-0.16666666666666666,0.3333333333333333,home_win,0.41772427409192114,0.42 (home_win),,,
-2025-04-12 14:00:00+00:00,Brighton,Leicester,1.0,0.5,away_win,0.3988270550828599,0.40 (away_win),,,
+match_date,home_team,away_team,avg_goal_diff_h2h,h2h_home_winrate,home_form_winrate,away_form_winrate,predicted_result,predicted_proba,confidence_label
+2025-04-26 14:00:00+00:00,Brighton,West Ham,1.0,0.5,0.3,0.2,away_win,0.77,0.77 (away_win)
+2025-04-20 13:00:00+00:00,Fulham,Chelsea,-0.5,0.25,0.2,0.2,away_win,0.6,0.60 (away_win)
+2025-04-19 16:30:00+00:00,Aston Villa,Newcastle,-1.0,0.3333333333333333,0.5,0.3,draw,0.53,0.53 (draw)
+2025-04-20 15:30:00+00:00,Leicester,Liverpool,-1.25,0.25,0.4,0.2,home_win,0.47,0.47 (home_win)
+2025-04-23 19:00:00+00:00,Arsenal,Crystal Palace,1.3333333333333333,0.6666666666666666,0.4,0.3,away_win,0.47,0.47 (away_win)
+2025-04-22 19:00:00+00:00,Man City,Aston Villa,1.0,0.6666666666666666,0.4,0.1,home_win,0.47,0.47 (home_win)
+2025-04-26 11:30:00+00:00,Chelsea,Everton,0.6666666666666666,0.3333333333333333,0.6,0.0,draw,0.42,0.42 (draw)
+2025-04-20 13:00:00+00:00,Man United,Wolves,0.8333333333333334,0.8333333333333334,0.4,0.4,draw,0.3666666666666667,0.37 (draw)

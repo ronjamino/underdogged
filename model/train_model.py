@@ -1,5 +1,3 @@
-# model/train_model.py
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -20,8 +18,8 @@ def train_model():
         print(df.isna().sum())
         return
 
-    # Select input features and target
-    X = df[["avg_goal_diff_h2h", "h2h_home_winrate"]]
+    # Select input features and target, including the new form-based features
+    X = df[["avg_goal_diff_h2h", "h2h_home_winrate", "home_form_winrate", "away_form_winrate"]]
     y = df["result"]
 
     # Map shorthand values to full labels

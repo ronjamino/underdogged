@@ -62,6 +62,30 @@ def fetch_historic_results_multi():
 
     return pd.concat(dfs).sort_values("date").reset_index(drop=True)
 
-if __name__ == "__main__":
+def calculate_form(team, df, num_games=5):
+    """Calculate the team's form over the last N matches."""
+    # Filter the results for the specific team
+    team_results_home = df[df['home_team'] == team].tail(num_games)
+    team_results_away = df[df['away_team'] == team].tail(num_games)
+
+    # Combine home and away results for the team
+    team_results = pd.concat([team_results_home, team_results_away])
+
+    # Calculate the form as total points in last N games
+    points_map = {'H': 3, 'A': 0, 'D': 1}
+    team_results["points"] = team_results["result"].map(points_map)
+    
+    return team_results["points"].sum()
+
+def get_team_form_for_prediction(home_team, away_team, num_games=5):
+    """Fetch current form for home and away teams."""
     df = fetch_historic_results_multi()
-    print(df.head())
+    home_form = calculate_form(home_team, df, num_games)
+    away_form = calculate_form(away_team, df, num_games)
+    return home_form, away_form
+
+# Example: Fetch form for a match
+if __name__ == "__main__":
+    home_form, away_form = get_team_form_for_prediction('Tottenham Hotspur', 'Chelsea')
+    print(f"Tottenham Hotspur form: {home_form} points")
+    print(f"Chelsea form: {away_form} points")

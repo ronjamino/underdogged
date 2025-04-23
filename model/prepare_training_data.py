@@ -1,10 +1,9 @@
 import pandas as pd
-from fetch.fetch_historic_results import fetch_historic_results
-from fetch.fetch_historic_results import fetch_historic_results_multi
+from fetch.fetch_historic_results import fetch_historic_results_multi, get_team_form_for_prediction
 
-def build_features(df, h2h_window=5):
+def build_features(df, h2h_window=5, form_window=10):
     """
-    Generate features from historic match results including head-to-head form.
+    Generate features from historic match results including head-to-head form and recent team form.
     """
     df = df.sort_values("date")
 
@@ -18,18 +17,25 @@ def build_features(df, h2h_window=5):
         home = row["home_team"]
         away = row["away_team"]
 
-        # Slice only past matches
+        # Slice only past matches up to the current match date
         past_matches = df[df["date"] < current_date]
 
-        # Head-to-head history
+        # Limit to last 10 matches for each team
+        home_past_matches = past_matches[past_matches["home_team"] == home].tail(form_window)
+        away_past_matches = past_matches[past_matches["away_team"] == away].tail(form_window)
+
+        # Combine home and away matches to get the last 10 matches for each team
+        recent_form = pd.concat([home_past_matches, away_past_matches])
+
+        # Head-to-head history (limiting to the last h2h_window matches)
         h2h = past_matches[
             ((past_matches["home_team"] == home) & (past_matches["away_team"] == away)) |
             ((past_matches["home_team"] == away) & (past_matches["away_team"] == home))
         ].tail(h2h_window)
 
-        # if len(h2h) < h2h_window: # Uncomment this line to enforce a minimum number of H2H matches
+        # If not enough H2H history, skip this row
         if len(h2h) < 2:
-            continue  # skip if not enough H2H history
+            continue
 
         # Feature: average goal difference in past H2H
         h2h["goal_diff"] = h2h["home_goals"] - h2h["away_goals"]
@@ -44,16 +50,31 @@ def build_features(df, h2h_window=5):
                 home_wins += 1
         h2h_winrate = home_wins / len(h2h)
 
+        # Feature: form-based win rate for home and away team in their last 10 games
+        home_form = recent_form[recent_form["home_team"] == home]
+        away_form = recent_form[recent_form["away_team"] == away]
+
+        # Calculate home team's win rate in their last 10 games
+        home_form_wins = home_form[home_form["result"] == "H"].shape[0]
+        home_form_winrate = home_form_wins / len(home_form) if len(home_form) > 0 else 0
+
+        # Calculate away team's win rate in their last 10 games
+        away_form_wins = away_form[away_form["result"] == "A"].shape[0]
+        away_form_winrate = away_form_wins / len(away_form) if len(away_form) > 0 else 0
+
         feature_rows.append({
             "home_team": home,
             "away_team": away,
             "match_date": current_date,
             "avg_goal_diff_h2h": avg_goal_diff,
             "h2h_home_winrate": h2h_winrate,
+            "home_form_winrate": home_form_winrate,
+            "away_form_winrate": away_form_winrate,
             "result": row["result"]  # Replace 'label' with 'result'
         })
 
     return pd.DataFrame(feature_rows)
+
 
 if __name__ == "__main__":
     print("📊 Building feature matrix from historic results...")

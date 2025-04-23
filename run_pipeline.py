@@ -2,7 +2,6 @@ import subprocess
 
 steps = [
     ("📅 Fetching upcoming fixtures", "fetch/fetch_fixtures.py"),
-    ("💸 Fetching latest odds", "fetch/fetch_odds.py"),
     ("🧱 Preparing training data", "model/prepare_training_data.py"),
     ("🧠 Training model", "model/train_model.py"),
     ("🎯 Generating predictions", "predict/predict_fixtures.py"),
