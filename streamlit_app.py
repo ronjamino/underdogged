@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import subprocess 
 
 st.set_page_config(layout="wide")
 
@@ -21,6 +22,17 @@ st.title("⚽ Underdogged: Football Match Predictions")
 st.sidebar.header("Filters")
 min_confidence = st.sidebar.slider("Minimum model confidence", 0.0, 1.0, 0.6, 0.01)
 team_filter = st.sidebar.text_input("Filter by team name (optional)").lower()
+
+# Sidebar Refresh Button
+if st.button("🔁 Refresh Predictions"):
+    with st.spinner("Running model pipeline and refreshing predictions..."):
+        try:
+            subprocess.run(["python", "-m", "run_pipeline"], check=True)
+            st.success("Predictions updated successfully!")
+            st.cache_data.clear()
+            df = load_predictions()  # Force reload right after clearing cache
+        except subprocess.CalledProcessError:
+            st.error("There was an error running the prediction pipeline.")
 
 # Load data
 df = load_predictions()

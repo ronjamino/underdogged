@@ -1,15 +1,15 @@
 import subprocess
 
 steps = [
-    ("📅 Fetching upcoming fixtures", "fetch/fetch_fixtures.py"),
-    ("🧱 Preparing training data", "model/prepare_training_data.py"),
-    ("🧠 Training model", "model/train_model.py"),
-    ("🎯 Generating predictions", "predict/predict_fixtures.py"),
+    ("📅 Fetching upcoming fixtures", "fetch.fetch_fixtures"),
+    ("🧱 Preparing training data", "model.prepare_training_data"),
+    ("🧠 Training model", "model.train_model"),
+    ("🎯 Generating predictions", "predict.predict_fixtures"),
 ]
 
-def run_step(description, script):
+def run_step(description, module_name):
     print(f"\n{description}...")
-    result = subprocess.run(["python", script], capture_output=True, text=True)
+    result = subprocess.run(["python", "-m", module_name], capture_output=True, text=True)
     print(result.stdout)
     if result.stderr:
         print("⚠️ STDERR:")
