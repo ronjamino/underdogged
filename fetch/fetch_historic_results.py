@@ -3,6 +3,8 @@ from utils.team_name_map import normalize_team
 
 # Mapping of seasons to their CSV URLs
 SEASON_URLS = {
+    "2526": "https://www.football-data.co.uk/mmz4281/2526/E0.csv",
+    "2425": "https://www.football-data.co.uk/mmz4281/2425/E0.csv",
     "2324": "https://www.football-data.co.uk/mmz4281/2324/E0.csv",
     "2223": "https://www.football-data.co.uk/mmz4281/2223/E0.csv",
     "2122": "https://www.football-data.co.uk/mmz4281/2122/E0.csv",
