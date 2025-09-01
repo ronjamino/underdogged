@@ -1,66 +1,119 @@
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-import joblib
 import os
+import joblib
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.neural_network import MLPClassifier
+
+try:
+    from xgboost import XGBClassifier
+except ImportError as e:
+    raise RuntimeError(
+        "xgboost is not installed. Run:\n\n  pip install xgboost\n"
+    ) from e
+
+
+FEATURES = ["avg_goal_diff_h2h", "h2h_home_winrate", "home_form_winrate", "away_form_winrate"]
+RESULT_MAP = {"A": "away_win", "H": "home_win", "D": "draw"}
+LABEL_MAP  = {"home_win": 0, "draw": 1, "away_win": 2}
+
+
+def _load_training_data(path: str) -> pd.DataFrame:
+    df = pd.read_csv(path)
+    df = df.dropna(subset=["result"])
+    # basic sanity: ensure features are present
+    missing = [f for f in FEATURES if f not in df.columns]
+    if missing:
+        raise ValueError(f"Training data missing features: {missing}")
+    if df.isna().sum().any():
+        # be strict so we don't propagate NaNs into training
+        print("⚠️ NaNs detected after cleaning; printing per-column counts:")
+        print(df.isna().sum())
+        df = df.dropna()
+    return df
+
 
 def train_model():
-    # Load your features
-    df = pd.read_csv("data/processed/training_data.csv")
+    # Load data
+    df = _load_training_data("data/processed/training_data.csv")
 
-    # Drop rows where 'result' is NaN and check if there are still NaN values
-    df = df.dropna(subset=['result'])
+    # X / y
+    X = df[FEATURES]
+    y = df["result"].map(RESULT_MAP)
+    if y.isna().any():
+        bad = df[y.isna()]
+        raise ValueError(f"Unmappable result labels found in rows:\n{bad[['result']].head()}")
 
-    # Check for any NaN values in the dataframe after dropping 'result' NaNs
-    if df.isna().sum().any():
-        print("⚠️ There are still NaN values in the dataset after cleaning!")
-        print(df.isna().sum())
-        return
+    y_encoded = y.map(LABEL_MAP)
 
-    # Select input features and target, including the new form-based features
-    X = df[["avg_goal_diff_h2h", "h2h_home_winrate", "home_form_winrate", "away_form_winrate"]]
-    y = df["result"]
-
-    # Map shorthand values to full labels
-    result_map = {"A": "away_win", "H": "home_win", "D": "draw"}
-    y = y.map(result_map)
-
-    # Check if there are any NaN values after mapping
-    if y.isna().sum() > 0:
-        print(f"⚠️ There are {y.isna().sum()} NaN values after mapping the result column.")
-        print("🚨 Rows with NaN in result after mapping:")
-        print(y[y.isna()])
-
-        # Optionally, drop the NaN values or handle them as needed
-        df = df.dropna(subset=["result"])
-        y = df["result"].map(result_map)
-
-    # Encode target labels as numbers
-    label_map = {"home_win": 0, "draw": 1, "away_win": 2}
-    y_encoded = y.map(label_map)
-
-    # Train/test split
+    # Split
     X_train, X_test, y_train, y_test = train_test_split(
         X, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded
     )
 
-    # Train baseline model
-    clf = RandomForestClassifier(n_estimators=100, random_state=42)
-    clf.fit(X_train, y_train)
+    # === Base models ===
+    rf = RandomForestClassifier(n_estimators=250, random_state=42, n_jobs=-1)
+
+    xgb = XGBClassifier(
+        n_estimators=300,
+        learning_rate=0.05,
+        max_depth=4,
+        subsample=0.9,
+        colsample_bytree=0.9,
+        reg_lambda=1.0,
+        objective="multi:softprob",
+        eval_metric="mlogloss",
+        tree_method="hist",
+        random_state=42,
+        num_class=3,
+    )
+
+    nn = MLPClassifier(
+        hidden_layer_sizes=(64, 32),
+        activation="relu",
+        alpha=1e-4,
+        learning_rate_init=1e-3,
+        max_iter=500,
+        random_state=42
+    )
+
+    # 👉 Build the list here
+    estimators = [("rf", rf), ("xgb", xgb), ("nn", nn)]
+
+    # 👉 Now you can log it
+    print("👥 Ensemble members:", [name for name, _ in estimators])
+
+    # === Soft-voting ensemble ===
+    ensemble = VotingClassifier(
+        estimators=estimators,
+        voting="soft",
+        flatten_transform=True
+    )
+
+    # Train
+    ensemble.fit(X_train, y_train)
 
     # Evaluate
-    y_pred = clf.predict(X_test)
-    print("📊 Classification Report:")
-    print(classification_report(y_test, y_pred, target_names=label_map.keys()))
+    y_pred = ensemble.predict(X_test)
+    print("📊 Classification Report (Ensemble):")
+    print(classification_report(y_test, y_pred, target_names=LABEL_MAP.keys()))
 
-    print("🧮 Confusion Matrix:")
+    print("🧮 Confusion Matrix (Ensemble):")
     print(confusion_matrix(y_test, y_pred))
 
-    # Save model to disk
+    # Persist
     os.makedirs("models", exist_ok=True)
-    joblib.dump(clf, "models/random_forest_model.pkl")
-    print("✅ Model saved to models/random_forest_model.pkl")
+    joblib.dump(ensemble, "models/ensemble_model.pkl")
+    print("✅ Ensemble model saved to models/ensemble_model.pkl")
+
+    # (Optional) also save base learners for later analysis
+    joblib.dump(rf,  "models/rf_model.pkl")
+    joblib.dump(xgb, "models/xgb_model.pkl")
+    joblib.dump(nn,  "models/mlp_model.pkl")
+    print("ℹ️ Base learners also saved (rf/xgb/mlp).")
+
 
 if __name__ == "__main__":
     train_model()

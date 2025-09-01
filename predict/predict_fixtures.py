@@ -5,7 +5,7 @@ from fetch.fetch_fixtures import fetch_upcoming_fixtures
 from fetch.fetch_historic_results import fetch_historic_results_multi
 from utils.team_name_map import normalize_team
 
-MODEL_PATH = "models/random_forest_model.pkl"
+MODEL_PATH = "models/ensemble_model.pkl"
 
 # Class label order used by the model
 LABELS = ["home_win", "draw", "away_win"]
