@@ -1,113 +1,155 @@
 import os
+import time
 import requests
 import pandas as pd
 from dotenv import load_dotenv
+from utils.league_utils import _canon, LEAGUE_ALIASES
 
 load_dotenv()
 
 API_KEY = os.getenv("FOOTBALL_DATA_API_KEY")
 BASE_URL = "https://api.football-data.org/v4"
+HEADERS = {"X-Auth-Token": API_KEY}
 
-HEADERS = {
-    "X-Auth-Token": API_KEY
-}
-
-# League code mapping
+# League codes we care about
 LEAGUE_CODES = {
+    # English
     "PL": "Premier League",
-    "ELC": "Championship",  # English League Championship 
-    "EL1": "League One",    # Will add these later
-    "EL2": "League Two"     # Will add these later
+    "ELC": "Championship",
+    # European top leagues
+    "BL1": "Bundesliga",
+    "SA": "Serie A",
+    "PD": "La Liga",
+    # Optional: extend here
+    "FL1": "Ligue 1",
+    "PPL": "Primeira Liga",
+    "DED": "Eredivisie",
 }
 
-def fetch_upcoming_fixtures(league_codes=None, limit=10):
+def get_accessible_competitions():
     """
-    Fetch upcoming fixtures for given league codes.
-    
+    Hit /competitions to see which league codes your API key can actually access.
+    Returns a set of codes like {"PL","BL1","PD"}.
+    """
+    resp = requests.get(f"{BASE_URL}/competitions", headers=HEADERS)
+    resp.raise_for_status()
+    comps = resp.json().get("competitions", [])
+    return {c.get("code") for c in comps if c.get("code")}
+
+ACCESSIBLE = get_accessible_competitions()
+
+def safe_get(url, max_retries=2):
+    """
+    Wrapper for API calls with backoff on 429 rate limits.
+    """
+    for attempt in range(max_retries):
+        resp = requests.get(url, headers=HEADERS)
+        if resp.status_code == 429 and attempt < max_retries - 1:
+            wait = 30 * (attempt + 1)
+            print(f"⚠️ 429 rate limit. Waiting {wait}s…")
+            time.sleep(wait)
+            continue
+        resp.raise_for_status()
+        return resp
+    return None
+
+def fetch_upcoming_fixtures(league_codes=None, limit=10, date_from=None, date_to=None):
+    """
+    Fetch scheduled fixtures for one or more league codes.
+
     Args:
-        league_codes: List of league codes (e.g., ["PL", "ELC"]) or single code
-        limit: Max fixtures per league
+        league_codes: list or str of league codes ("PL","BL1",etc.)
+        limit: max fixtures per league
+        date_from/date_to: optional YYYY-MM-DD filters
     """
     if league_codes is None:
-        league_codes = ["PL"]  # Default to Premier League only
+        league_codes = ["PL"]
     elif isinstance(league_codes, str):
-        league_codes = [league_codes]  # Convert single string to list
-    
-    all_fixtures = []
-    
-    for league_code in league_codes:
-        try:
-            url = f"{BASE_URL}/competitions/{league_code}/matches?status=SCHEDULED"
-            response = requests.get(url, headers=HEADERS)
+        league_codes = [league_codes]
 
-            if response.status_code != 200:
-                print(f"⚠️ API Error for {league_code}: {response.status_code} - {response.text}")
-                continue
+    # Filter down to what the API key can see
+    filtered = [c for c in league_codes if c in ACCESSIBLE]
+    missing = [c for c in league_codes if c not in ACCESSIBLE]
+    if missing:
+        print(f"⚠️ Not accessible with this key: {', '.join(missing)}")
 
-            matches = response.json().get("matches", [])[:limit]
-            league_fixtures = []
+    qs = ["status=SCHEDULED"]
+    if date_from:
+        qs.append(f"dateFrom={date_from}")
+    if date_to:
+        qs.append(f"dateTo={date_to}")
+    query = "&".join(qs)
 
-            for match in matches:
-                league_fixtures.append({
-                    "utc_date": match["utcDate"],
-                    "home_team": match["homeTeam"]["name"], 
-                    "away_team": match["awayTeam"]["name"],
-                    "matchday": match.get("matchday"),
-                    "competition": match.get("competition", {}).get("name", league_code),
-                    "league_code": league_code,
-                    "league_name": LEAGUE_CODES.get(league_code, league_code)
-                })
-            
-            all_fixtures.extend(league_fixtures)
-            print(f"✅ Fetched {len(league_fixtures)} fixtures from {LEAGUE_CODES.get(league_code, league_code)}")
-            
-        except Exception as e:
-            print(f"⚠️ Error fetching {league_code} fixtures: {e}")
+    fixtures = []
+    for code in filtered:
+        url = f"{BASE_URL}/competitions/{code}/matches?{query}"
+        resp = safe_get(url)
+        if not resp:
+            print(f"❌ Skipped {code} due to repeated errors")
             continue
-    
-    df = pd.DataFrame(all_fixtures)
+
+        matches = resp.json().get("matches", [])[:limit]
+        for m in matches:
+            fixtures.append({
+                "utc_date": m["utcDate"],
+                "home_team": m["homeTeam"]["name"],
+                "away_team": m["awayTeam"]["name"],
+                "matchday": m.get("matchday"),
+                "league_code": code,
+                "league_name": LEAGUE_CODES.get(code, code),
+            })
+
+        print(f"✅ {len(matches)} fixtures from {LEAGUE_CODES.get(code, code)}")
+
+    df = pd.DataFrame(fixtures)
     if not df.empty:
-        print(f"📊 Total fixtures: {len(df)} across {df['league_code'].nunique()} leagues")
-    
+        print(f"📊 Total: {len(df)} fixtures across {df['league_code'].nunique()} leagues")
+    else:
+        print("ℹ️ No fixtures found (maybe widen dateFrom/dateTo).")
     return df
 
+# after building df from API
+def map_league_column(df):
+    if "league_code" in df.columns:
+        df["league"] = df["league_code"].map(_canon)
+    elif "league" in df.columns:
+        df["league"] = df["league"].map(_canon)
+    else:
+        df["league"] = "UNKNOWN"
+    return df
+
+# Convenience wrappers
 def fetch_fixtures_premier_league(limit=10):
-    """Convenience function for Premier League only (backward compatibility)"""
-    return fetch_upcoming_fixtures(["PL"], limit)
+    return fetch_upcoming_fixtures("PL", limit)
 
-def fetch_fixtures_championship(limit=10): 
-    """Convenience function for Championship only"""
-    return fetch_upcoming_fixtures(["ELC"], limit)
+def fetch_fixtures_championship(limit=10):
+    return fetch_upcoming_fixtures("ELC", limit)
 
-def fetch_fixtures_both_top_divisions(limit=10):
-    """Fetch from both Premier League and Championship"""
+def fetch_fixtures_bundesliga(limit=10):
+    return fetch_upcoming_fixtures("BL1", limit)
+
+def fetch_fixtures_serie_a(limit=10):
+    return fetch_upcoming_fixtures("SA", limit)
+
+def fetch_fixtures_la_liga(limit=10):
+    return fetch_upcoming_fixtures("PD", limit)
+
+def fetch_fixtures_top_5(limit=10):
+    return fetch_upcoming_fixtures(["PL", "BL1", "SA", "PD", "FL1"], limit)
+
+def fetch_fixtures_all_english(limit=10):
     return fetch_upcoming_fixtures(["PL", "ELC"], limit)
 
-# Keep old function name for backward compatibility
-fetch_fixtures = fetch_upcoming_fixtures
+def fetch_fixtures_all_european(limit=10):
+    return fetch_upcoming_fixtures(["BL1", "SA", "PD", "FL1", "PPL", "DED"], limit)
+
+def fetch_fixtures_mega_combo(limit=10):
+    return fetch_upcoming_fixtures(list(LEAGUE_CODES.keys()), limit)
 
 if __name__ == "__main__":
-    print("Testing multi-league fixture fetching...\n")
-    
-    # Test Premier League only
-    print("1. Premier League fixtures:")
-    pl_fixtures = fetch_fixtures_premier_league(5)
-    if not pl_fixtures.empty:
-        print(pl_fixtures[["home_team", "away_team", "league_name"]].head())
-    
-    print("\n" + "="*50 + "\n")
-    
-    # Test Championship only  
-    print("2. Championship fixtures:")
-    champ_fixtures = fetch_fixtures_championship(5)
-    if not champ_fixtures.empty:
-        print(champ_fixtures[["home_team", "away_team", "league_name"]].head())
-    
-    print("\n" + "="*50 + "\n")
-    
-    # Test both together
-    print("3. Both leagues combined:")
-    both_fixtures = fetch_fixtures_both_top_divisions(5)
-    if not both_fixtures.empty:
-        print(both_fixtures[["home_team", "away_team", "league_name"]])
-        print(f"\nLeague breakdown: {dict(both_fixtures['league_code'].value_counts())}")
+    print("📅 Demo run: Premier League + Euro top 3")
+    df = fetch_upcoming_fixtures(["PL", "BL1", "SA", "PD"], limit=5)
+    df = map_league_column(df)
+    if not df.empty:
+        for _, row in df.iterrows():
+            print(f"• {row['home_team']} vs {row['away_team']} ({row['league_name']})")
