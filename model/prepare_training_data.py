@@ -3,17 +3,10 @@ from fetch.fetch_historic_results import fetch_historic_results_multi
 
 def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
     """
-    Generate features from historic match results including head-to-head form and recent team form.
-    
-    Args:
-        df: Historic match results dataframe
-        h2h_window: Number of previous H2H matches to consider
-        form_window: Number of recent matches for form calculation  
-        separate_by_league: If True, only consider matches within same league for H2H and form
+    Generate features from historic match results including head-to-head form,
+    recent venue-aware form, and venue-aware goals per match.
     """
     df = df.sort_values("date")
-
-    # Create result as 1 (home win), 0 (draw), -1 (away win)
     df["outcome_code"] = df["result"].map({"H": 1, "D": 0, "A": -1})
 
     feature_rows = []
@@ -24,52 +17,62 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
         away = row["away_team"]
         league = row.get("league", "UNKNOWN")
 
-        # Slice only past matches up to the current match date
+        # Only consider matches strictly before this match
         past_matches = df[df["date"] < current_date]
-        
-        # If separating by league, only consider matches in the same league
+
+        # Optionally restrict to same league
         if separate_by_league and league != "UNKNOWN":
             past_matches = past_matches[past_matches["league"] == league]
 
-        # Head-to-head history (limiting to the last h2h_window matches)
+        # --- H2H ---
         h2h = past_matches[
             ((past_matches["home_team"] == home) & (past_matches["away_team"] == away)) |
             ((past_matches["home_team"] == away) & (past_matches["away_team"] == home))
         ].tail(h2h_window)
 
-        # If not enough H2H history, skip this row
+        # If not enough H2H, you currently skip; keep behavior (or replace with neutral priors if you prefer)
         if len(h2h) < 2:
-            continue
+            avg_goal_diff = 0.0
+            h2h_winrate = 0.5
+        else:
+            goal_diffs, home_wins = [], 0
+            for _, match in h2h.iterrows():
+                if match["home_team"] == home:
+                    goal_diffs.append(match["home_goals"] - match["away_goals"])
+                    if match["result"] == "H":
+                        home_wins += 1
+                else:
+                    goal_diffs.append(match["away_goals"] - match["home_goals"])
+                    if match["result"] == "A":
+                        home_wins += 1
 
-        # Feature: average goal difference in past H2H (from home team's perspective)
-        goal_diffs = []
-        home_wins = 0
-        
-        for _, match in h2h.iterrows():
-            if match["home_team"] == home:
-                # Home team is playing at home in this H2H match
-                goal_diffs.append(match["home_goals"] - match["away_goals"])
-                if match["result"] == "H":
-                    home_wins += 1
-            else:
-                # Home team is playing away in this H2H match  
-                goal_diffs.append(match["away_goals"] - match["home_goals"])
-                if match["result"] == "A":
-                    home_wins += 1
-        
-        avg_goal_diff = sum(goal_diffs) / len(goal_diffs) if goal_diffs else 0
-        h2h_winrate = home_wins / len(h2h) if len(h2h) else 0.5
+            avg_goal_diff = sum(goal_diffs) / len(goal_diffs) if goal_diffs else 0.0
+            h2h_winrate = home_wins / len(h2h) if len(h2h) else 0.5
 
-        # Feature: form-based win rate for home and away team in their last N games
-        # Home team recent form (when playing at home)
-        home_recent = past_matches[past_matches["home_team"] == home].tail(form_window)
-        home_form_wins = len(home_recent[home_recent["result"] == "H"])
-        home_form_winrate = home_form_wins / len(home_recent) if len(home_recent) > 0 else 0.5
+        # --- Venue-aware form (last N at same venue) ---
+        home_recent = past_matches[past_matches["home_team"] == home].sort_values("date").tail(form_window)
+        away_recent = past_matches[past_matches["away_team"] == away].sort_values("date").tail(form_window)
 
-        # Away team recent form (when playing away)  
-        away_recent = past_matches[past_matches["away_team"] == away].tail(form_window)
-        away_form_wins = len(away_recent[away_recent["result"] == "A"])
-        away_form_winrate = away_form_wins / len(away_recent) if len(away_recent) > 0 else 0.5
+        home_form_wins = (home_recent["result"] == "H").sum()
+        away_form_wins = (away_recent["result"] == "A").sum()
+
+        home_form_winrate = (home_form_wins / len(home_recent)) if len(home_recent) else 0.5
+        away_form_winrate = (away_form_wins / len(away_recent)) if len(away_recent) else 0.5
+
+        # --- NEW: Venue-aware goals per match (same league, same venue) ---
+        if len(home_recent):
+            home_avg_goals_scored = float(home_recent["home_goals"].mean())
+            home_avg_goals_conceded = float(home_recent["away_goals"].mean())
+        else:
+            home_avg_goals_scored = 1.0
+            home_avg_goals_conceded = 1.0
+
+        if len(away_recent):
+            away_avg_goals_scored = float(away_recent["away_goals"].mean())
+            away_avg_goals_conceded = float(away_recent["home_goals"].mean())
+        else:
+            away_avg_goals_scored = 1.0
+            away_avg_goals_conceded = 1.0
 
         feature_rows.append({
             "home_team": home,
@@ -80,14 +83,19 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
             "h2h_home_winrate": h2h_winrate,
             "home_form_winrate": home_form_winrate,
             "away_form_winrate": away_form_winrate,
-            "result": row["result"]
+            # NEW features
+            "home_avg_goals_scored": home_avg_goals_scored,
+            "home_avg_goals_conceded": home_avg_goals_conceded,
+            "away_avg_goals_scored": away_avg_goals_scored,
+            "away_avg_goals_conceded": away_avg_goals_conceded,
+            "result": row["result"],
         })
 
-        # Progress tracking for large datasets
         if len(feature_rows) % 1000 == 0:
             print(f"  📊 Processed {len(feature_rows)} matches...")
 
     return pd.DataFrame(feature_rows)
+
 
 def build_features_by_league(leagues=None):
     """Build features for specific leagues"""

@@ -15,11 +15,20 @@ except ImportError as e:
     ) from e
 
 
-FEATURES = ["avg_goal_diff_h2h", "h2h_home_winrate", "home_form_winrate", "away_form_winrate"]
+FEATURES = [
+    "avg_goal_diff_h2h",
+    "h2h_home_winrate",
+    "home_form_winrate",
+    "away_form_winrate",
+    "home_avg_goals_scored",
+    "home_avg_goals_conceded",
+    "away_avg_goals_scored",
+    "away_avg_goals_conceded",
+]
 RESULT_MAP = {"A": "away_win", "H": "home_win", "D": "draw"}
 LABEL_MAP  = {"home_win": 0, "draw": 1, "away_win": 2}
 
-
+    
 def _load_training_data(path: str) -> pd.DataFrame:
     df = pd.read_csv(path)
     df = df.dropna(subset=["result"])

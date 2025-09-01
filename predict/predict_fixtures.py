@@ -13,17 +13,49 @@ LABELS = ["home_win", "draw", "away_win"]
 # Only show results above this confidence in the terminal & CSV
 CONFIDENCE_THRESHOLD = 0.60
 
+
+def _league_filter(history: pd.DataFrame, league: str) -> pd.DataFrame:
+    """Return history restricted to a league if present, else original history."""
+    return history[history["league"] == league] if "league" in history.columns and league in history["league"].values else history
+
+
 def _venue_aware_form(history: pd.DataFrame, home: str, away: str, league: str, window: int = 10):
     """Return (home_form_winrate, away_form_winrate) using venue-aware last-N games within same league."""
-    # Filter to same league first
-    league_history = history[history["league"] == league] if league != "UNKNOWN" else history
-    
+    league_history = _league_filter(history, league)
     home_last_home = league_history[league_history["home_team"] == home].sort_values("date").tail(window)
     away_last_away = league_history[league_history["away_team"] == away].sort_values("date").tail(window)
 
     home_form_winrate = (home_last_home["result"] == "H").mean() if len(home_last_home) else 0.5
     away_form_winrate = (away_last_away["result"] == "A").mean() if len(away_last_away) else 0.5
     return float(home_form_winrate), float(away_form_winrate)
+
+
+def _venue_aware_goals(history: pd.DataFrame, home: str, away: str, league: str, window: int = 10):
+    """
+    Return 4 features:
+      home_avg_goals_scored, home_avg_goals_conceded, away_avg_goals_scored, away_avg_goals_conceded
+    computed venue-aware (home team's last-N HOME games, away team's last-N AWAY games) within same league.
+    """
+    league_history = _league_filter(history, league)
+    home_last_home = league_history[league_history["home_team"] == home].sort_values("date").tail(window)
+    away_last_away = league_history[league_history["away_team"] == away].sort_values("date").tail(window)
+
+    if len(home_last_home):
+        home_avg_goals_scored = float(home_last_home["home_goals"].mean())
+        home_avg_goals_conceded = float(home_last_home["away_goals"].mean())
+    else:
+        home_avg_goals_scored = 1.0
+        home_avg_goals_conceded = 1.0
+
+    if len(away_last_away):
+        away_avg_goals_scored = float(away_last_away["away_goals"].mean())
+        away_avg_goals_conceded = float(away_last_away["home_goals"].mean())
+    else:
+        away_avg_goals_scored = 1.0
+        away_avg_goals_conceded = 1.0
+
+    return home_avg_goals_scored, home_avg_goals_conceded, away_avg_goals_scored, away_avg_goals_conceded
+
 
 def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> pd.DataFrame:
     """Create prediction feature rows for each upcoming fixture."""
@@ -44,15 +76,15 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
         home = f["home_team"]
         away = f["away_team"]
         league_code = f.get("league_code", "PL")
-        
-        # Map league codes to our internal league names
+
+        # External → internal
         league_map = {"PL": "PL", "ELC": "CHAMP"}
         league = league_map.get(league_code, league_code)
 
         print(f"🔎 {home} vs {away} ({league})")
 
-        # Prior head-to-head (strictly before fixture date, same league)
-        league_history = history[history["league"] == league] if league in history["league"].values else history
+        # Restrict to league for H2H
+        league_history = _league_filter(history, league)
         h2h = league_history[
             (
                 ((league_history["home_team"] == home) & (league_history["away_team"] == away)) |
@@ -62,14 +94,13 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
 
         print(f"   Found {len(h2h)} H2H matches in {league}")
 
-        # Compute H2H features with graceful fallback if low history
+        # H2H features with fallback
         if len(h2h) < 2:
             avg_goal_diff_h2h = 0.0
             h2h_home_winrate = 0.5
-            print(f"   ⚠️ Limited H2H history, using defaults")
+            print("   ⚠️ Limited H2H history, using defaults")
         else:
-            goal_diffs = []
-            home_wins = 0
+            goal_diffs, home_wins = [], 0
             for _, m in h2h.iterrows():
                 if m["home_team"] == home:
                     goal_diffs.append(m["home_goals"] - m["away_goals"])
@@ -83,9 +114,18 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
             h2h_home_winrate = float(home_wins / len(h2h)) if len(h2h) else 0.5
             print(f"   📊 H2H: avg_diff={avg_goal_diff_h2h:.2f}, home_winrate={h2h_home_winrate:.2f}")
 
-        # Venue-aware recent form within same league
+        # Venue-aware recent form and goals within same league
         home_form_winrate, away_form_winrate = _venue_aware_form(history, home, away, league, window=10)
+        (
+            home_avg_goals_scored,
+            home_avg_goals_conceded,
+            away_avg_goals_scored,
+            away_avg_goals_conceded,
+        ) = _venue_aware_goals(history, home, away, league, window=10)
+
         print(f"   📈 Form: home={home_form_winrate:.2f}, away={away_form_winrate:.2f}")
+        print(f"   ⚽ Goals/Match — H: scored={home_avg_goals_scored:.2f} conceded={home_avg_goals_conceded:.2f} | "
+              f"A: scored={away_avg_goals_scored:.2f} conceded={away_avg_goals_conceded:.2f}")
 
         rows.append({
             "match_date": fixture_date,
@@ -97,25 +137,30 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
             "h2h_home_winrate": h2h_home_winrate,
             "home_form_winrate": home_form_winrate,
             "away_form_winrate": away_form_winrate,
+            "home_avg_goals_scored": home_avg_goals_scored,
+            "home_avg_goals_conceded": home_avg_goals_conceded,
+            "away_avg_goals_scored": away_avg_goals_scored,
+            "away_avg_goals_conceded": away_avg_goals_conceded,
         })
 
     return pd.DataFrame(rows)
 
+
 def predict_fixtures(leagues=None):
     """
     Generate predictions for upcoming fixtures.
-    
+
     Args:
         leagues: List of league codes to predict (e.g., ["PL", "ELC"])
     """
     if leagues is None:
-        leagues = ["PL", "ELC"]  # Default to both Premier League and Championship
-    
+        leagues = ["PL", "ELC"]  # Default both leagues
+
     print(f"⚽ Loading model and generating predictions for: {leagues}")
 
     # Load model, history, fixtures
     model = joblib.load(MODEL_PATH)
-    history = fetch_historic_results_multi(leagues=["PL", "CHAMP"])  # Internal league names
+    history = fetch_historic_results_multi(leagues=["PL", "CHAMP"])  # Internal names
     fixtures = fetch_upcoming_fixtures(league_codes=leagues, limit=20)
 
     print(f"\n📅 Upcoming Fixtures ({len(fixtures)} total):")
@@ -127,15 +172,19 @@ def predict_fixtures(leagues=None):
         return
 
     features_df = build_prediction_features(fixtures, history)
-
     if features_df.empty:
         print("😕 No fixtures with sufficient data to predict.")
         return
 
     print(f"\n🔮 Making predictions for {len(features_df)} matches...")
 
-    # Predict
-    X = features_df[["avg_goal_diff_h2h", "h2h_home_winrate", "home_form_winrate", "away_form_winrate"]]
+    # === UPDATED: include goals-per-match features ===
+    X = features_df[[
+        "avg_goal_diff_h2h", "h2h_home_winrate",
+        "home_form_winrate", "away_form_winrate",
+        "home_avg_goals_scored", "home_avg_goals_conceded",
+        "away_avg_goals_scored", "away_avg_goals_conceded",
+    ]]
     predicted_classes = model.predict(X)
     predicted_probas = model.predict_proba(X)
 
@@ -162,7 +211,7 @@ def predict_fixtures(leagues=None):
         print(f"\n🎯 Confident Predictions (≥{CONFIDENCE_THRESHOLD:.0%} confidence):")
         display_cols = ["match_date", "home_team", "away_team", "league", "predicted_result", "confidence_label"]
         print(confident[display_cols].to_string(index=False))
-        
+
         # Show league breakdown of confident picks
         league_breakdown = confident["league"].value_counts()
         print(f"\n📊 Confident picks by league: {dict(league_breakdown)}")
@@ -180,21 +229,26 @@ def predict_fixtures(leagues=None):
         "predicted_result", "confidence_label",
         "home_win", "draw", "away_win", "prob_label",
         "avg_goal_diff_h2h", "h2h_home_winrate", "home_form_winrate", "away_form_winrate",
+        "home_avg_goals_scored", "home_avg_goals_conceded", "away_avg_goals_scored", "away_avg_goals_conceded",
     ]
     features_df[out_cols].to_csv("data/predictions/latest_predictions.csv", index=False)
     print(f"\n✅ All {len(features_df)} predictions saved to data/predictions/latest_predictions.csv")
+
 
 def predict_premier_league_only():
     """Convenience function for Premier League predictions only"""
     predict_fixtures(["PL"])
 
+
 def predict_championship_only():
     """Convenience function for Championship predictions only"""
     predict_fixtures(["ELC"])
 
+
 def predict_both_leagues():
     """Convenience function for both leagues"""
     predict_fixtures(["PL", "ELC"])
+
 
 if __name__ == "__main__":
     print("🚀 Multi-league prediction system")
