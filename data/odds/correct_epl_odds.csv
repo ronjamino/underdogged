@@ -1,0 +1,21 @@
+match_id,sport_key,commence_time,home_team,away_team,home_odds,away_odds,draw_odds
+e31617643c4a49202d27478c4dbac218,soccer_epl,2025-09-13T11:30:00Z,Arsenal,Nottingham Forest,1.36,8.0,4.75
+1e57757e35817cb95bf2b2683944fefb,soccer_epl,2025-09-13T14:00:00Z,Everton,Aston Villa,2.4,2.9,3.2
+3644cdbd4c7a00079e58d5ec9fda94b5,soccer_epl,2025-09-13T14:00:00Z,Bournemouth,Brighton and Hove Albion,2.38,2.8,3.5
+fabedefd78cbe14291bcc86ad4f8923d,soccer_epl,2025-09-13T14:00:00Z,Crystal Palace,Sunderland,1.65,5.0,3.8
+cb961fd233b0e10d3b79b7035eb58f82,soccer_epl,2025-09-13T14:00:00Z,Fulham,Leeds United,1.96,4.2,3.7
+16c474ea38ef7e992646cd2f29d95213,soccer_epl,2025-09-13T14:00:00Z,Newcastle United,Wolverhampton Wanderers,1.4,7.0,4.5
+cfea7fce94d4595b15945076c7b3afdd,soccer_epl,2025-09-13T16:30:00Z,West Ham United,Tottenham Hotspur,3.3,2.1,3.4
+c445b142bf02c34d6ac8ef1f90aa227b,soccer_epl,2025-09-13T19:00:00Z,Brentford,Chelsea,4.4,1.75,3.75
+9b3a8f0ac2a3e7e7b62e4b4675f801f0,soccer_epl,2025-09-14T13:00:00Z,Burnley,Liverpool,9.0,1.3,5.0
+27c235595691a449a74c05453ddbe13a,soccer_epl,2025-09-14T15:30:00Z,Manchester City,Manchester United,1.67,4.5,3.8
+c5a9413ae7de9a4b1319ef0313c46a29,soccer_epl,2025-09-20T11:30:00Z,Liverpool,Everton,1.36,7.5,4.75
+70550360fef75d22872065bc5b828262,soccer_epl,2025-09-20T14:00:00Z,Bournemouth,Newcastle United,2.6,2.6,3.4
+1b8d93208f4fcd71338da8ddb4e9449c,soccer_epl,2025-09-20T14:00:00Z,Brighton and Hove Albion,Tottenham Hotspur,2.0,3.3,3.75
+cde7b785c0cddf6418ba78b12b43c0f8,soccer_epl,2025-09-20T14:00:00Z,Burnley,Nottingham Forest,3.75,2.0,3.4
+67daeba2b18abda61d6e83dea91a0799,soccer_epl,2025-09-20T14:00:00Z,West Ham United,Crystal Palace,2.8,2.45,3.3
+810514bae3c443a79431b56db8d23acc,soccer_epl,2025-09-20T14:00:00Z,Wolverhampton Wanderers,Leeds United,2.4,2.9,3.2
+bde545f057001b43e8a89ddb64e199ba,soccer_epl,2025-09-20T16:30:00Z,Manchester United,Chelsea,2.8,2.38,3.5
+3e0c56ca054fa1461e4b9a43f53f2d1b,soccer_epl,2025-09-20T19:00:00Z,Fulham,Brentford,2.0,3.4,3.5
+efb75993d311151fb2eab48121a701a9,soccer_epl,2025-09-21T13:00:00Z,Sunderland,Aston Villa,3.9,1.85,3.6
+5612c295b500f1038ef932a24070e3ca,soccer_epl,2025-09-21T15:30:00Z,Arsenal,Manchester City,2.0,3.4,3.5

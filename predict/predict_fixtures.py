@@ -227,12 +227,18 @@ def predict_fixtures(leagues=None):
         return
 
     print(f"\n🔮 Making predictions for {len(features_df)} matches...")
+    
+    features_df = enhance_with_odds(features_df)
 
     X = features_df[[
-        "avg_goal_diff_h2h", "h2h_home_winrate",
-        "home_form_winrate", "away_form_winrate",
-        "home_avg_goals_scored", "home_avg_goals_conceded",
-        "away_avg_goals_scored", "away_avg_goals_conceded",
+    "avg_goal_diff_h2h",
+    "h2h_home_winrate",
+    "home_form_winrate",
+    "away_form_winrate",
+    "home_avg_goals_scored",
+    "home_avg_goals_conceded",
+    "away_avg_goals_scored",
+    "away_avg_goals_conceded",
     ]]
 
     predicted_classes = model.predict(X)
@@ -304,6 +310,51 @@ def predict_top5():
 def predict_all_supported():
     """Extend here if you add more leagues later."""
     predict_top5()
+
+def enhance_with_odds(features_df):
+    """Merge predictions with live betting odds"""
+    try:
+        # Load latest odds
+        odds_df = pd.read_csv("data/odds/latest_odds.csv")
+        
+        # Add odds features
+        from fetch.fetch_odds import add_odds_features
+        odds_df = add_odds_features(odds_df)
+        
+        print(f"🔗 Merging with {len(odds_df)} live odds...")
+        
+        # Merge on team names and league
+        merged = pd.merge(
+            features_df,
+            odds_df[['home_team', 'away_team', 'league', 'home_true_prob', 
+                    'draw_true_prob', 'away_true_prob', 'odds_home_advantage',
+                    'match_competitiveness', 'market_uncertainty']],
+            on=['home_team', 'away_team', 'league'],
+            how='left'
+        )
+        
+        # Fill missing odds with neutral values
+        odds_features = ['home_true_prob', 'draw_true_prob', 'away_true_prob', 
+                        'odds_home_advantage', 'match_competitiveness', 'market_uncertainty']
+        
+        neutral_values = {'home_true_prob': 0.33, 'draw_true_prob': 0.33, 'away_true_prob': 0.33,
+                         'odds_home_advantage': 0.05, 'match_competitiveness': 0.5, 'market_uncertainty': 0.33}
+        
+        for feature in odds_features:
+            if feature in merged.columns:
+                merged[feature] = merged[feature].fillna(neutral_values[feature])
+        
+        enhanced_count = merged['home_true_prob'].notna().sum()
+        print(f"✅ Enhanced {enhanced_count}/{len(merged)} predictions with odds")
+        
+        return merged
+        
+    except Exception as e:
+        print(f"⚠️ Could not load odds data: {e}")
+        # Add neutral odds features as fallback
+        for feature, value in neutral_values.items():
+            features_df[feature] = value
+        return features_df
 
 if __name__ == "__main__":
     print("🚀 Multi-league prediction system")

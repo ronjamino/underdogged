@@ -1,0 +1,93 @@
+match_id,commence_time,home_team_raw,away_team_raw,home_team,away_team,league,sport_key,home_odds,away_odds,draw_odds,num_bookmakers,fetch_timestamp
+e31617643c4a49202d27478c4dbac218,2025-09-13T11:30:00Z,Arsenal,Nottingham Forest,Arsenal,Nottingham Forest,PL,soccer_epl,1.38,7.56,4.66,18,2025-09-03 02:57:05.011579+00:00
+1e57757e35817cb95bf2b2683944fefb,2025-09-13T14:00:00Z,Everton,Aston Villa,Everton,Aston Villa,PL,soccer_epl,2.45,2.85,3.25,18,2025-09-03 02:57:05.011579+00:00
+3644cdbd4c7a00079e58d5ec9fda94b5,2025-09-13T14:00:00Z,Bournemouth,Brighton and Hove Albion,Bournemouth,Brighton and Hove,PL,soccer_epl,2.35,2.78,3.53,18,2025-09-03 02:57:05.011579+00:00
+fabedefd78cbe14291bcc86ad4f8923d,2025-09-13T14:00:00Z,Crystal Palace,Sunderland,Crystal Palace,Sunderland,PL,soccer_epl,1.61,5.25,3.81,18,2025-09-03 02:57:05.011579+00:00
+cb961fd233b0e10d3b79b7035eb58f82,2025-09-13T14:00:00Z,Fulham,Leeds United,Fulham,Leeds United,PL,soccer_epl,1.89,3.91,3.54,18,2025-09-03 02:57:05.011579+00:00
+16c474ea38ef7e992646cd2f29d95213,2025-09-13T14:00:00Z,Newcastle United,Wolverhampton Wanderers,Newcastle United,Wolverhampton Wanderers,PL,soccer_epl,1.42,6.97,4.53,18,2025-09-03 02:57:05.011579+00:00
+cfea7fce94d4595b15945076c7b3afdd,2025-09-13T16:30:00Z,West Ham United,Tottenham Hotspur,West Ham,Tottenham Hotspur,PL,soccer_epl,3.3,2.08,3.51,18,2025-09-03 02:57:05.011579+00:00
+c445b142bf02c34d6ac8ef1f90aa227b,2025-09-13T19:00:00Z,Brentford,Chelsea,Brentford,Chelsea,PL,soccer_epl,4.31,1.75,3.79,18,2025-09-03 02:57:05.011579+00:00
+9b3a8f0ac2a3e7e7b62e4b4675f801f0,2025-09-14T13:00:00Z,Burnley,Liverpool,Burnley,Liverpool,PL,soccer_epl,9.07,1.31,5.2,18,2025-09-03 02:57:05.011579+00:00
+27c235595691a449a74c05453ddbe13a,2025-09-14T15:30:00Z,Manchester City,Manchester United,Manchester City,Manchester United,PL,soccer_epl,1.7,4.4,4.06,16,2025-09-03 02:57:05.011579+00:00
+c5a9413ae7de9a4b1319ef0313c46a29,2025-09-20T11:30:00Z,Liverpool,Everton,Liverpool,Everton,PL,soccer_epl,1.38,7.19,4.81,14,2025-09-03 02:57:05.011579+00:00
+70550360fef75d22872065bc5b828262,2025-09-20T14:00:00Z,Bournemouth,Newcastle United,Bournemouth,Newcastle United,PL,soccer_epl,2.51,2.54,3.36,14,2025-09-03 02:57:05.011579+00:00
+1b8d93208f4fcd71338da8ddb4e9449c,2025-09-20T14:00:00Z,Brighton and Hove Albion,Tottenham Hotspur,Brighton and Hove,Tottenham Hotspur,PL,soccer_epl,2.02,3.12,3.58,14,2025-09-03 02:57:05.011579+00:00
+cde7b785c0cddf6418ba78b12b43c0f8,2025-09-20T14:00:00Z,Burnley,Nottingham Forest,Burnley,Nottingham Forest,PL,soccer_epl,3.48,1.96,3.43,14,2025-09-03 02:57:05.011579+00:00
+67daeba2b18abda61d6e83dea91a0799,2025-09-20T14:00:00Z,West Ham United,Crystal Palace,West Ham,Crystal Palace,PL,soccer_epl,2.67,2.43,3.24,14,2025-09-03 02:57:05.011579+00:00
+810514bae3c443a79431b56db8d23acc,2025-09-20T14:00:00Z,Wolverhampton Wanderers,Leeds United,Wolverhampton Wanderers,Leeds United,PL,soccer_epl,2.4,2.88,3.1,14,2025-09-03 02:57:05.011579+00:00
+bde545f057001b43e8a89ddb64e199ba,2025-09-20T16:30:00Z,Manchester United,Chelsea,Manchester United,Chelsea,PL,soccer_epl,2.76,2.3,3.43,14,2025-09-03 02:57:05.011579+00:00
+3e0c56ca054fa1461e4b9a43f53f2d1b,2025-09-20T19:00:00Z,Fulham,Brentford,Fulham,Brentford,PL,soccer_epl,1.99,3.23,3.39,14,2025-09-03 02:57:05.011579+00:00
+efb75993d311151fb2eab48121a701a9,2025-09-21T13:00:00Z,Sunderland,Aston Villa,Sunderland,Aston Villa,PL,soccer_epl,3.77,1.83,3.68,12,2025-09-03 02:57:05.011579+00:00
+5612c295b500f1038ef932a24070e3ca,2025-09-21T15:30:00Z,Arsenal,Manchester City,Arsenal,Manchester City,PL,soccer_epl,2.02,3.36,3.42,13,2025-09-03 02:57:05.011579+00:00
+ffd285b3b4a6db1c56fef5933ecd17a7,2025-09-12T19:00:00Z,Ipswich Town,Sheffield United,Ipswich Town,Sheffield Utd,ELC,soccer_efl_champ,1.83,3.93,3.51,15,2025-09-03 02:57:05.011579+00:00
+eed60747f24b32a80eaf29ed5084b346,2025-09-13T11:30:00Z,Charlton Athletic,Millwall,Charlton Athletic,Millwall,ELC,soccer_efl_champ,2.28,3.01,3.1,16,2025-09-03 02:57:05.011579+00:00
+34009fdd2a3e8e7381dc3791daeaba71,2025-09-13T11:30:00Z,Oxford United,Leicester City,Oxford United,Leicester City,ELC,soccer_efl_champ,3.74,1.89,3.39,16,2025-09-03 02:57:05.011579+00:00
+7aa38d13def7d7bbb5b050ca748bc0e7,2025-09-13T11:30:00Z,Preston North End,Middlesbrough,Preston North End,Middlesbrough,ELC,soccer_efl_champ,2.84,2.4,3.1,16,2025-09-03 02:57:05.011579+00:00
+f96ff3fba171a0dff3160fe408b86dea,2025-09-13T14:00:00Z,Stoke City,Birmingham City,Stoke City,Birmingham City,ELC,soccer_efl_champ,3.07,2.28,3.1,15,2025-09-03 02:57:05.011579+00:00
+b9da422ab7c2f478fa30f6d5bb837219,2025-09-13T14:00:00Z,Watford,Blackburn Rovers,Watford,Blackburn Rovers,ELC,soccer_efl_champ,2.44,2.75,3.14,16,2025-09-03 02:57:05.011579+00:00
+f409ae6f5f2bdf028de67fe3e73f8846,2025-09-13T14:00:00Z,Sheffield Wednesday,Bristol City,Sheffield Wed,Bristol City,ELC,soccer_efl_champ,3.33,2.03,3.33,16,2025-09-03 02:57:05.011579+00:00
+bf81b5048b1eaa389e96dafeb4c32216,2025-09-13T14:00:00Z,Coventry City,Norwich City,Coventry City,Norwich City,ELC,soccer_efl_champ,1.68,4.32,3.79,15,2025-09-03 02:57:05.011579+00:00
+a2e3432e7cc857e52d903aeb20027466,2025-09-13T14:00:00Z,West Bromwich Albion,Derby County,West Brom,Derby County,ELC,soccer_efl_champ,1.77,4.52,3.28,16,2025-09-03 02:57:05.011579+00:00
+3fa0a783e9fcab6e08208ffbaa7894ba,2025-09-13T14:00:00Z,Swansea City,Hull City,Swansea City,Hull City,ELC,soccer_efl_champ,1.77,4.28,3.48,14,2025-09-03 02:57:05.011579+00:00
+cfa2eb640d96925bc2412dd96b56d65b,2025-09-13T14:00:00Z,Wrexham AFC,Queens Park Rangers,Wrexham,QPR,ELC,soccer_efl_champ,1.82,3.97,3.42,16,2025-09-03 02:57:05.011579+00:00
+b5fbcd2c190cb65392b1ccc6ccc8b896,2025-09-14T11:00:00Z,Southampton,Portsmouth,Southampton,Portsmouth,ELC,soccer_efl_champ,1.67,4.55,3.75,14,2025-09-03 02:57:05.011579+00:00
+e87e363e667c8ba1b2736e100b8a9cbb,2025-09-12T18:30:00Z,Bayer Leverkusen,Eintracht Frankfurt,Bayer Leverkusen,Eintracht Frankfurt,BL1,soccer_germany_bundesliga,2.21,2.7,3.69,17,2025-09-03 02:57:05.011579+00:00
+11f9693be2ea17154bd3eefcfc461224,2025-09-13T13:30:00Z,1. FC Heidenheim,Borussia Dortmund,1. Heidenheim,Borussia Dortmund,BL1,soccer_germany_bundesliga,4.49,1.63,4.09,17,2025-09-03 02:57:05.011579+00:00
+20ed15ce6e0f8208d013b186321a8b73,2025-09-13T13:30:00Z,VfL Wolfsburg,1. FC Köln,VfL Wolfsburg,1. Köln,BL1,soccer_germany_bundesliga,1.91,3.54,3.41,17,2025-09-03 02:57:05.011579+00:00
+e9758499b394615749b3f71dd4a36f23,2025-09-13T13:30:00Z,FSV Mainz 05,RB Leipzig,FSV Mainz 05,RB Leipzig,BL1,soccer_germany_bundesliga,2.27,2.64,3.44,17,2025-09-03 02:57:05.011579+00:00
+225cfadd050525d5d2b9a11443e4d50e,2025-09-13T13:30:00Z,SC Freiburg,VfB Stuttgart,SC Freiburg,VfB Stuttgart,BL1,soccer_germany_bundesliga,2.88,2.13,3.46,17,2025-09-03 02:57:05.011579+00:00
+da3d3a175f31eeb69563a9d1272c6f2e,2025-09-13T13:30:00Z,Union Berlin,TSG Hoffenheim,Union Berlin,TSG Hoffenheim,BL1,soccer_germany_bundesliga,2.35,2.71,3.34,17,2025-09-03 02:57:05.011579+00:00
+64c41464fedc2f02990ac1e77891d44d,2025-09-13T16:30:00Z,Bayern Munich,Hamburger SV,Bayern Munich,Hamburger SV,BL1,soccer_germany_bundesliga,1.07,21.62,10.71,17,2025-09-03 02:57:05.011579+00:00
+58fae3c4016a86ca8909940c4d6a6111,2025-09-14T13:30:00Z,FC St. Pauli,Augsburg,St. Pauli,Augsburg,BL1,soccer_germany_bundesliga,2.14,3.15,3.26,17,2025-09-03 02:57:05.011579+00:00
+8b45835022e88b3ef75803d7583625cc,2025-09-14T15:30:00Z,Borussia Monchengladbach,Werder Bremen,Borussia Monchengladbach,Werder Bremen,BL1,soccer_germany_bundesliga,1.73,3.89,3.9,17,2025-09-03 02:57:05.011579+00:00
+f8ac0447f5128c38339c7b2d5f434528,2025-09-19T18:30:00Z,VfB Stuttgart,FC St. Pauli,VfB Stuttgart,St. Pauli,BL1,soccer_germany_bundesliga,1.48,4.98,3.92,14,2025-09-03 02:57:05.011579+00:00
+ae8ea6e83728d8098ae206726665826b,2025-09-20T13:30:00Z,Hamburger SV,1. FC Heidenheim,Hamburger SV,1. Heidenheim,BL1,soccer_germany_bundesliga,1.74,3.66,3.43,14,2025-09-03 02:57:05.011579+00:00
+d68a8139a63f5ea6d4a2f307cd833a37,2025-09-20T13:30:00Z,Augsburg,FSV Mainz 05,Augsburg,FSV Mainz 05,BL1,soccer_germany_bundesliga,2.2,2.65,3.25,14,2025-09-03 02:57:05.011579+00:00
+e6137a223ab0005cf3fd7b6a8ffbeb68,2025-09-20T13:30:00Z,TSG Hoffenheim,Bayern Munich,TSG Hoffenheim,Bayern Munich,BL1,soccer_germany_bundesliga,7.15,1.34,4.85,13,2025-09-03 02:57:05.011579+00:00
+36ed6ddf6bd3efb2256984bc3f931eb1,2025-09-20T13:30:00Z,Werder Bremen,SC Freiburg,Werder Bremen,SC Freiburg,BL1,soccer_germany_bundesliga,2.13,2.7,3.35,14,2025-09-03 02:57:05.011579+00:00
+a0b72a4eaa846df001086da482d00bcf,2025-09-20T16:30:00Z,RB Leipzig,1. FC Köln,RB Leipzig,1. Köln,BL1,soccer_germany_bundesliga,1.53,5.11,4.12,13,2025-09-03 02:57:05.011579+00:00
+2538dee0db75da84551257bd4f2e1045,2025-09-21T13:30:00Z,Eintracht Frankfurt,Union Berlin,Eintracht Frankfurt,Union Berlin,BL1,soccer_germany_bundesliga,1.54,4.56,3.67,13,2025-09-03 02:57:05.011579+00:00
+553a11aeaac1234e0c9a1b031caa04b5,2025-09-21T15:30:00Z,Bayer Leverkusen,Borussia Monchengladbach,Bayer Leverkusen,Borussia Monchengladbach,BL1,soccer_germany_bundesliga,1.47,5.31,4.62,11,2025-09-03 02:57:05.011579+00:00
+f1ca6f91f1269aca5b88cea4ca6bf145,2025-09-21T17:30:00Z,Borussia Dortmund,VfL Wolfsburg,Borussia Dortmund,VfL Wolfsburg,BL1,soccer_germany_bundesliga,1.4,6.23,4.68,12,2025-09-03 02:57:05.011579+00:00
+09e918b973f61a9cc3c4f6b60062f680,2025-09-13T13:00:00Z,Cagliari,Parma,Cagliari,Parma,SA,soccer_italy_serie_a,2.19,3.29,3.15,18,2025-09-03 02:57:05.011579+00:00
+3ec6b750c849f589feb45e5a5eed631c,2025-09-13T16:00:00Z,Juventus,Inter Milan,Juventus,Inter Milan,SA,soccer_italy_serie_a,2.61,2.74,3.04,18,2025-09-03 02:57:05.011579+00:00
+e85deca8dc4e1f89da3eac6cbcf1d79f,2025-09-13T18:45:00Z,Fiorentina,Napoli,Fiorentina,Napoli,SA,soccer_italy_serie_a,3.61,2.05,3.14,18,2025-09-03 02:57:05.011579+00:00
+ee6b6e1dd52dab656c0caa7eb9e4e659,2025-09-14T10:30:00Z,AS Roma,Torino,AS Roma,Torino,SA,soccer_italy_serie_a,1.5,5.89,3.91,18,2025-09-03 02:57:05.011579+00:00
+f2d393592af922ed9b17f91bdfbc10ef,2025-09-14T13:00:00Z,Atalanta BC,Lecce,Atalanta BC,Lecce,SA,soccer_italy_serie_a,1.41,6.64,4.36,18,2025-09-03 02:57:05.011579+00:00
+a0f5435e7107f8ba64939ddb85816ba7,2025-09-14T13:00:00Z,Pisa,Udinese,Pisa,Udinese,SA,soccer_italy_serie_a,2.75,2.44,3.08,18,2025-09-03 02:57:05.011579+00:00
+22a1c3ba8731905f78be15f7a4d6c26a,2025-09-14T16:00:00Z,Sassuolo,Lazio,Sassuolo,Lazio,SA,soccer_italy_serie_a,3.33,2.0,3.42,18,2025-09-03 02:57:05.011579+00:00
+45c341313b60fd018890a93165b82f39,2025-09-14T18:45:00Z,AC Milan,Bologna,AC Milan,Bologna,SA,soccer_italy_serie_a,1.88,3.65,3.44,18,2025-09-03 02:57:05.011579+00:00
+3d42ac35a7624727e2dd953b0e61d2af,2025-09-15T16:30:00Z,Hellas Verona,Cremonese,Hellas Verona,Cremonese,SA,soccer_italy_serie_a,2.27,3.09,3.1,18,2025-09-03 02:57:05.011579+00:00
+75aef0afce38fb11651c487e05ba7a19,2025-09-15T18:45:00Z,Como,Genoa,Como,Genoa,SA,soccer_italy_serie_a,1.67,4.81,3.64,16,2025-09-03 02:57:05.011579+00:00
+ff687e62dad9ef87ebc1f5cdb9516fb6,2025-09-21T15:00:00Z,Udinese,AC Milan,Udinese,AC Milan,SA,soccer_italy_serie_a,3.83,1.72,3.24,10,2025-09-03 02:57:05.011579+00:00
+6e3b8a7c917c5f9b84925881a5dce118,2025-09-21T15:00:00Z,Lazio,AS Roma,Lazio,AS Roma,SA,soccer_italy_serie_a,2.58,2.36,3.02,11,2025-09-03 02:57:05.011579+00:00
+fcb187d512f42cf0c296c59175fa2f9e,2025-09-21T15:00:00Z,Torino,Atalanta BC,Torino,Atalanta BC,SA,soccer_italy_serie_a,2.77,2.09,2.86,12,2025-09-03 02:57:05.011579+00:00
+99e5a73aad6bc8e93925f51754b04216,2025-09-21T15:00:00Z,Bologna,Genoa,Bologna,Genoa,SA,soccer_italy_serie_a,1.64,4.33,3.3,11,2025-09-03 02:57:05.011579+00:00
+eb5d5524cdccaadef0bd43280f11b616,2025-09-21T15:00:00Z,Lecce,Cagliari,Lecce,Cagliari,SA,soccer_italy_serie_a,2.57,2.5,2.79,12,2025-09-03 02:57:05.011579+00:00
+7ba41640d23323ccc0640833f48aec17,2025-09-21T15:00:00Z,Fiorentina,Como,Fiorentina,Como,SA,soccer_italy_serie_a,2.23,2.71,2.89,12,2025-09-03 02:57:05.011579+00:00
+6500c7cc7be71529d3ffd758821de17a,2025-09-21T15:00:00Z,Cremonese,Parma,Cremonese,Parma,SA,soccer_italy_serie_a,2.36,2.65,2.94,11,2025-09-03 02:57:05.011579+00:00
+3479ee6e47d211e63f64d777ba71672e,2025-09-21T15:00:00Z,Hellas Verona,Juventus,Hellas Verona,Juventus,SA,soccer_italy_serie_a,6.05,1.53,3.73,10,2025-09-03 02:57:05.011579+00:00
+c9d88720c4e50f23febfb592ee064d94,2025-09-21T15:00:00Z,Inter Milan,Sassuolo,Inter Milan,Sassuolo,SA,soccer_italy_serie_a,1.24,10.6,5.47,10,2025-09-03 02:57:05.011579+00:00
+732d14f934284f07f3bc5b04e5d941a1,2025-09-21T15:00:00Z,Napoli,Pisa,Napoli,Pisa,SA,soccer_italy_serie_a,1.2,11.67,4.97,12,2025-09-03 02:57:05.011579+00:00
+8458aafac208b1ab1f426a18827d93ce,2025-09-12T19:00:00Z,Sevilla,Elche CF,Sevilla,Elche,PD,soccer_spain_la_liga,2.1,3.41,3.24,16,2025-09-03 02:57:05.011579+00:00
+d3c3028b4458cef15b5960b4de71b985,2025-09-13T12:00:00Z,Getafe,Oviedo,Getafe,Oviedo,PD,soccer_spain_la_liga,1.88,4.36,3.11,16,2025-09-03 02:57:05.011579+00:00
+8f89306df3a6025cf9ef219679cd1562,2025-09-13T14:15:00Z,Levante,Real Betis,Levante,Real Betis,PD,soccer_spain_la_liga,3.16,2.09,3.17,15,2025-09-03 02:57:05.011579+00:00
+3a44c93337cf2086b263b789ab0c1ab7,2025-09-13T14:15:00Z,Real Sociedad,Real Madrid,Real Sociedad,Real Madrid,PD,soccer_spain_la_liga,4.93,1.6,3.96,11,2025-09-03 02:57:05.011579+00:00
+48f1b9aee8d02ef5b2e6c003973089dc,2025-09-13T16:30:00Z,Athletic Bilbao,Alavés,Athletic Bilbao,Alavés,PD,soccer_spain_la_liga,1.56,5.94,3.71,11,2025-09-03 02:57:05.011579+00:00
+f395df17b898ed671f351b69b069159f,2025-09-14T12:00:00Z,Celta Vigo,Girona,Celta Vigo,Girona,PD,soccer_spain_la_liga,1.65,4.64,3.81,15,2025-09-03 02:57:05.011579+00:00
+f3406681adba22de75f5b6e46912b3cc,2025-09-14T16:30:00Z,CA Osasuna,Rayo Vallecano,CA Osasuna,Rayo Vallecano,PD,soccer_spain_la_liga,2.29,2.94,3.04,17,2025-09-03 02:57:05.011579+00:00
+ee047b72fca82a312d823e3016b6c3ec,2025-09-14T17:00:00Z,Athletic Bilbao,Alavés,Athletic Bilbao,Alavés,PD,soccer_spain_la_liga,1.52,6.43,3.69,6,2025-09-03 02:57:05.011579+00:00
+a9cf5b849230d0a519633b0553597493,2025-09-14T17:00:00Z,Atlético Madrid,Villarreal,Atlético Madrid,Villarreal,PD,soccer_spain_la_liga,1.76,4.01,3.79,17,2025-09-03 02:57:05.011579+00:00
+0696e2cb6e9f17710381b4e79e8396c7,2025-09-14T17:00:00Z,Barcelona,Valencia,Barcelona,Valencia,PD,soccer_spain_la_liga,1.17,10.97,6.42,16,2025-09-03 02:57:05.011579+00:00
+4949bb16f23132d01c14e6dc798492d1,2025-09-14T17:00:00Z,Real Sociedad,Real Madrid,Real Sociedad,Real Madrid,PD,soccer_spain_la_liga,4.51,1.61,3.72,6,2025-09-03 02:57:05.011579+00:00
+af74008b749817fe57d8553ae6800ecb,2025-09-15T19:00:00Z,Espanyol,Mallorca,Espanyol,Mallorca,PD,soccer_spain_la_liga,2.12,3.15,3.24,15,2025-09-03 02:57:05.011579+00:00
+413b25c66abd6b8ef97e47012f611818,2025-09-21T17:00:00Z,Alavés,Sevilla,Alavés,Sevilla,PD,soccer_spain_la_liga,2.45,2.84,3.05,11,2025-09-03 02:57:05.011579+00:00
+269e90d722c24d10bcdb13843720992c,2025-09-21T17:00:00Z,Valencia,Athletic Bilbao,Valencia,Athletic Bilbao,PD,soccer_spain_la_liga,2.91,2.42,3.04,11,2025-09-03 02:57:05.011579+00:00
+11dc60f4d1e2ecf55e1fee39bad6b71f,2025-09-21T17:00:00Z,Mallorca,Atlético Madrid,Mallorca,Atlético Madrid,PD,soccer_spain_la_liga,4.54,1.79,3.24,11,2025-09-03 02:57:05.011579+00:00
+c60fe2df14e3bcda9dfc85583967acf4,2025-09-21T17:00:00Z,Barcelona,Getafe,Barcelona,Getafe,PD,soccer_spain_la_liga,1.16,13.9,6.8,10,2025-09-03 02:57:05.011579+00:00
+67e57da07e9acfd543b665e74af9ae1f,2025-09-21T17:00:00Z,Villarreal,CA Osasuna,Villarreal,CA Osasuna,PD,soccer_spain_la_liga,1.55,5.29,3.93,11,2025-09-03 02:57:05.011579+00:00
+c80af2042c870582d66be11554d8b69a,2025-09-21T17:00:00Z,Rayo Vallecano,Celta Vigo,Rayo Vallecano,Celta Vigo,PD,soccer_spain_la_liga,2.51,2.66,3.24,11,2025-09-03 02:57:05.011579+00:00
+e6536d0487c37e906b74c98efecdae74,2025-09-21T17:00:00Z,Elche CF,Oviedo,Elche,Oviedo,PD,soccer_spain_la_liga,2.17,3.44,2.99,10,2025-09-03 02:57:05.011579+00:00
+fadea10696cc5e1013f5f084043fa35e,2025-09-21T17:00:00Z,Real Madrid,Espanyol,Real Madrid,Espanyol,PD,soccer_spain_la_liga,1.17,11.68,6.86,11,2025-09-03 02:57:05.011579+00:00
+4526a1d0cbd76142679761b52c8f2510,2025-09-21T17:00:00Z,Girona,Levante,Girona,Levante,PD,soccer_spain_la_liga,1.83,3.96,3.45,11,2025-09-03 02:57:05.011579+00:00
+486e72e9ec2da373ef3f3d44b15eb084,2025-09-21T17:00:00Z,Real Betis,Real Sociedad,Real Betis,Real Sociedad,PD,soccer_spain_la_liga,2.13,3.41,3.08,11,2025-09-03 02:57:05.011579+00:00
