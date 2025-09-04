@@ -30,7 +30,7 @@ CORE_FEATURES = [
 
 DRAW_FEATURES = [
     "h2h_draw_rate",
-    "combined_draw_rate",
+    "combined_draw_rate", 
     "form_differential",
     "goals_differential",
     "expected_total_goals",
@@ -38,6 +38,15 @@ DRAW_FEATURES = [
     "momentum_differential",
     "is_low_scoring",
     "is_defensive_match",
+    "h2h_total_goals",           
+    "home_draw_rate",            
+    "away_draw_rate",            
+    "home_total_goals_avg",      
+    "away_total_goals_avg",      
+    "league_avg_goals",          
+    "league_home_adv",           
+    "home_momentum",             
+    "away_momentum",             
 ]
 
 ODDS_FEATURES = [
@@ -47,6 +56,7 @@ ODDS_FEATURES = [
     "market_draw_confidence",
     "market_competitiveness",
     "odds_spread",
+    "market_favorite_confidence",
 ]
 
 RESULT_MAP = {"A": "away_win", "H": "home_win", "D": "draw"}
@@ -258,7 +268,14 @@ def train_model():
     
     # === Create weighted voting ensemble ===
     # Adjust weights based on performance
-    weights = [rf_score, xgb_score, nn_score]
+    # Quick fix: Favor RF and XGB since they're excellent at draws
+    if nn_score < 0.40:  # NN performing poorly
+        weights = [0.5, 0.5, 0.0]  # Exclude NN completely
+        print(f"🚫 Excluding Neural Network (poor performance)")
+    else:
+        weights = [0.45, 0.45, 0.10]  # Heavily favor RF and XGB
+        print(f"🎯 Draw-focused weights: RF=45%, XGB=45%, NN=10%")
+        
     weights = [w / sum(weights) for w in weights]
     
     print(f"\n🎯 Ensemble weights: RF={weights[0]:.2f}, XGB={weights[1]:.2f}, NN={weights[2]:.2f}")
