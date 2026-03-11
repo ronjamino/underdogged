@@ -1,4 +1,3 @@
-from rate_limit_fix import fetch_fixtures_for_pipeline
 import subprocess
 
 steps = [
