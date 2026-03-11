@@ -46,8 +46,10 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
 
     feature_rows = []
     
-    # Check if we have odds data in the historical results
-    has_odds = all(col in df.columns for col in ['B365H', 'B365D', 'B365A'])
+    # Check if we have unified odds columns (home_odds/draw_odds/away_odds).
+    # fetch_historic_results normalises B365H/B365D/B365A to these names so
+    # both historical and live odds sources use the same column names.
+    has_odds = all(col in df.columns for col in ["home_odds", "draw_odds", "away_odds"])
     if has_odds:
         print("✅ Found betting odds in historical data - will include odds features!")
     else:
@@ -183,11 +185,11 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
         is_defensive_match = (home_avg_goals_conceded < 1.2 and away_avg_goals_conceded < 1.2)
 
         # --- ODDS-BASED FEATURES (if available) ---
-        if has_odds and not pd.isna(row.get('B365H')):
-            # Calculate implied probabilities from odds
-            home_odds = row.get('B365H', 3.0)
-            draw_odds = row.get('B365D', 3.3)
-            away_odds = row.get('B365A', 3.0)
+        if has_odds and not pd.isna(row.get("home_odds")):
+            # Calculate implied probabilities from unified odds columns
+            home_odds = row.get("home_odds", 3.0)
+            draw_odds = row.get("draw_odds", 3.3)
+            away_odds = row.get("away_odds", 3.0)
             
             # Convert to implied probabilities
             home_implied = 1 / home_odds if home_odds > 0 else 0.33
