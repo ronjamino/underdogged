@@ -10,6 +10,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 
+from model.ensemble import StackingEnsemble  # shared module so pickle can resolve it
+
 try:
     from xgboost import XGBClassifier
 except ImportError as e:
@@ -70,33 +72,6 @@ RESULT_MAP = {"A": "away_win", "H": "home_win", "D": "draw"}
 LABEL_MAP = {"home_win": 0, "draw": 1, "away_win": 2}
 
 
-class StackingEnsemble:
-    """
-    Stacking ensemble: RF + XGB + NN base models feed into a logistic
-    regression meta-learner. Drop-in replacement for VotingClassifier —
-    exposes the same predict() / predict_proba() interface.
-    """
-
-    def __init__(self, rf, xgb, nn, scaler, meta_learner):
-        self.rf = rf
-        self.xgb = xgb
-        self.nn = nn
-        self.scaler = scaler
-        self.meta_learner = meta_learner
-
-    def _meta_features(self, X):
-        X_scaled = self.scaler.transform(X)
-        return np.hstack([
-            self.rf.predict_proba(X),
-            self.xgb.predict_proba(X),
-            self.nn.predict_proba(X_scaled),
-        ])
-
-    def predict(self, X):
-        return self.meta_learner.predict(self._meta_features(X))
-
-    def predict_proba(self, X):
-        return self.meta_learner.predict_proba(self._meta_features(X))
 
 
 def _load_training_data(path: str) -> tuple:
@@ -431,8 +406,8 @@ def train_model():
 
     print("   Training meta-learner (Logistic Regression)...")
     meta_learner = LogisticRegression(
-        C=1.0, max_iter=1000, random_state=42,
-        multi_class="multinomial", solver="lbfgs"
+        C=1.0, max_iter=1000, random_state=42, solver="lbfgs",
+        class_weight="balanced"
     )
     meta_learner.fit(meta_train, y_train)
 

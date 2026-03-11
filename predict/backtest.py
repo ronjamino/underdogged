@@ -29,7 +29,7 @@ CONFIDENCE_THRESHOLD = 0.55
 
 def _feature_cols(df):
     """Return all numeric feature columns (exclude metadata and target)."""
-    skip = {"home_team", "away_team", "match_date", "league", "result"}
+    skip = {"home_team", "away_team", "match_date", "league", "result", "y"}
     return [c for c in df.columns if c not in skip and pd.api.types.is_numeric_dtype(df[c])]
 
 

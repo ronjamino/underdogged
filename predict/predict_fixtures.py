@@ -6,6 +6,7 @@ from fetch.fetch_fixtures import fetch_upcoming_fixtures
 from fetch.fetch_historic_results import fetch_historic_results_multi
 from utils.team_name_map import normalize_team
 from utils.league_utils import _canon, LEAGUE_ALIASES, to_history_code
+from model.ensemble import StackingEnsemble  # required for joblib to deserialise the saved model
 
 MODEL_PATH = "models/ensemble_model.pkl"
 SCALER_PATH = "models/scaler.pkl"
