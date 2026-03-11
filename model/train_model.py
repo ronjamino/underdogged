@@ -5,7 +5,8 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
 from sklearn.metrics import classification_report, confusion_matrix, f1_score
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 
@@ -67,6 +68,35 @@ INTERACTION_FEATURES = [
 
 RESULT_MAP = {"A": "away_win", "H": "home_win", "D": "draw"}
 LABEL_MAP = {"home_win": 0, "draw": 1, "away_win": 2}
+
+
+class StackingEnsemble:
+    """
+    Stacking ensemble: RF + XGB + NN base models feed into a logistic
+    regression meta-learner. Drop-in replacement for VotingClassifier —
+    exposes the same predict() / predict_proba() interface.
+    """
+
+    def __init__(self, rf, xgb, nn, scaler, meta_learner):
+        self.rf = rf
+        self.xgb = xgb
+        self.nn = nn
+        self.scaler = scaler
+        self.meta_learner = meta_learner
+
+    def _meta_features(self, X):
+        X_scaled = self.scaler.transform(X)
+        return np.hstack([
+            self.rf.predict_proba(X),
+            self.xgb.predict_proba(X),
+            self.nn.predict_proba(X_scaled),
+        ])
+
+    def predict(self, X):
+        return self.meta_learner.predict(self._meta_features(X))
+
+    def predict_proba(self, X):
+        return self.meta_learner.predict_proba(self._meta_features(X))
 
 
 def _load_training_data(path: str) -> tuple:
@@ -292,41 +322,51 @@ def train_model():
             draw_recall = ((preds == 1) & draw_mask).sum() / draw_mask.sum()
             print(f"   {name}: {draw_recall:.1%} ({((preds == 1) & draw_mask).sum()}/{draw_mask.sum()})")
     
-    # === Create weighted voting ensemble ===
-    # Adjust weights based on performance
-    # Quick fix: Favor RF and XGB since they're excellent at draws
-    if nn_score < 0.40:  # NN performing poorly
-        weights = [0.5, 0.5, 0.0]  # Exclude NN completely
-        print(f"🚫 Excluding Neural Network (poor performance)")
-    else:
-        weights = [0.45, 0.45, 0.10]  # Heavily favor RF and XGB
-        print(f"🎯 Draw-focused weights: RF=45%, XGB=45%, NN=10%")
-        
-    weights = [w / sum(weights) for w in weights]
-    
-    print(f"\n🎯 Ensemble weights: RF={weights[0]:.2f}, XGB={weights[1]:.2f}, NN={weights[2]:.2f}")
-    
-    # Need to recreate estimators for ensemble (sklearn requirement)
-    rf_ensemble = RandomForestClassifier(**rf.get_params())
-    xgb_ensemble = XGBClassifier(**xgb.get_params())
-    nn_ensemble = MLPClassifier(**nn.get_params())
-    
-    ensemble = VotingClassifier(
-        estimators=[("rf", rf_ensemble), ("xgb", xgb_ensemble), ("nn", nn_ensemble)],
-        voting="soft",
-        weights=weights,
-        n_jobs=-1
+    # === Build stacking ensemble via out-of-fold meta-features ===
+    print("\n🤖 Building stacking ensemble (5-fold out-of-fold meta-features)...")
+    skf_stack = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    meta_train = np.zeros((len(X_train), 9))  # 3 models × 3 classes
+
+    for fold_idx, (tr_idx, val_idx) in enumerate(skf_stack.split(X_train, y_train)):
+        print(f"   Fold {fold_idx + 1}/5...")
+        X_ftr  = X_train.iloc[tr_idx];  X_fval  = X_train.iloc[val_idx]
+        y_ftr  = y_train.iloc[tr_idx]
+        fold_sw = create_sample_weights(y_ftr, class_weights)
+
+        fold_scaler = StandardScaler()
+        X_ftr_sc  = fold_scaler.fit_transform(X_ftr)
+        X_fval_sc = fold_scaler.transform(X_fval)
+
+        rf_f = RandomForestClassifier(**rf.get_params())
+        rf_f.fit(X_ftr, y_ftr)
+        meta_train[val_idx, :3] = rf_f.predict_proba(X_fval)
+
+        xgb_f = XGBClassifier(**xgb.get_params())
+        xgb_f.fit(X_ftr, y_ftr, sample_weight=fold_sw)
+        meta_train[val_idx, 3:6] = xgb_f.predict_proba(X_fval)
+
+        nn_f = MLPClassifier(**nn.get_params())
+        nn_f.fit(X_ftr_sc, y_ftr)
+        meta_train[val_idx, 6:9] = nn_f.predict_proba(X_fval_sc)
+
+    print("   Training meta-learner (Logistic Regression)...")
+    meta_learner = LogisticRegression(
+        C=1.0, max_iter=1000, random_state=42,
+        multi_class="multinomial", solver="lbfgs"
     )
-    
-    # Train ensemble (it needs to retrain all models)
-    print("\n🏋️ Training weighted ensemble...")
-    
-    # For XGBoost in ensemble, we need a workaround for sample weights
-    # Train the ensemble with fit
-    ensemble.fit(X_train, y_train)
-    
-    # === Evaluate ensemble ===
-    print("\n📈 Evaluating ensemble performance...")
+    meta_learner.fit(meta_train, y_train)
+
+    print("   Meta-learner learned weights:")
+    for i, class_name in enumerate(["Home Win", "Draw", "Away Win"]):
+        rf_w  = meta_learner.coef_[i][:3].mean()
+        xgb_w = meta_learner.coef_[i][3:6].mean()
+        nn_w  = meta_learner.coef_[i][6:9].mean()
+        print(f"     {class_name}: RF={rf_w:+.2f}  XGB={xgb_w:+.2f}  NN={nn_w:+.2f}")
+
+    ensemble = StackingEnsemble(rf, xgb, nn, scaler, meta_learner)
+
+    # === Evaluate stacking ensemble ===
+    print("\n📈 Evaluating stacking ensemble performance...")
     y_pred = ensemble.predict(X_test)
     y_proba = ensemble.predict_proba(X_test)
     
@@ -405,9 +445,10 @@ def train_model():
     print("\n💾 Saving models and metadata...")
     os.makedirs("models", exist_ok=True)
     
-    # Save ensemble
+    # Save stacking ensemble (wraps all base models + meta-learner)
     joblib.dump(ensemble, "models/ensemble_model.pkl")
-    print("✅ Ensemble model saved")
+    joblib.dump(meta_learner, "models/meta_learner.pkl")
+    print("✅ Stacking ensemble saved")
     
     # Save scaler
     joblib.dump(scaler, "models/scaler.pkl")
@@ -467,7 +508,7 @@ def train_model():
     
     # Final summary
     print("\n" + "=" * 60)
-    print("🎉 TRAINING COMPLETE - MODEL SUMMARY")
+    print("🎉 TRAINING COMPLETE - STACKING ENSEMBLE SUMMARY")
     print("=" * 60)
     print(f"   Total samples: {len(df):,}")
     print(f"   Features used: {len(features)}")
