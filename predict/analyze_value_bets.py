@@ -229,13 +229,10 @@ def analyze_value_bets():
     print("• Bookmaker odds change frequently")
     print("• Always verify odds before placing any bets")
 
-def analyze_historical_value_performance():
-    """Analyze how well value bets would have performed historically"""
-    print("\n🔍 HISTORICAL VALUE BET ANALYSIS")
-    print("=" * 40)
-    print("💡 This would require historical results to validate the model")
-    print("💡 Suggestion: Track predictions vs actual results over time")
-    print("💡 Calculate: ROI, hit rate, Kelly performance, etc.")
+def analyze_historical_value_performance(n_splits: int = 5):
+    """Run walk-forward backtest and print value-bet ROI over historical data."""
+    from predict.backtest import run_backtest
+    run_backtest(n_splits=n_splits)
 
 if __name__ == "__main__":
     analyze_value_bets()

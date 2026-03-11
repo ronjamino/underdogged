@@ -5,6 +5,7 @@ steps = [
     ("📅 Fetching upcoming fixtures", "fetch.fetch_fixtures"),
     ("🧱 Preparing training data", "model.prepare_training_data"),
     ("🧠 Training model", "model.train_model"),
+    ("🔁 Backtesting model", "predict.backtest"),
     ("🎯 Generating predictions", "predict.predict_fixtures"),
 ]
 
