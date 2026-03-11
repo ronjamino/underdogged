@@ -119,17 +119,25 @@ def fetch_historic_results(season_key):
 
     # Normalise historical odds to unified column names (same as The Odds API).
     # football-data.co.uk provides B365H/B365D/B365A; map them to home_odds/draw_odds/away_odds.
+    # Also retain raw B365H/D/A columns for fair-odds ROI simulation in backtest.
     if all(c in df.columns for c in ["B365H", "B365D", "B365A"]):
-        df["home_odds"] = pd.to_numeric(df["B365H"], errors="coerce")
-        df["draw_odds"] = pd.to_numeric(df["B365D"], errors="coerce")
-        df["away_odds"] = pd.to_numeric(df["B365A"], errors="coerce")
+        df["B365H"] = pd.to_numeric(df["B365H"], errors="coerce")
+        df["B365D"] = pd.to_numeric(df["B365D"], errors="coerce")
+        df["B365A"] = pd.to_numeric(df["B365A"], errors="coerce")
+        df["home_odds"] = df["B365H"]
+        df["draw_odds"] = df["B365D"]
+        df["away_odds"] = df["B365A"]
     else:
         df["home_odds"] = np.nan
         df["draw_odds"] = np.nan
         df["away_odds"] = np.nan
+        df["B365H"] = np.nan
+        df["B365D"] = np.nan
+        df["B365A"] = np.nan
 
     return df[["date", "home_team", "away_team", "home_goals", "away_goals", "result",
                "home_odds", "draw_odds", "away_odds",
+               "B365H", "B365D", "B365A",
                "league", "season", "league_display_name"]]
 
 def fetch_historic_results_multi(leagues=None, seasons=None, enhanced_output=True):

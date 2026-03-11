@@ -3,7 +3,7 @@ import joblib
 import pandas as pd
 import numpy as np
 
-from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.metrics import classification_report, confusion_matrix, f1_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -33,7 +33,7 @@ CORE_FEATURES = [
 
 DRAW_FEATURES = [
     "h2h_draw_rate",
-    "combined_draw_rate", 
+    "combined_draw_rate",
     "form_differential",
     "goals_differential",
     "expected_total_goals",
@@ -41,18 +41,22 @@ DRAW_FEATURES = [
     "momentum_differential",
     "is_low_scoring",
     "is_defensive_match",
-    "h2h_total_goals",           
-    "home_draw_rate",            
-    "away_draw_rate",            
-    "home_total_goals_avg",      
-    "away_total_goals_avg",      
-    "league_avg_goals",          
-    "league_home_adv",           
-    "home_momentum",             
-    "away_momentum",             
+    "h2h_total_goals",
+    "home_draw_rate",
+    "away_draw_rate",
+    "home_venue_draw_rate",       # venue-specific draw rate (Issue 4)
+    "away_venue_draw_rate",       # venue-specific draw rate (Issue 4)
+    "current_season_draw_rate",   # in-season league draw rate (Issue 8)
+    "home_total_goals_avg",
+    "away_total_goals_avg",
+    "league_avg_goals",
+    "league_home_adv",
+    "home_momentum",
+    "away_momentum",
 ]
 
 ODDS_FEATURES = [
+    "has_odds",                   # binary indicator (Issue 5)
     "home_true_prob",
     "draw_true_prob",
     "away_true_prob",
@@ -68,70 +72,81 @@ INTERACTION_FEATURES = [
     "draw_affinity",
 ]
 
+# Metadata columns — present in CSV but NOT used as model features
+METADATA_COLS = {"home_team", "away_team", "match_date", "league", "result",
+                 "raw_home_odds", "raw_draw_odds", "raw_away_odds"}
+
 RESULT_MAP = {"A": "away_win", "H": "home_win", "D": "draw"}
 LABEL_MAP = {"home_win": 0, "draw": 1, "away_win": 2}
-
-
 
 
 def _load_training_data(path: str) -> tuple:
     """Load and validate training data, auto-detecting available features."""
     if not os.path.exists(path):
         raise FileNotFoundError(f"Training data not found at {path}. Run prepare_training_data.py first.")
-    
+
     df = pd.read_csv(path)
     print(f"📊 Loaded {len(df)} rows from {path}")
-    
+
+    # Fill NaN in odds features with 0 BEFORE dropna.
+    # has_odds=0 rows are valid training examples — median imputation was masking
+    # the difference between 'no odds' and 'odds predict 33% each'.
+    odds_fill_cols = [f for f in ODDS_FEATURES if f in df.columns and f != "has_odds"]
+    if odds_fill_cols:
+        nan_count = df[odds_fill_cols].isna().sum().sum()
+        if nan_count > 0:
+            df[odds_fill_cols] = df[odds_fill_cols].fillna(0.0)
+            print(f"📊 Filled {nan_count} NaN odds values with 0.0 (has_odds column flags these rows)")
+
     # Auto-detect which features are available
-    available_features = []
-    feature_groups = {
+    all_feature_lists = {
         "Core": CORE_FEATURES,
         "Draw-focused": DRAW_FEATURES,
         "Odds-based": ODDS_FEATURES,
         "Interactions": INTERACTION_FEATURES,
     }
-    
+    available_features = []
     print("\n📋 Feature availability check:")
-    for group_name, features in feature_groups.items():
-        available_in_group = [f for f in features if f in df.columns]
+    for group_name, feat_list in all_feature_lists.items():
+        available_in_group = [f for f in feat_list if f in df.columns]
         available_features.extend(available_in_group)
-        print(f"   {group_name}: {len(available_in_group)}/{len(features)} features")
-        if len(available_in_group) < len(features):
-            missing = [f for f in features if f not in df.columns]
+        print(f"   {group_name}: {len(available_in_group)}/{len(feat_list)} features")
+        if len(available_in_group) < len(feat_list):
+            missing = [f for f in feat_list if f not in df.columns]
             print(f"      Missing: {', '.join(missing[:3])}...")
-    
-    if len(available_features) < len(CORE_FEATURES):
+
+    if len([f for f in CORE_FEATURES if f in available_features]) < len(CORE_FEATURES):
         raise ValueError(f"Missing core features! Need at least: {CORE_FEATURES}")
-    
+
     print(f"\n✅ Using {len(available_features)} total features")
-    
-    # Check for required columns
+
     if "result" not in df.columns:
         raise ValueError("Training data missing 'result' column")
-    
+
     df = df.dropna(subset=["result"])
     df = df.dropna(subset=available_features)
-    
+
     print(f"📊 Rows after cleaning: {len(df)}")
-    
+
     return df, available_features
 
 
 def tune_hyperparameters(X_train, y_train, class_weights, n_trials=50):
     """
-    Use Optuna to search RF and XGB hyperparameters, optimising draw F1.
-    Returns (best_rf_params, best_xgb_params). If Optuna is not installed,
-    returns empty dicts so callers fall back to hardcoded defaults.
-    Reduce n_trials for faster runs (e.g. n_trials=20).
+    Use Optuna to search RF, XGB, and MLP hyperparameters, optimising draw F1.
+    Returns (best_rf_params, best_xgb_params, best_mlp_params).
+    If Optuna is not installed or n_trials=0, returns empty dicts so callers
+    fall back to hardcoded defaults.
     """
+    if n_trials == 0:
+        return {}, {}, {}
+
     try:
         import optuna
         optuna.logging.set_verbosity(optuna.logging.WARNING)
     except ImportError:
         print("⚠️  optuna not installed — skipping tuning (pip install optuna to enable)")
-        return {}, {}
-
-    from sklearn.metrics import make_scorer
+        return {}, {}, {}
 
     cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
@@ -202,22 +217,49 @@ def tune_hyperparameters(X_train, y_train, class_weights, n_trials=50):
     })
     print(f"   XGB best draw F1: {xgb_study.best_value:.3f}")
 
-    return best_rf_params, best_xgb_params
+    # --- Tune MLP (Issue 9) ---
+    # Fit a temporary scaler for MLP tuning
+    scaler_tmp = StandardScaler()
+    X_train_sc = scaler_tmp.fit_transform(X_train)
+
+    def mlp_objective(trial):
+        hidden = trial.suggest_categorical("mlp_hidden", [(64, 32), (128, 64), (64, 32, 16)])
+        alpha = trial.suggest_float("mlp_alpha", 1e-4, 0.1, log=True)
+        model = MLPClassifier(
+            hidden_layer_sizes=hidden,
+            alpha=alpha,
+            activation="relu",
+            learning_rate="adaptive",
+            learning_rate_init=5e-4,
+            max_iter=500,
+            random_state=42,
+            early_stopping=True,
+            validation_fraction=0.15,
+            n_iter_no_change=20,
+        )
+        scores = []
+        for tr_idx, val_idx in cv.split(X_train_sc, y_train):
+            model.fit(X_train_sc[tr_idx], y_train.iloc[tr_idx])
+            y_pred = model.predict(X_train_sc[val_idx])
+            scores.append(f1_score(y_train.iloc[val_idx], y_pred, labels=[1], average="macro", zero_division=0))
+        return float(np.mean(scores))
+
+    print(f"   Tuning MLP ({n_trials} trials)...")
+    mlp_study = optuna.create_study(direction="maximize")
+    mlp_study.optimize(mlp_objective, n_trials=n_trials, show_progress_bar=False)
+    best_mlp_params = mlp_study.best_params
+    print(f"   MLP best draw F1: {mlp_study.best_value:.3f}")
+
+    return best_rf_params, best_xgb_params, best_mlp_params
 
 
 def calculate_class_weights(y):
-    """Calculate balanced class weights with extra boost for draws."""
+    """Calculate balanced class weights (no manual amplification — meta-learner handles draw boost)."""
     from sklearn.utils.class_weight import compute_class_weight
-    
+
     classes = np.unique(y)
     weights = compute_class_weight('balanced', classes=classes, y=y)
-    
-    class_weight_dict = dict(zip(classes, weights))
-    
-    # Boost draw weight significantly (draws are hardest to predict)
-    class_weight_dict[1] *= 2.0  # Double the draw weight
-    
-    return class_weight_dict
+    return dict(zip(classes, weights))
 
 
 def create_sample_weights(y, class_weights):
@@ -225,91 +267,41 @@ def create_sample_weights(y, class_weights):
     return np.array([class_weights[int(val)] for val in y])
 
 
-def train_model():
-    """Train the enhanced ensemble model with draw focus."""
-    print("🚀 Starting ENHANCED model training with draw focus...\n")
-    
-    # Load data
-    df, features = _load_training_data("data/processed/training_data.csv")
+def train_pipeline(X_train: pd.DataFrame, y_train: pd.Series, n_trials: int = 0) -> StackingEnsemble:
+    """
+    Fit the full stacking ensemble (RF + XGB + MLP → LogReg meta-learner).
 
-    # Impute NaN odds features with column medians (rows without real odds data)
-    odds_cols_present = [f for f in ODDS_FEATURES if f in df.columns]
-    feature_medians = {}
-    if odds_cols_present:
-        medians = df[odds_cols_present].median()
-        feature_medians = medians.to_dict()
-        nan_count = df[odds_cols_present].isna().sum().sum()
-        if nan_count > 0:
-            df[odds_cols_present] = df[odds_cols_present].fillna(medians)
-            print(f"📊 Imputed {nan_count} NaN odds values with column medians")
+    Parameters
+    ----------
+    X_train : pd.DataFrame  — feature matrix
+    y_train : pd.Series     — integer-encoded labels (0=home, 1=draw, 2=away)
+    n_trials : int          — Optuna trials per model (0 = skip tuning, use defaults)
 
-    # Show class distribution
-    print("\n📊 Class distribution:")
-    result_counts = df["result"].value_counts()
-    total = len(df)
-    for result, count in result_counts.items():
-        pct = count / total * 100
-        label = {"H": "Home", "D": "Draw", "A": "Away"}[result]
-        print(f"   {label:5}: {count:5} ({pct:5.1f}%)")
-    print(f"   Total: {total}")
-    
-    # Check if we have draw features
-    has_draw_features = any(f in features for f in DRAW_FEATURES)
-    has_odds_features = any(f in features for f in ODDS_FEATURES)
-    
-    print(f"\n🎯 Feature set:")
-    print(f"   ✅ Core features: Yes")
-    print(f"   {'✅' if has_draw_features else '❌'} Draw-focused features: {'Yes' if has_draw_features else 'No'}")
-    print(f"   {'✅' if has_odds_features else '❌'} Odds-based features: {'Yes' if has_odds_features else 'No'}")
+    Returns
+    -------
+    StackingEnsemble ready for predict() / predict_proba()
 
-    # Prepare features and labels
-    X = df[features]
-    y_raw = df["result"].map(RESULT_MAP)
-    
-    if y_raw.isna().any():
-        bad_results = df[y_raw.isna()]["result"].unique()
-        raise ValueError(f"Unmappable result values found: {bad_results}")
-    
-    y_encoded = y_raw.map(LABEL_MAP)
-
-    # Split data
-    print("\n🔄 Splitting data (80% train, 20% test)...")
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y_encoded, test_size=0.2, random_state=42, stratify=y_encoded
-    )
-    
-    print(f"📊 Training set: {len(X_train)} samples")
-    print(f"📊 Test set: {len(X_test)} samples")
-    
-    # Scale features for neural network
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
-
-    # Calculate class weights
+    Used by both train_model() (n_trials=50) and backtest.py (n_trials=0).
+    """
     class_weights = calculate_class_weights(y_train)
-    print(f"\n⚖️ Class weights (to handle imbalance):")
-    for class_id, weight in class_weights.items():
-        class_name = ["Home Win", "Draw", "Away Win"][class_id]
-        print(f"   {class_name}: {weight:.2f}")
+    sample_weights = create_sample_weights(y_train, class_weights)
 
-    # === Hyperparameter tuning ===
-    print("\n🔍 Hyperparameter tuning with Optuna...")
-    best_rf_params, best_xgb_params = tune_hyperparameters(
-        X_train, y_train, class_weights, n_trials=50
-    )
+    # --- Hyperparameter tuning ---
+    if n_trials > 0:
+        print(f"\n🔍 Hyperparameter tuning with Optuna ({n_trials} trials each)...")
+        best_rf_params, best_xgb_params, best_mlp_params = tune_hyperparameters(
+            X_train, y_train, class_weights, n_trials=n_trials
+        )
+    else:
+        best_rf_params, best_xgb_params, best_mlp_params = {}, {}, {}
 
-    # === Define base models (tuned params if available, else defaults) ===
-    print("\n🤖 Building base models...")
-
+    # --- Define base models ---
     rf_defaults = dict(
         n_estimators=350, random_state=42, n_jobs=-1,
         max_depth=12, min_samples_split=15, min_samples_leaf=7,
         class_weight=class_weights, max_features="sqrt",
     )
     rf = RandomForestClassifier(**(best_rf_params if best_rf_params else rf_defaults))
-
-    sample_weights = create_sample_weights(y_train, class_weights)
 
     xgb_defaults = dict(
         n_estimators=500, learning_rate=0.02, max_depth=5,
@@ -320,11 +312,13 @@ def train_model():
     )
     xgb = XGBClassifier(**(best_xgb_params if best_xgb_params else xgb_defaults))
 
-    # Neural Network — not tuned (least impactful, scaling handled internally)
+    # MLP: reduced to (64, 32) as default; Optuna may choose a different architecture
+    mlp_hidden = best_mlp_params.get("mlp_hidden", (64, 32)) if best_mlp_params else (64, 32)
+    mlp_alpha = best_mlp_params.get("mlp_alpha", 1e-3) if best_mlp_params else 1e-3
     nn = MLPClassifier(
-        hidden_layer_sizes=(128, 64, 32, 16),
+        hidden_layer_sizes=mlp_hidden,
         activation="relu",
-        alpha=1e-3,
+        alpha=mlp_alpha,
         learning_rate="adaptive",
         learning_rate_init=5e-4,
         max_iter=1500,
@@ -335,57 +329,17 @@ def train_model():
         tol=1e-4,
     )
 
-    # === Train individual models ===
-    print("\n🏋️ Training individual models...")
-    
-    # Train RF
-    print("   Training Random Forest...")
-    rf.fit(X_train, y_train)
-    rf_pred = rf.predict(X_test)
-    rf_score = (rf_pred == y_test).mean()
-    
-    # Train XGBoost with sample weights
-    print("   Training XGBoost with weighted samples...")
-    xgb.fit(X_train, y_train, sample_weight=sample_weights)
-    xgb_pred = xgb.predict(X_test)
-    xgb_score = (xgb_pred == y_test).mean()
-    
-    # Train NN on scaled data
-    print("   Training Neural Network...")
-    nn.fit(X_train_scaled, y_train)
-    nn_pred = nn.predict(X_test_scaled)
-    nn_score = (nn_pred == y_test).mean()
-    
-    print(f"\n📊 Individual model accuracies (hold-out test):")
-    print(f"   Random Forest: {rf_score:.2%}")
-    print(f"   XGBoost: {xgb_score:.2%}")
-    print(f"   Neural Network: {nn_score:.2%}")
+    # Scaler for NN (fitted on full training data)
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
 
-    # K-fold cross-validation for robust accuracy estimate
-    print(f"\n🔄 5-fold cross-validation (Random Forest)...")
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    cv_scores = cross_val_score(
-        RandomForestClassifier(**rf.get_params()), X, y_encoded, cv=skf, scoring="accuracy", n_jobs=-1
-    )
-    print(f"   CV Accuracy: {cv_scores.mean():.2%} ± {cv_scores.std():.2%}")
-    
-    # Check individual model draw performance
-    print(f"\n🎯 Individual model DRAW recall:")
-    for name, preds in [("RF", rf_pred), ("XGB", xgb_pred), ("NN", nn_pred)]:
-        draw_mask = y_test == 1  # Draw class
-        if draw_mask.sum() > 0:
-            draw_recall = ((preds == 1) & draw_mask).sum() / draw_mask.sum()
-            print(f"   {name}: {draw_recall:.1%} ({((preds == 1) & draw_mask).sum()}/{draw_mask.sum()})")
-    
-    # === Build stacking ensemble via out-of-fold meta-features ===
-    print("\n🤖 Building stacking ensemble (5-fold out-of-fold meta-features)...")
+    # --- OOF stacking to build meta-training features ---
     skf_stack = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     meta_train = np.zeros((len(X_train), 9))  # 3 models × 3 classes
 
     for fold_idx, (tr_idx, val_idx) in enumerate(skf_stack.split(X_train, y_train)):
-        print(f"   Fold {fold_idx + 1}/5...")
-        X_ftr  = X_train.iloc[tr_idx];  X_fval  = X_train.iloc[val_idx]
-        y_ftr  = y_train.iloc[tr_idx]
+        X_ftr = X_train.iloc[tr_idx];  X_fval = X_train.iloc[val_idx]
+        y_ftr = y_train.iloc[tr_idx]
         fold_sw = create_sample_weights(y_ftr, class_weights)
 
         fold_scaler = StandardScaler()
@@ -404,56 +358,147 @@ def train_model():
         nn_f.fit(X_ftr_sc, y_ftr)
         meta_train[val_idx, 6:9] = nn_f.predict_proba(X_fval_sc)
 
-    print("   Training meta-learner (Logistic Regression)...")
+    # --- Train final base models on full training data ---
+    rf.fit(X_train, y_train)
+    xgb.fit(X_train, y_train, sample_weight=sample_weights)
+    nn.fit(X_train_scaled, y_train)
+
+    # --- Train meta-learner ---
     meta_learner = LogisticRegression(
         C=1.0, max_iter=1000, random_state=42, solver="lbfgs",
         class_weight="balanced"
     )
     meta_learner.fit(meta_train, y_train)
 
-    print("   Meta-learner learned weights:")
+    return StackingEnsemble(rf, xgb, nn, scaler, meta_learner)
+
+
+def train_model():
+    """Train the enhanced ensemble model with draw focus."""
+    print("🚀 Starting ENHANCED model training with draw focus...\n")
+
+    # Load data
+    df, features = _load_training_data("data/processed/training_data.csv")
+
+    # Show class distribution
+    print("\n📊 Class distribution:")
+    result_counts = df["result"].value_counts()
+    total = len(df)
+    for result, count in result_counts.items():
+        pct = count / total * 100
+        label = {"H": "Home", "D": "Draw", "A": "Away"}[result]
+        print(f"   {label:5}: {count:5} ({pct:5.1f}%)")
+    print(f"   Total: {total}")
+
+    has_draw_features = any(f in features for f in DRAW_FEATURES)
+    has_odds_features = any(f in features for f in ODDS_FEATURES)
+
+    print(f"\n🎯 Feature set:")
+    print(f"   ✅ Core features: Yes")
+    print(f"   {'✅' if has_draw_features else '❌'} Draw-focused features: {'Yes' if has_draw_features else 'No'}")
+    print(f"   {'✅' if has_odds_features else '❌'} Odds-based features: {'Yes' if has_odds_features else 'No'}")
+
+    # --- Prepare features and labels ---
+    X = df[features]
+    y_raw = df["result"].map(RESULT_MAP)
+
+    if y_raw.isna().any():
+        bad_results = df[y_raw.isna()]["result"].unique()
+        raise ValueError(f"Unmappable result values found: {bad_results}")
+
+    y_encoded = y_raw.map(LABEL_MAP)
+
+    # --- Chronological train/test split (Issue 1) ---
+    # Sort by match_date so the last 20% in time is the test set.
+    print("\n🔄 Chronological split (80% train, 20% test by match date)...")
+    if "match_date" in df.columns:
+        sort_idx = df["match_date"].argsort().values
+        X = X.iloc[sort_idx].reset_index(drop=True)
+        y_encoded = y_encoded.iloc[sort_idx].reset_index(drop=True)
+    else:
+        print("   ⚠️  No match_date column — falling back to row order")
+
+    split_idx = int(len(X) * 0.8)
+    X_train_full, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
+    y_train_full, y_test = y_encoded.iloc[:split_idx], y_encoded.iloc[split_idx:]
+
+    print(f"📊 Training (full): {len(X_train_full)} samples")
+    print(f"📊 Test set:        {len(X_test)} samples")
+
+    # --- Carve validation set from training data for threshold tuning (Issue 6) ---
+    val_split_idx = int(len(X_train_full) * 0.85)
+    X_train = X_train_full.iloc[:val_split_idx]
+    y_train = y_train_full.iloc[:val_split_idx]
+    X_val   = X_train_full.iloc[val_split_idx:]
+    y_val   = y_train_full.iloc[val_split_idx:]
+
+    print(f"📊 Train (core):    {len(X_train)} samples")
+    print(f"📊 Validation set:  {len(X_val)} samples  (for threshold tuning only)")
+    print(f"📊 Test set:        {len(X_test)} samples  (held out until final eval)")
+
+    # --- Train full stacking ensemble ---
+    print("\n🤖 Training stacking ensemble via train_pipeline()...")
+    ensemble = train_pipeline(X_train, y_train, n_trials=50)
+
+    # --- Show per-model metrics on test set ---
+    print("\n📊 Individual model accuracies (hold-out test):")
+    X_test_scaled = ensemble.scaler.transform(X_test)
+    for name, model, X_eval in [
+        ("Random Forest", ensemble.rf, X_test),
+        ("XGBoost",       ensemble.xgb, X_test),
+        ("Neural Network", ensemble.nn, X_test_scaled),
+    ]:
+        preds = model.predict(X_eval)
+        score = (preds == y_test).mean()
+        draw_mask = y_test == 1
+        draw_rec = ((preds == 1) & draw_mask).sum() / draw_mask.sum() if draw_mask.sum() else 0.0
+        print(f"   {name}: accuracy={score:.2%}  draw_recall={draw_rec:.1%}")
+
+    # Show meta-learner weights
+    meta_learner = ensemble.meta_learner
+    print("\n   Meta-learner learned weights:")
     for i, class_name in enumerate(["Home Win", "Draw", "Away Win"]):
         rf_w  = meta_learner.coef_[i][:3].mean()
         xgb_w = meta_learner.coef_[i][3:6].mean()
         nn_w  = meta_learner.coef_[i][6:9].mean()
         print(f"     {class_name}: RF={rf_w:+.2f}  XGB={xgb_w:+.2f}  NN={nn_w:+.2f}")
 
-    ensemble = StackingEnsemble(rf, xgb, nn, scaler, meta_learner)
+    # --- K-fold CV on X_train (not X_test!) ---
+    print(f"\n🔄 5-fold cross-validation (Random Forest, on training data)...")
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    cv_scores = cross_val_score(
+        RandomForestClassifier(**ensemble.rf.get_params()), X_train, y_train,
+        cv=skf, scoring="accuracy", n_jobs=-1
+    )
+    print(f"   CV Accuracy: {cv_scores.mean():.2%} ± {cv_scores.std():.2%}")
 
-    # === Evaluate stacking ensemble ===
-    print("\n📈 Evaluating stacking ensemble performance...")
+    # --- Evaluate stacking ensemble on test set (no threshold) ---
+    print("\n📈 Evaluating stacking ensemble on hold-out test set...")
     y_pred = ensemble.predict(X_test)
     y_proba = ensemble.predict_proba(X_test)
-    
-    # Calculate metrics
+
     accuracy = (y_pred == y_test).mean()
-    print(f"\n🎯 Overall Accuracy: {accuracy:.2%}")
-    
-    # Detailed classification report
-    print("\n📊 Classification Report:")
+    print(f"\n🎯 Overall Accuracy (raw, no threshold): {accuracy:.2%}")
+
     report = classification_report(
         y_test, y_pred,
         target_names=["Home Win", "Draw", "Away Win"],
         digits=3,
         output_dict=True
     )
-    
-    # Print formatted report
+
+    print(f"\n📊 Classification Report:")
     print(f"{'Class':12} {'Precision':>10} {'Recall':>10} {'F1-Score':>10} {'Support':>10}")
     print("-" * 55)
     for class_name in ["Home Win", "Draw", "Away Win"]:
         metrics = report[class_name]
         print(f"{class_name:12} {metrics['precision']:>10.3f} {metrics['recall']:>10.3f} "
               f"{metrics['f1-score']:>10.3f} {int(metrics['support']):>10}")
-    
     print("-" * 55)
     print(f"{'Accuracy':12} {' ':>10} {' ':>10} {report['accuracy']:>10.3f} {int(report['macro avg']['support']):>10}")
     print(f"{'Macro avg':12} {report['macro avg']['precision']:>10.3f} "
           f"{report['macro avg']['recall']:>10.3f} {report['macro avg']['f1-score']:>10.3f}")
-    print(f"{'Weighted avg':12} {report['weighted avg']['precision']:>10.3f} "
-          f"{report['weighted avg']['recall']:>10.3f} {report['weighted avg']['f1-score']:>10.3f}")
 
-    # Confusion matrix
     print("\n🧮 Confusion Matrix:")
     print("    Predicted: Home | Draw | Away")
     print("    " + "-" * 30)
@@ -461,55 +506,60 @@ def train_model():
     labels = ["Home", "Draw", "Away"]
     for i, row in enumerate(cm):
         print(f"Actual {labels[i]:5}: {row[0]:5} | {row[1]:5} | {row[2]:5}")
-    
-    # Calculate and highlight draw improvement
+
     draw_recall = report["Draw"]["recall"]
     draw_precision = report["Draw"]["precision"]
     draw_f1 = report["Draw"]["f1-score"]
-    
-    print(f"\n✨ DRAW PREDICTION PERFORMANCE:")
-    print(f"   Recall: {draw_recall:.1%} (ability to find draws)")
-    print(f"   Precision: {draw_precision:.1%} (accuracy when predicting draw)")
-    print(f"   F1-Score: {draw_f1:.3f}")
-    
-    if draw_recall > 0.15:
-        print(f"   ✅ EXCELLENT! Draw recall above 15%")
-    elif draw_recall > 0.10:
-        print(f"   ✅ GOOD! Draw recall above 10%")
-    elif draw_recall > 0.05:
-        print(f"   ⚠️ OK - Draw recall above 5% but could be better")
-    else:
-        print(f"   ❌ POOR - Draw recall below 5%, needs improvement")
 
-    # Optimize confidence threshold on test set
-    print("\n🎯 Optimizing confidence threshold...")
+    print(f"\n✨ DRAW PREDICTION PERFORMANCE (before threshold):")
+    print(f"   Recall: {draw_recall:.1%}")
+    print(f"   Precision: {draw_precision:.1%}")
+    print(f"   F1-Score: {draw_f1:.3f}")
+
+    # --- Optimize confidence threshold on VALIDATION SET (Issue 6) ---
+    print("\n🎯 Optimizing confidence threshold on validation set (not test set)...")
+    y_proba_val = ensemble.predict_proba(X_val)
     best_threshold, best_threshold_f1 = 0.60, 0.0
     for threshold in np.arange(0.40, 0.80, 0.025):
-        mask = y_proba.max(axis=1) >= threshold
+        mask = y_proba_val.max(axis=1) >= threshold
         if mask.sum() < 10:
             continue
-        y_true_t = y_test.values[mask]
-        y_pred_t = y_proba[mask].argmax(axis=1)
-        draw_f1 = f1_score(y_true_t, y_pred_t, labels=[1], average="macro", zero_division=0)
-        if draw_f1 > best_threshold_f1:
-            best_threshold_f1 = draw_f1
+        y_true_t = y_val.values[mask]
+        y_pred_t = y_proba_val[mask].argmax(axis=1)
+        t_f1 = f1_score(y_true_t, y_pred_t, labels=[1], average="macro", zero_division=0)
+        if t_f1 > best_threshold_f1:
+            best_threshold_f1 = t_f1
             best_threshold = float(threshold)
-    print(f"   Optimal threshold: {best_threshold:.2f} (draw F1: {best_threshold_f1:.3f})")
+    print(f"   Optimal threshold: {best_threshold:.2f} (val draw F1: {best_threshold_f1:.3f})")
 
-    # Save models and metadata
+    # Report test set metrics with optimal threshold applied
+    thresh_mask = y_proba.max(axis=1) >= best_threshold
+    if thresh_mask.sum() >= 10:
+        y_pred_thresh = y_proba[thresh_mask].argmax(axis=1)
+        y_test_thresh = y_test.values[thresh_mask]
+        accuracy_thresh = (y_pred_thresh == y_test_thresh).mean()
+        report_thresh = classification_report(
+            y_test_thresh, y_pred_thresh,
+            target_names=["Home Win", "Draw", "Away Win"],
+            digits=3, output_dict=True
+        )
+        print(f"\n📊 Test set WITH threshold ≥ {best_threshold:.2f} ({thresh_mask.sum()} / {len(y_test)} matches):")
+        print(f"   Accuracy:       {accuracy_thresh:.2%}")
+        print(f"   Draw recall:    {report_thresh['Draw']['recall']:.1%}")
+        print(f"   Draw precision: {report_thresh['Draw']['precision']:.1%}")
+        print(f"   Draw F1:        {report_thresh['Draw']['f1-score']:.3f}")
+
+    # --- Save models and metadata ---
     print("\n💾 Saving models and metadata...")
     os.makedirs("models", exist_ok=True)
-    
-    # Save stacking ensemble (wraps all base models + meta-learner)
+
     joblib.dump(ensemble, "models/ensemble_model.pkl")
-    joblib.dump(meta_learner, "models/meta_learner.pkl")
+    joblib.dump(ensemble.meta_learner, "models/meta_learner.pkl")
     print("✅ Stacking ensemble saved")
-    
-    # Save scaler
-    joblib.dump(scaler, "models/scaler.pkl")
+
+    joblib.dump(ensemble.scaler, "models/scaler.pkl")
     print("✅ Feature scaler saved")
-    
-    # Save feature list and metadata
+
     metadata = {
         "features": features,
         "n_features": len(features),
@@ -521,49 +571,41 @@ def train_model():
         "training_samples": len(X_train),
         "test_samples": len(X_test),
         "confidence_threshold": best_threshold,
-        "feature_medians": feature_medians,
+        "feature_medians": {},  # no longer used — kept for API compatibility
         "cv_accuracy_mean": float(cv_scores.mean()),
         "cv_accuracy_std": float(cv_scores.std()),
-        "tuned_rf_params": best_rf_params,
-        "tuned_xgb_params": {k: v for k, v in best_xgb_params.items() if k != "class_weight"},
     }
-    
+
     joblib.dump(metadata, "models/metadata.pkl")
-    
+
     with open("models/features.txt", "w") as f:
         f.write("\n".join(features))
     print("✅ Feature list and metadata saved")
-    
-    # Also save individual models for analysis
-    joblib.dump(rf, "models/rf_model.pkl")
-    joblib.dump(xgb, "models/xgb_model.pkl")
-    joblib.dump(nn, "models/mlp_model.pkl")
+
+    joblib.dump(ensemble.rf, "models/rf_model.pkl")
+    joblib.dump(ensemble.xgb, "models/xgb_model.pkl")
+    joblib.dump(ensemble.nn, "models/mlp_model.pkl")
     print("✅ Individual models saved")
-    
-    # Feature importance analysis
+
+    # Feature importance
     print("\n📊 Top 15 Feature Importance (from Random Forest):")
     feature_importance = pd.DataFrame({
         'feature': features,
-        'importance': rf.feature_importances_
+        'importance': ensemble.rf.feature_importances_
     }).sort_values('importance', ascending=False).head(15)
-    
+
     max_importance = feature_importance['importance'].max()
     for _, row in feature_importance.iterrows():
-        # Visual bar chart in terminal
         bar_length = int((row['importance'] / max_importance) * 30)
         bar = '█' * bar_length
-        
-        # Mark feature type
         if row['feature'] in DRAW_FEATURES:
-            marker = "🎯"  # Draw feature
+            marker = "🎯"
         elif row['feature'] in ODDS_FEATURES:
-            marker = "💰"  # Odds feature
+            marker = "💰"
         else:
-            marker = "📊"  # Core feature
-            
-        print(f"  {marker} {row['feature']:28} {row['importance']:.4f} {bar}")
-    
-    # Final summary
+            marker = "📊"
+        print(f"  {marker} {row['feature']:30} {row['importance']:.4f} {bar}")
+
     print("\n" + "=" * 60)
     print("🎉 TRAINING COMPLETE - STACKING ENSEMBLE SUMMARY")
     print("=" * 60)
@@ -572,14 +614,7 @@ def train_model():
     print(f"   Overall accuracy: {accuracy:.2%}")
     print(f"   Draw recall: {draw_recall:.1%}")
     print(f"   Draw precision: {draw_precision:.1%}")
-    
-    if has_draw_features and has_odds_features:
-        print(f"\n   ✅ FULL FEATURE SET - Using draw + odds features")
-    elif has_draw_features:
-        print(f"\n   ✅ Using draw features (no odds available)")
-    else:
-        print(f"\n   ⚠️ Basic features only - run enhanced prepare_training_data.py")
-    
+    print(f"   Confidence threshold: {best_threshold:.2f} (tuned on validation set)")
     print(f"\n   Models saved in: models/")
     print(f"   Ready for predictions!")
 

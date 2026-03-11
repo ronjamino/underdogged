@@ -30,11 +30,15 @@ def _canon(code_or_name: str) -> str:
 def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
     """
     ENHANCED: Generate features including draw-predictive features AND odds integration.
-    
+
     This version includes:
     1. Original features (H2H, form, goals)
-    2. NEW draw-predictive features
-    3. Odds-based features (if available in the historical data)
+    2. Draw-predictive features
+    3. Venue-specific draw rates (home_venue_draw_rate, away_venue_draw_rate)
+    4. Current-season league draw rate (current_season_draw_rate)
+    5. has_odds binary indicator (replaces median imputation)
+    6. Raw bookmaker odds passthrough (raw_home/draw/away_odds for backtest ROI)
+    7. Odds-based features (if available in the historical data)
     """
     df = df.sort_values("date").copy()
     if "league" not in df.columns:
@@ -45,11 +49,10 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
     df["outcome_code"] = df["result"].map({"H": 1, "D": 0, "A": -1})
 
     feature_rows = []
-    
+
     # Check if we have unified odds columns (home_odds/draw_odds/away_odds).
-    # fetch_historic_results normalises B365H/B365D/B365A to these names so
-    # both historical and live odds sources use the same column names.
     has_odds = all(col in df.columns for col in ["home_odds", "draw_odds", "away_odds"])
+    has_raw_odds = all(col in df.columns for col in ["B365H", "B365D", "B365A"])
     if has_odds:
         print("✅ Found betting odds in historical data - will include odds features!")
     else:
@@ -60,6 +63,7 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
         home = row["home_team"]
         away = row["away_team"]
         league = row.get("league", "UNKNOWN")
+        current_season = row.get("season")
 
         # Only consider matches strictly before this match
         past_matches = df[df["date"] < current_date]
@@ -68,7 +72,7 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
         if separate_by_league and league != "UNKNOWN":
             past_matches = past_matches[past_matches["league"] == league]
 
-        # --- H2H Features (existing + enhanced) ---
+        # --- H2H Features ---
         h2h = past_matches[
             ((past_matches["home_team"] == home) & (past_matches["away_team"] == away)) |
             ((past_matches["home_team"] == away) & (past_matches["away_team"] == home))
@@ -77,8 +81,8 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
         if len(h2h) < 2:
             avg_goal_diff = 0.0
             h2h_home_winrate = 0.5
-            h2h_draw_rate = 0.25  # NEW: Default draw rate
-            h2h_total_goals = 2.5  # NEW: Average total goals in H2H
+            h2h_draw_rate = 0.25
+            h2h_total_goals = 2.5
         else:
             goal_diffs, home_wins, draws = [], 0, 0
             total_goals_h2h = []
@@ -102,7 +106,7 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
             h2h_draw_rate = draws / len(h2h) if len(h2h) else 0.25
             h2h_total_goals = np.mean(total_goals_h2h) if total_goals_h2h else 2.5
 
-        # --- Venue-aware form (existing) ---
+        # --- Venue-aware form ---
         home_recent = past_matches[past_matches["home_team"] == home].sort_values("date").tail(form_window)
         away_recent = past_matches[past_matches["away_team"] == away].sort_values("date").tail(form_window)
 
@@ -112,21 +116,26 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
         home_form_winrate = (home_form_wins / len(home_recent)) if len(home_recent) else 0.5
         away_form_winrate = (away_form_wins / len(away_recent)) if len(away_recent) else 0.5
 
-        # --- NEW: Draw rates for each team ---
-        # How often does each team draw in general?
+        # --- Venue-specific draw rates (Issue 4) ---
+        # How often does home team draw when playing at home?
+        home_venue_draw_rate = (home_recent["result"] == "D").mean() if len(home_recent) else 0.25
+        # How often does away team draw when playing away?
+        away_venue_draw_rate = (away_recent["result"] == "D").mean() if len(away_recent) else 0.25
+
+        # --- General draw rates (using form_window matches, not form_window*2 — Issue 7) ---
         home_all_matches = past_matches[
             (past_matches["home_team"] == home) | (past_matches["away_team"] == home)
-        ].tail(form_window * 2)
-        
+        ].tail(form_window)
+
         away_all_matches = past_matches[
             (past_matches["home_team"] == away) | (past_matches["away_team"] == away)
-        ].tail(form_window * 2)
-        
+        ].tail(form_window)
+
         home_draw_rate = (home_all_matches["result"] == "D").mean() if len(home_all_matches) else 0.25
         away_draw_rate = (away_all_matches["result"] == "D").mean() if len(away_all_matches) else 0.25
         combined_draw_rate = (home_draw_rate + away_draw_rate) / 2
 
-        # --- Goals per match (enhanced) ---
+        # --- Goals per match ---
         if len(home_recent):
             home_avg_goals_scored = float(home_recent["home_goals"].mean())
             home_avg_goals_conceded = float(home_recent["away_goals"].mean())
@@ -145,16 +154,12 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
             away_avg_goals_conceded = 1.0
             away_total_goals_avg = 2.5
 
-        # --- NEW: Strength differential features ---
-        # When teams are evenly matched, draws are more likely
+        # --- Strength differential features ---
         form_differential = abs(home_form_winrate - away_form_winrate)
         goals_differential = abs(home_avg_goals_scored - away_avg_goals_scored)
         expected_total_goals = home_avg_goals_scored + away_avg_goals_scored
-        
-        # --- NEW: League context ---
-        # past_matches is already filtered to this league (line 67-69).
-        # Use all of it — no tail() cap — for a statistically stable
-        # estimate of league-wide draw rate, goal rates, and home advantage.
+
+        # --- League context ---
         league_recent = past_matches
         if len(league_recent):
             league_avg_goals = float((league_recent["home_goals"] + league_recent["away_goals"]).mean())
@@ -165,60 +170,75 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
             league_draw_rate = 0.25
             league_home_adv = 0.1
 
-        # --- NEW: Recent form momentum ---
-        home_last_3 = home_recent.tail(3)
-        away_last_3 = away_recent.tail(3)
-        
-        if len(home_last_3):
-            home_recent_points = sum([3 if r == "H" else (1 if r == "D" else 0) for r in home_last_3["result"]])
-            home_momentum = home_recent_points / 9.0
+        # --- Current-season league draw rate (Issue 8) ---
+        if current_season and "season" in past_matches.columns:
+            season_matches = past_matches[past_matches["season"] == current_season]
+            if len(season_matches) >= 10:
+                current_season_draw_rate = float((season_matches["result"] == "D").mean())
+            else:
+                current_season_draw_rate = league_draw_rate  # fall back to all-time
+        else:
+            current_season_draw_rate = league_draw_rate
+
+        # --- Momentum: extended to 5 games (Issue 7) ---
+        home_last_5 = home_recent.tail(5)
+        away_last_5 = away_recent.tail(5)
+
+        if len(home_last_5):
+            home_recent_points = sum([3 if r == "H" else (1 if r == "D" else 0) for r in home_last_5["result"]])
+            home_momentum = home_recent_points / 15.0
         else:
             home_momentum = 0.5
-            
-        if len(away_last_3):
-            away_recent_points = sum([3 if r == "A" else (1 if r == "D" else 0) for r in away_last_3["result"]])
-            away_momentum = away_recent_points / 9.0
+
+        if len(away_last_5):
+            away_recent_points = sum([3 if r == "A" else (1 if r == "D" else 0) for r in away_last_5["result"]])
+            away_momentum = away_recent_points / 15.0
         else:
             away_momentum = 0.5
-            
+
         momentum_differential = abs(home_momentum - away_momentum)
 
-        # --- NEW: Low-scoring team indicators ---
+        # --- Low-scoring team indicators ---
         is_low_scoring = expected_total_goals < league_avg_goals * 0.85
         is_defensive_match = (home_avg_goals_conceded < 1.2 and away_avg_goals_conceded < 1.2)
 
+        # --- has_odds indicator (Issue 5) ---
+        row_has_odds = has_odds and not pd.isna(row.get("home_odds"))
+        has_odds_flag = 1.0 if row_has_odds else 0.0
+
         # --- ODDS-BASED FEATURES (if available) ---
-        if has_odds and not pd.isna(row.get("home_odds")):
-            # Calculate implied probabilities from unified odds columns
+        if row_has_odds:
             home_odds = row.get("home_odds", 3.0)
             draw_odds = row.get("draw_odds", 3.3)
             away_odds = row.get("away_odds", 3.0)
-            
-            # Convert to implied probabilities
+
             home_implied = 1 / home_odds if home_odds > 0 else 0.33
             draw_implied = 1 / draw_odds if draw_odds > 0 else 0.33
             away_implied = 1 / away_odds if away_odds > 0 else 0.33
-            
-            # Normalize (remove overround)
+
             total_implied = home_implied + draw_implied + away_implied
             home_true_prob = home_implied / total_implied
             draw_true_prob = draw_implied / total_implied
             away_true_prob = away_implied / total_implied
-            
-            # Market-derived features
+
             market_draw_confidence = draw_true_prob
             market_favorite_confidence = max(home_true_prob, away_true_prob)
             market_competitiveness = 1 - abs(home_true_prob - away_true_prob)
             odds_spread = max(home_odds, away_odds) - min(home_odds, away_odds)
         else:
-            # No real odds available - use NaN to avoid training on synthetic values
-            home_true_prob = np.nan
-            draw_true_prob = np.nan
-            away_true_prob = np.nan
-            market_draw_confidence = np.nan
-            market_favorite_confidence = np.nan
-            market_competitiveness = np.nan
-            odds_spread = np.nan
+            # No real odds available — fill with 0 (has_odds=0 signals this to the model)
+            home_true_prob = 0.0
+            draw_true_prob = 0.0
+            away_true_prob = 0.0
+            market_draw_confidence = 0.0
+            market_favorite_confidence = 0.0
+            market_competitiveness = 0.0
+            odds_spread = 0.0
+
+        # --- Raw bookmaker odds for backtest ROI (Issue 10) ---
+        raw_home_odds = float(row.get("B365H", np.nan)) if has_raw_odds else np.nan
+        raw_draw_odds = float(row.get("B365D", np.nan)) if has_raw_odds else np.nan
+        raw_away_odds = float(row.get("B365A", np.nan)) if has_raw_odds else np.nan
 
         # --- Interaction features ---
         form_x_goals = form_differential * expected_total_goals
@@ -230,7 +250,7 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
             "away_team": away,
             "match_date": current_date,
             "league": league,
-            
+
             # Original features
             "avg_goal_diff_h2h": avg_goal_diff,
             "h2h_home_winrate": h2h_home_winrate,
@@ -240,13 +260,16 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
             "home_avg_goals_conceded": home_avg_goals_conceded,
             "away_avg_goals_scored": away_avg_goals_scored,
             "away_avg_goals_conceded": away_avg_goals_conceded,
-            
-            # NEW draw-focused features
+
+            # Draw-focused features
             "h2h_draw_rate": h2h_draw_rate,
             "h2h_total_goals": h2h_total_goals,
             "home_draw_rate": home_draw_rate,
             "away_draw_rate": away_draw_rate,
             "combined_draw_rate": combined_draw_rate,
+            "home_venue_draw_rate": home_venue_draw_rate,
+            "away_venue_draw_rate": away_venue_draw_rate,
+            "current_season_draw_rate": current_season_draw_rate,
             "form_differential": form_differential,
             "goals_differential": goals_differential,
             "expected_total_goals": expected_total_goals,
@@ -260,8 +283,9 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
             "momentum_differential": momentum_differential,
             "is_low_scoring": float(is_low_scoring),
             "is_defensive_match": float(is_defensive_match),
-            
-            # Odds-based features
+
+            # Odds-based features (0 when odds unavailable; has_odds signals presence)
+            "has_odds": has_odds_flag,
             "home_true_prob": home_true_prob,
             "draw_true_prob": draw_true_prob,
             "away_true_prob": away_true_prob,
@@ -269,6 +293,11 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
             "market_favorite_confidence": market_favorite_confidence,
             "market_competitiveness": market_competitiveness,
             "odds_spread": odds_spread,
+
+            # Raw bookmaker odds — metadata only, not used as model features
+            "raw_home_odds": raw_home_odds,
+            "raw_draw_odds": raw_draw_odds,
+            "raw_away_odds": raw_away_odds,
 
             # Interaction features
             "form_x_goals": form_x_goals,
@@ -309,7 +338,7 @@ def build_features_by_league(leagues=None):
         df_raw["league"] = "UNKNOWN"
 
     print(f"📊 Raw data: {len(df_raw)} matches across {df_raw['league'].nunique()} leagues")
-    
+
     # Show result distribution
     result_dist = df_raw["result"].value_counts()
     total = len(df_raw)
@@ -330,7 +359,7 @@ def build_features_by_league(leagues=None):
     df_features = build_features(df_raw, separate_by_league=True)
 
     print(f"✅ Generated {len(df_features)} feature rows")
-    
+
     # Analyze feature quality
     if not df_features.empty:
         print(f"\n📊 Feature statistics:")
@@ -339,33 +368,13 @@ def build_features_by_league(leagues=None):
         print(f"     • Avg H2H draw rate: {df_features['h2h_draw_rate'].mean():.3f}")
         print(f"     • Avg form differential: {df_features['form_differential'].mean():.3f}")
         print(f"     • Avg expected total goals: {df_features['expected_total_goals'].mean():.2f}")
+        print(f"     • Avg home venue draw rate: {df_features['home_venue_draw_rate'].mean():.3f}")
+        print(f"     • Avg away venue draw rate: {df_features['away_venue_draw_rate'].mean():.3f}")
+        print(f"     • Avg current season draw rate: {df_features['current_season_draw_rate'].mean():.3f}")
         print(f"   Odds-based features:")
+        print(f"     • Matches with real odds: {int(df_features['has_odds'].sum())} / {len(df_features)} ({df_features['has_odds'].mean()*100:.1f}%)")
         print(f"     • Avg market draw confidence: {df_features['market_draw_confidence'].mean():.3f}")
         print(f"     • Avg market competitiveness: {df_features['market_competitiveness'].mean():.3f}")
-        
-        # Analyze draw correlation
-        draw_matches = df_features[df_features["result"] == "D"]
-        non_draw_matches = df_features[df_features["result"] != "D"]
-        
-        print(f"\n🎯 Draw indicator analysis:")
-        print(f"   When match ENDS in draw:")
-        print(f"     • Form differential: {draw_matches['form_differential'].mean():.3f}")
-        print(f"     • Combined draw rate: {draw_matches['combined_draw_rate'].mean():.3f}")
-        print(f"     • Market draw confidence: {draw_matches['market_draw_confidence'].mean():.3f}")
-        print(f"   When match DOESN'T end in draw:")
-        print(f"     • Form differential: {non_draw_matches['form_differential'].mean():.3f}")
-        print(f"     • Combined draw rate: {non_draw_matches['combined_draw_rate'].mean():.3f}")
-        print(f"     • Market draw confidence: {non_draw_matches['market_draw_confidence'].mean():.3f}")
-        
-        # Show which features will be most useful
-        print(f"\n💡 Feature insights:")
-        form_diff_gap = abs(draw_matches['form_differential'].mean() - non_draw_matches['form_differential'].mean())
-        draw_rate_gap = abs(draw_matches['combined_draw_rate'].mean() - non_draw_matches['combined_draw_rate'].mean())
-        market_gap = abs(draw_matches['market_draw_confidence'].mean() - non_draw_matches['market_draw_confidence'].mean())
-        
-        print(f"   • Form differential discriminative power: {form_diff_gap:.3f}")
-        print(f"   • Draw rate discriminative power: {draw_rate_gap:.3f}")
-        print(f"   • Market confidence discriminative power: {market_gap:.3f}")
 
     return df_features
 
@@ -382,18 +391,20 @@ if __name__ == "__main__":
         raise SystemExit(1)
 
     print(f"\n📋 Feature columns ({len(df_features.columns)} total):")
-    
+
     feature_groups = {
-        "Original": ["avg_goal_diff_h2h", "h2h_home_winrate", "home_form_winrate", 
+        "Original": ["avg_goal_diff_h2h", "h2h_home_winrate", "home_form_winrate",
                     "away_form_winrate", "home_avg_goals_scored", "home_avg_goals_conceded",
                     "away_avg_goals_scored", "away_avg_goals_conceded"],
-        "Draw-focused": ["h2h_draw_rate", "combined_draw_rate", "form_differential",
-                        "goals_differential", "expected_total_goals", "league_draw_rate",
-                        "momentum_differential", "is_low_scoring", "is_defensive_match"],
-        "Odds-based": ["home_true_prob", "draw_true_prob", "away_true_prob",
-                      "market_draw_confidence", "market_competitiveness", "odds_spread"]
+        "Draw-focused": ["h2h_draw_rate", "combined_draw_rate", "home_venue_draw_rate",
+                        "away_venue_draw_rate", "current_season_draw_rate",
+                        "form_differential", "goals_differential", "expected_total_goals",
+                        "league_draw_rate", "momentum_differential", "is_low_scoring", "is_defensive_match"],
+        "Odds-based": ["has_odds", "home_true_prob", "draw_true_prob", "away_true_prob",
+                      "market_draw_confidence", "market_competitiveness", "odds_spread"],
+        "Raw odds (metadata)": ["raw_home_odds", "raw_draw_odds", "raw_away_odds"],
     }
-    
+
     for group_name, features in feature_groups.items():
         available = [f for f in features if f in df_features.columns]
         print(f"\n   {group_name} ({len(available)}/{len(features)}):")
@@ -406,4 +417,4 @@ if __name__ == "__main__":
     df_features.to_csv(out_path, index=False)
     print(f"\n✅ Enhanced feature data saved to {out_path}")
     print(f"📊 Total feature rows: {len(df_features)}")
-    print(f"🎯 Total features: {len([c for c in df_features.columns if c not in ['home_team', 'away_team', 'match_date', 'league', 'result']])} predictive features!")
+    print(f"🎯 Total features: {len([c for c in df_features.columns if c not in ['home_team', 'away_team', 'match_date', 'league', 'result', 'raw_home_odds', 'raw_draw_odds', 'raw_away_odds']])} predictive features!")

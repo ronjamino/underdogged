@@ -139,15 +139,19 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
         home_form_winrate = float(home_form_wins / len(home_recent)) if len(home_recent) else 0.5
         away_form_winrate = float(away_form_wins / len(away_recent)) if len(away_recent) else 0.5
 
-        # --- Draw rates ---
+        # --- Venue-specific draw rates (Issue 4) ---
+        home_venue_draw_rate = float((home_recent["result"] == "D").mean()) if len(home_recent) else 0.25
+        away_venue_draw_rate = float((away_recent["result"] == "D").mean()) if len(away_recent) else 0.25
+
+        # --- General draw rates (form_window matches, not form_window*2 — Issue 7) ---
         home_all_matches = past_matches[
             (past_matches["home_team"] == home) | (past_matches["away_team"] == home)
-        ].tail(form_window * 2)
-        
+        ].tail(form_window)
+
         away_all_matches = past_matches[
             (past_matches["home_team"] == away) | (past_matches["away_team"] == away)
-        ].tail(form_window * 2)
-        
+        ].tail(form_window)
+
         home_draw_rate = float((home_all_matches["result"] == "D").mean()) if len(home_all_matches) else 0.25
         away_draw_rate = float((away_all_matches["result"] == "D").mean()) if len(away_all_matches) else 0.25
         combined_draw_rate = (home_draw_rate + away_draw_rate) / 2
@@ -177,9 +181,6 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
         expected_total_goals = float(home_avg_goals_scored + away_avg_goals_scored)
 
         # --- League context ---
-        # Use all available past matches in the league (already filtered above).
-        # Removing the tail(100) cap avoids recency bias and gives a stable,
-        # representative estimate of league-wide draw rate / goals / home advantage.
         league_recent = past_matches
         if len(league_recent):
             league_avg_goals = float((league_recent["home_goals"] + league_recent["away_goals"]).mean())
@@ -190,22 +191,40 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
             league_draw_rate = 0.25
             league_home_adv = 0.1
 
-        # --- Momentum ---
-        home_last_3 = home_recent.tail(3)
-        away_last_3 = away_recent.tail(3)
-        
-        if len(home_last_3):
-            home_recent_points = sum([3 if r == "H" else (1 if r == "D" else 0) for r in home_last_3["result"]])
-            home_momentum = float(home_recent_points / 9.0)
+        # --- Current-season league draw rate (Issue 8) ---
+        # Infer current season from fixture date: Aug-Dec → season starts this year
+        fixture_year = fixture_date.year
+        fixture_month = fixture_date.month
+        if fixture_month >= 8:
+            season_code = f"{fixture_year % 100:02d}{(fixture_year + 1) % 100:02d}"
+        else:
+            season_code = f"{(fixture_year - 1) % 100:02d}{fixture_year % 100:02d}"
+
+        if "season" in past_matches.columns:
+            season_matches = past_matches[past_matches["season"] == season_code]
+            if len(season_matches) >= 10:
+                current_season_draw_rate = float((season_matches["result"] == "D").mean())
+            else:
+                current_season_draw_rate = league_draw_rate
+        else:
+            current_season_draw_rate = league_draw_rate
+
+        # --- Momentum: extended to 5 games (Issue 7) ---
+        home_last_5 = home_recent.tail(5)
+        away_last_5 = away_recent.tail(5)
+
+        if len(home_last_5):
+            home_recent_points = sum([3 if r == "H" else (1 if r == "D" else 0) for r in home_last_5["result"]])
+            home_momentum = float(home_recent_points / 15.0)
         else:
             home_momentum = 0.5
-            
-        if len(away_last_3):
-            away_recent_points = sum([3 if r == "A" else (1 if r == "D" else 0) for r in away_last_3["result"]])
-            away_momentum = float(away_recent_points / 9.0)
+
+        if len(away_last_5):
+            away_recent_points = sum([3 if r == "A" else (1 if r == "D" else 0) for r in away_last_5["result"]])
+            away_momentum = float(away_recent_points / 15.0)
         else:
             away_momentum = 0.5
-            
+
         momentum_differential = float(abs(home_momentum - away_momentum))
 
         # --- Low-scoring indicators ---
@@ -241,6 +260,9 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
             "home_draw_rate": home_draw_rate,
             "away_draw_rate": away_draw_rate,
             "combined_draw_rate": combined_draw_rate,
+            "home_venue_draw_rate": home_venue_draw_rate,      # Issue 4
+            "away_venue_draw_rate": away_venue_draw_rate,      # Issue 4
+            "current_season_draw_rate": current_season_draw_rate,  # Issue 8
             "form_differential": form_differential,
             "goals_differential": goals_differential,
             "expected_total_goals": expected_total_goals,
@@ -254,6 +276,8 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
             "momentum_differential": momentum_differential,
             "is_low_scoring": is_low_scoring,
             "is_defensive_match": is_defensive_match,
+            # has_odds: 0 at prediction time until enhance_with_odds() adds real odds (Issue 5)
+            "has_odds": 0.0,
             # Interaction features
             "form_x_goals": form_x_goals,
             "momentum_interaction": momentum_interaction,
@@ -264,18 +288,17 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
 
 def enhance_with_odds(features_df, feature_medians=None):
     """Add odds-based features to predictions."""
-    # Use medians from training data as defaults (consistent with training imputation)
+    # When no real odds exist, fill with 0 (consistent with has_odds=0 in training).
     defaults = {
-        "home_true_prob": 0.40,
-        "draw_true_prob": 0.27,
-        "away_true_prob": 0.33,
-        "market_draw_confidence": 0.27,
-        "market_favorite_confidence": 0.40,
-        "market_competitiveness": 0.5,
-        "odds_spread": 1.0,
+        "has_odds": 0.0,
+        "home_true_prob": 0.0,
+        "draw_true_prob": 0.0,
+        "away_true_prob": 0.0,
+        "market_draw_confidence": 0.0,
+        "market_favorite_confidence": 0.0,
+        "market_competitiveness": 0.0,
+        "odds_spread": 0.0,
     }
-    if feature_medians:
-        defaults.update({k: v for k, v in feature_medians.items() if k in defaults})
 
     try:
         # Try to load latest odds
@@ -283,30 +306,31 @@ def enhance_with_odds(features_df, feature_medians=None):
             odds_df = pd.read_csv("data/odds/latest_odds.csv")
             print(f"📊 Found {len(odds_df)} matches with odds data")
         else:
-            print("⚠️ No odds data found - using training medians as defaults")
+            print("⚠️ No odds data found - filling odds features with 0 (has_odds=0)")
             for col, val in defaults.items():
                 features_df[col] = val
             return features_df
-        
+
         # Process odds
         merged_count = 0
         for idx, row in features_df.iterrows():
             # Try to find matching odds
             match_odds = odds_df[
-                (odds_df["home_team"] == row["home_team"]) & 
+                (odds_df["home_team"] == row["home_team"]) &
                 (odds_df["away_team"] == row["away_team"])
             ]
-            
+
             if not match_odds.empty:
                 odds_row = match_odds.iloc[0]
-                
+
                 # Calculate probabilities from odds
                 if all(col in odds_row for col in ["home_odds", "draw_odds", "away_odds"]):
                     home_implied = 1 / odds_row["home_odds"] if odds_row["home_odds"] > 0 else 0.33
                     draw_implied = 1 / odds_row["draw_odds"] if odds_row["draw_odds"] > 0 else 0.33
                     away_implied = 1 / odds_row["away_odds"] if odds_row["away_odds"] > 0 else 0.33
-                    
+
                     total = home_implied + draw_implied + away_implied
+                    features_df.at[idx, "has_odds"] = 1.0
                     features_df.at[idx, "home_true_prob"] = home_implied / total
                     features_df.at[idx, "draw_true_prob"] = draw_implied / total
                     features_df.at[idx, "away_true_prob"] = away_implied / total
