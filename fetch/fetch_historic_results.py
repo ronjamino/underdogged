@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from utils.team_name_map import normalize_team
 
 # Expanded season URLs - now includes all leagues (keeping your 5-season structure)
@@ -116,7 +117,20 @@ def fetch_historic_results(season_key):
 
     df["result"] = df.apply(get_result, axis=1)
 
-    return df[["date", "home_team", "away_team", "home_goals", "away_goals", "result", "league", "season", "league_display_name"]]
+    # Normalise historical odds to unified column names (same as The Odds API).
+    # football-data.co.uk provides B365H/B365D/B365A; map them to home_odds/draw_odds/away_odds.
+    if all(c in df.columns for c in ["B365H", "B365D", "B365A"]):
+        df["home_odds"] = pd.to_numeric(df["B365H"], errors="coerce")
+        df["draw_odds"] = pd.to_numeric(df["B365D"], errors="coerce")
+        df["away_odds"] = pd.to_numeric(df["B365A"], errors="coerce")
+    else:
+        df["home_odds"] = np.nan
+        df["draw_odds"] = np.nan
+        df["away_odds"] = np.nan
+
+    return df[["date", "home_team", "away_team", "home_goals", "away_goals", "result",
+               "home_odds", "draw_odds", "away_odds",
+               "league", "season", "league_display_name"]]
 
 def fetch_historic_results_multi(leagues=None, seasons=None, enhanced_output=True):
     """
