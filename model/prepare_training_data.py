@@ -152,7 +152,10 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
         expected_total_goals = home_avg_goals_scored + away_avg_goals_scored
         
         # --- NEW: League context ---
-        league_recent = past_matches[past_matches["league"] == league].tail(100)
+        # past_matches is already filtered to this league (line 67-69).
+        # Use all of it — no tail() cap — for a statistically stable
+        # estimate of league-wide draw rate, goal rates, and home advantage.
+        league_recent = past_matches
         if len(league_recent):
             league_avg_goals = float((league_recent["home_goals"] + league_recent["away_goals"]).mean())
             league_draw_rate = float((league_recent["result"] == "D").mean())

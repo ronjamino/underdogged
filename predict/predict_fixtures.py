@@ -38,10 +38,17 @@ def _to_history_code(code: str) -> str:
 
 # ---------------- Enhanced Feature Builders ----------------
 def _league_filter(history: pd.DataFrame, league_in_history: str) -> pd.DataFrame:
-    """Return history restricted to a league label (as used in history), else original history."""
-    if "league" in history.columns and league_in_history in history["league"].values:
-        return history[history["league"] == league_in_history]
-    return history
+    """Return history restricted to a league label (as used in history).
+    Logs a warning and returns an empty frame if the league is not found,
+    so callers never silently receive cross-league contaminated data.
+    """
+    if "league" not in history.columns:
+        print(f"⚠️ history has no 'league' column — cannot filter to {league_in_history}")
+        return history.iloc[0:0]  # empty, same schema
+    if league_in_history not in history["league"].values:
+        print(f"⚠️ League '{league_in_history}' not found in history — no data for this league")
+        return history.iloc[0:0]  # empty, same schema
+    return history[history["league"] == league_in_history]
 
 def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> pd.DataFrame:
     """Create ENHANCED prediction feature rows for each upcoming fixture."""
@@ -169,7 +176,10 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
         expected_total_goals = float(home_avg_goals_scored + away_avg_goals_scored)
 
         # --- League context ---
-        league_recent = past_matches.tail(100)
+        # Use all available past matches in the league (already filtered above).
+        # Removing the tail(100) cap avoids recency bias and gives a stable,
+        # representative estimate of league-wide draw rate / goals / home advantage.
+        league_recent = past_matches
         if len(league_recent):
             league_avg_goals = float((league_recent["home_goals"] + league_recent["away_goals"]).mean())
             league_draw_rate = float((league_recent["result"] == "D").mean())
