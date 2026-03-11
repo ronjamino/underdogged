@@ -142,6 +142,94 @@ def _load_training_data(path: str) -> tuple:
     return df, available_features
 
 
+def tune_hyperparameters(X_train, y_train, class_weights, n_trials=50):
+    """
+    Use Optuna to search RF and XGB hyperparameters, optimising draw F1.
+    Returns (best_rf_params, best_xgb_params). If Optuna is not installed,
+    returns empty dicts so callers fall back to hardcoded defaults.
+    Reduce n_trials for faster runs (e.g. n_trials=20).
+    """
+    try:
+        import optuna
+        optuna.logging.set_verbosity(optuna.logging.WARNING)
+    except ImportError:
+        print("⚠️  optuna not installed — skipping tuning (pip install optuna to enable)")
+        return {}, {}
+
+    from sklearn.metrics import make_scorer
+
+    cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+
+    # --- Tune Random Forest ---
+    def rf_objective(trial):
+        params = dict(
+            n_estimators=trial.suggest_int("n_estimators", 100, 500),
+            max_depth=trial.suggest_int("max_depth", 5, 20),
+            min_samples_split=trial.suggest_int("min_samples_split", 5, 30),
+            min_samples_leaf=trial.suggest_int("min_samples_leaf", 3, 15),
+            max_features=trial.suggest_categorical("max_features", ["sqrt", "log2"]),
+            class_weight=class_weights,
+            random_state=42,
+            n_jobs=-1,
+        )
+        model = RandomForestClassifier(**params)
+        scores = []
+        for tr_idx, val_idx in cv.split(X_train, y_train):
+            model.fit(X_train.iloc[tr_idx], y_train.iloc[tr_idx])
+            y_pred = model.predict(X_train.iloc[val_idx])
+            scores.append(f1_score(y_train.iloc[val_idx], y_pred, labels=[1], average="macro", zero_division=0))
+        return float(np.mean(scores))
+
+    print(f"   Tuning Random Forest ({n_trials} trials)...")
+    rf_study = optuna.create_study(direction="maximize")
+    rf_study.optimize(rf_objective, n_trials=n_trials, show_progress_bar=False)
+    best_rf_params = rf_study.best_params
+    best_rf_params.update({"class_weight": class_weights, "random_state": 42, "n_jobs": -1})
+    print(f"   RF best draw F1: {rf_study.best_value:.3f}")
+
+    # --- Tune XGBoost ---
+    def xgb_objective(trial):
+        params = dict(
+            n_estimators=trial.suggest_int("n_estimators", 200, 700),
+            learning_rate=trial.suggest_float("learning_rate", 0.01, 0.1, log=True),
+            max_depth=trial.suggest_int("max_depth", 3, 8),
+            subsample=trial.suggest_float("subsample", 0.6, 0.9),
+            colsample_bytree=trial.suggest_float("colsample_bytree", 0.6, 0.9),
+            reg_lambda=trial.suggest_float("reg_lambda", 1.0, 5.0),
+            reg_alpha=trial.suggest_float("reg_alpha", 0.5, 3.0),
+            min_child_weight=trial.suggest_int("min_child_weight", 3, 10),
+            gamma=trial.suggest_float("gamma", 0.0, 0.3),
+            objective="multi:softprob",
+            eval_metric="mlogloss",
+            tree_method="hist",
+            random_state=42,
+            verbosity=0,
+        )
+        model = XGBClassifier(**params)
+        scores = []
+        for tr_idx, val_idx in cv.split(X_train, y_train):
+            sw = create_sample_weights(y_train.iloc[tr_idx], class_weights)
+            model.fit(X_train.iloc[tr_idx], y_train.iloc[tr_idx], sample_weight=sw)
+            y_pred = model.predict(X_train.iloc[val_idx])
+            scores.append(f1_score(y_train.iloc[val_idx], y_pred, labels=[1], average="macro", zero_division=0))
+        return float(np.mean(scores))
+
+    print(f"   Tuning XGBoost ({n_trials} trials)...")
+    xgb_study = optuna.create_study(direction="maximize")
+    xgb_study.optimize(xgb_objective, n_trials=n_trials, show_progress_bar=False)
+    best_xgb_params = xgb_study.best_params
+    best_xgb_params.update({
+        "objective": "multi:softprob",
+        "eval_metric": "mlogloss",
+        "tree_method": "hist",
+        "random_state": 42,
+        "verbosity": 0,
+    })
+    print(f"   XGB best draw F1: {xgb_study.best_value:.3f}")
+
+    return best_rf_params, best_xgb_params
+
+
 def calculate_class_weights(y):
     """Calculate balanced class weights with extra boost for draws."""
     from sklearn.utils.class_weight import compute_class_weight
@@ -230,44 +318,36 @@ def train_model():
         class_name = ["Home Win", "Draw", "Away Win"][class_id]
         print(f"   {class_name}: {weight:.2f}")
 
-    # === Define base models with class balancing ===
-    print("\n🤖 Building ensemble model with class balancing...")
-    
-    # Random Forest with class weights
-    rf = RandomForestClassifier(
-        n_estimators=350,  # More trees for complex features
-        random_state=42,
-        n_jobs=-1,
-        max_depth=12,
-        min_samples_split=15,
-        min_samples_leaf=7,
-        class_weight=class_weights,
-        max_features='sqrt'
+    # === Hyperparameter tuning ===
+    print("\n🔍 Hyperparameter tuning with Optuna...")
+    best_rf_params, best_xgb_params = tune_hyperparameters(
+        X_train, y_train, class_weights, n_trials=50
     )
 
-    # XGBoost with custom objective for draws
+    # === Define base models (tuned params if available, else defaults) ===
+    print("\n🤖 Building base models...")
+
+    rf_defaults = dict(
+        n_estimators=350, random_state=42, n_jobs=-1,
+        max_depth=12, min_samples_split=15, min_samples_leaf=7,
+        class_weight=class_weights, max_features="sqrt",
+    )
+    rf = RandomForestClassifier(**(best_rf_params if best_rf_params else rf_defaults))
+
     sample_weights = create_sample_weights(y_train, class_weights)
-    
-    xgb = XGBClassifier(
-        n_estimators=500,
-        learning_rate=0.02,  # Very low learning rate
-        max_depth=5,
-        subsample=0.75,
-        colsample_bytree=0.75,
-        reg_lambda=3.0,
-        reg_alpha=2.0,
-        min_child_weight=5,
-        gamma=0.1,
-        objective="multi:softprob",
-        eval_metric="mlogloss",
-        tree_method="hist",
-        random_state=42,
-        verbosity=0
-    )
 
-    # Neural Network - deeper for complex patterns
+    xgb_defaults = dict(
+        n_estimators=500, learning_rate=0.02, max_depth=5,
+        subsample=0.75, colsample_bytree=0.75, reg_lambda=3.0,
+        reg_alpha=2.0, min_child_weight=5, gamma=0.1,
+        objective="multi:softprob", eval_metric="mlogloss",
+        tree_method="hist", random_state=42, verbosity=0,
+    )
+    xgb = XGBClassifier(**(best_xgb_params if best_xgb_params else xgb_defaults))
+
+    # Neural Network — not tuned (least impactful, scaling handled internally)
     nn = MLPClassifier(
-        hidden_layer_sizes=(128, 64, 32, 16),  # Deeper network for complex patterns
+        hidden_layer_sizes=(128, 64, 32, 16),
         activation="relu",
         alpha=1e-3,
         learning_rate="adaptive",
@@ -277,7 +357,7 @@ def train_model():
         early_stopping=True,
         validation_fraction=0.15,
         n_iter_no_change=30,
-        tol=1e-4
+        tol=1e-4,
     )
 
     # === Train individual models ===
@@ -469,6 +549,8 @@ def train_model():
         "feature_medians": feature_medians,
         "cv_accuracy_mean": float(cv_scores.mean()),
         "cv_accuracy_std": float(cv_scores.std()),
+        "tuned_rf_params": best_rf_params,
+        "tuned_xgb_params": {k: v for k, v in best_xgb_params.items() if k != "class_weight"},
     }
     
     joblib.dump(metadata, "models/metadata.pkl")
