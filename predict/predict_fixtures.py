@@ -14,7 +14,7 @@ METADATA_PATH = "models/metadata.pkl"
 # Class label order used by the model
 LABELS = ["home_win", "draw", "away_win"]
 
-# Only show results above this confidence in the terminal & CSV
+# Default confidence threshold - overridden by optimized value from model metadata
 CONFIDENCE_THRESHOLD = 0.60
 
 # Some internal datasets use "CHAMP" instead of "ELC"
@@ -201,6 +201,11 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
         is_low_scoring = float(expected_total_goals < league_avg_goals * 0.85)
         is_defensive_match = float(home_avg_goals_conceded < 1.2 and away_avg_goals_conceded < 1.2)
 
+        # --- Interaction features ---
+        form_x_goals = form_differential * expected_total_goals
+        momentum_interaction = home_momentum * away_momentum
+        draw_affinity = league_draw_rate * combined_draw_rate
+
         print(f"   📈 Form: home={home_form_winrate:.2f}, away={away_form_winrate:.2f}, diff={form_differential:.2f}")
         print(f"   🎯 Draw indicators: combined_rate={combined_draw_rate:.2f}, h2h_draws={h2h_draw_rate:.2f}")
 
@@ -238,27 +243,38 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
             "momentum_differential": momentum_differential,
             "is_low_scoring": is_low_scoring,
             "is_defensive_match": is_defensive_match,
+            # Interaction features
+            "form_x_goals": form_x_goals,
+            "momentum_interaction": momentum_interaction,
+            "draw_affinity": draw_affinity,
         })
 
     return pd.DataFrame(rows)
 
-def enhance_with_odds(features_df):
+def enhance_with_odds(features_df, feature_medians=None):
     """Add odds-based features to predictions."""
+    # Use medians from training data as defaults (consistent with training imputation)
+    defaults = {
+        "home_true_prob": 0.40,
+        "draw_true_prob": 0.27,
+        "away_true_prob": 0.33,
+        "market_draw_confidence": 0.27,
+        "market_favorite_confidence": 0.40,
+        "market_competitiveness": 0.5,
+        "odds_spread": 1.0,
+    }
+    if feature_medians:
+        defaults.update({k: v for k, v in feature_medians.items() if k in defaults})
+
     try:
         # Try to load latest odds
         if os.path.exists("data/odds/latest_odds.csv"):
             odds_df = pd.read_csv("data/odds/latest_odds.csv")
             print(f"📊 Found {len(odds_df)} matches with odds data")
         else:
-            print("⚠️ No odds data found - using default values")
-            # Add default odds features
-            features_df["home_true_prob"] = 0.40
-            features_df["draw_true_prob"] = 0.27
-            features_df["away_true_prob"] = 0.33
-            features_df["market_draw_confidence"] = 0.27
-            features_df["market_favorite_confidence"] = 0.40
-            features_df["market_competitiveness"] = 0.5
-            features_df["odds_spread"] = 1.0
+            print("⚠️ No odds data found - using training medians as defaults")
+            for col, val in defaults.items():
+                features_df[col] = val
             return features_df
         
         # Process odds
@@ -290,35 +306,19 @@ def enhance_with_odds(features_df):
                     merged_count += 1
                 else:
                     # Use defaults if odds columns missing
-                    features_df.at[idx, "home_true_prob"] = 0.40
-                    features_df.at[idx, "draw_true_prob"] = 0.27
-                    features_df.at[idx, "away_true_prob"] = 0.33
-                    features_df.at[idx, "market_draw_confidence"] = 0.27
-                    features_df.at[idx, "market_favorite_confidence"] = 0.40
-                    features_df.at[idx, "market_competitiveness"] = 0.5
-                    features_df.at[idx, "odds_spread"] = 1.0
+                    for col, val in defaults.items():
+                        features_df.at[idx, col] = val
             else:
                 # No matching odds - use defaults
-                features_df.at[idx, "home_true_prob"] = 0.40
-                features_df.at[idx, "draw_true_prob"] = 0.27
-                features_df.at[idx, "away_true_prob"] = 0.33
-                features_df.at[idx, "market_draw_confidence"] = 0.27
-                features_df.at[idx, "market_favorite_confidence"] = 0.40
-                features_df.at[idx, "market_competitiveness"] = 0.5
-                features_df.at[idx, "odds_spread"] = 1.0
+                for col, val in defaults.items():
+                    features_df.at[idx, col] = val
         
         print(f"✅ Enhanced {merged_count}/{len(features_df)} predictions with live odds")
         
     except Exception as e:
         print(f"⚠️ Could not load odds data: {e}")
-        # Add default odds features
-        features_df["home_true_prob"] = 0.40
-        features_df["draw_true_prob"] = 0.27
-        features_df["away_true_prob"] = 0.33
-        features_df["market_draw_confidence"] = 0.27
-        features_df["market_favorite_confidence"] = 0.40
-        features_df["market_competitiveness"] = 0.5
-        features_df["odds_spread"] = 1.0
+        for col, val in defaults.items():
+            features_df[col] = val
     
     return features_df
 
@@ -332,6 +332,8 @@ def predict_fixtures(leagues=None):
     print(f"⚽ Loading model and generating predictions for: {leagues_canon}")
 
     # Load model and metadata
+    confidence_threshold = CONFIDENCE_THRESHOLD
+    feature_medians = {}
     try:
         model = joblib.load(MODEL_PATH)
         metadata = joblib.load(METADATA_PATH) if os.path.exists(METADATA_PATH) else {}
@@ -343,7 +345,12 @@ def predict_fixtures(leagues=None):
             has_odds = any("true_prob" in f or "market" in f for f in expected_features)
             print(f"   {'✅' if has_draw else '❌'} Draw features")
             print(f"   {'✅' if has_odds else '❌'} Odds features")
-        
+
+        # Load optimized confidence threshold
+        confidence_threshold = metadata.get("confidence_threshold", CONFIDENCE_THRESHOLD)
+        feature_medians = metadata.get("feature_medians", {})
+        print(f"   Confidence threshold: {confidence_threshold:.2f} (from {'metadata' if 'confidence_threshold' in metadata else 'default'})")
+
         # Load scaler if available
         scaler = joblib.load(SCALER_PATH) if os.path.exists(SCALER_PATH) else None
         
@@ -373,7 +380,7 @@ def predict_fixtures(leagues=None):
         return
 
     # Add odds features
-    features_df = enhance_with_odds(features_df)
+    features_df = enhance_with_odds(features_df, feature_medians=feature_medians)
 
     print(f"\n🔮 Making predictions for {len(features_df)} matches...")
     
@@ -428,10 +435,10 @@ def predict_fixtures(leagues=None):
     print(f"🎯 Draw predictions: {draw_preds}/{len(features_df)} ({draw_preds/len(features_df)*100:.1f}%)")
 
     # Filter confident predictions
-    confident = features_df[features_df["max_proba"] >= CONFIDENCE_THRESHOLD].copy()
+    confident = features_df[features_df["max_proba"] >= confidence_threshold].copy()
     if not confident.empty:
         confident = confident.sort_values("max_proba", ascending=False)
-        print(f"\n🎯 Confident Predictions (≥{CONFIDENCE_THRESHOLD:.0%} confidence):")
+        print(f"\n🎯 Confident Predictions (≥{confidence_threshold:.0%} confidence):")
         display_cols = ["match_date", "home_team", "away_team", "league", "predicted_result", "confidence_label"]
         print(confident[display_cols].to_string(index=False))
 
@@ -440,7 +447,7 @@ def predict_fixtures(leagues=None):
         if not confident_draws.empty:
             print(f"\n✨ Found {len(confident_draws)} confident DRAW predictions!")
     else:
-        print(f"\nℹ️ No picks ≥ {CONFIDENCE_THRESHOLD:.2f} confidence.")
+        print(f"\nℹ️ No picks ≥ {confidence_threshold:.2f} confidence.")
         print("📊 Top 10 predictions by confidence:")
         top_picks = features_df.nlargest(10, "max_proba")
         display_cols = ["home_team", "away_team", "league", "predicted_result", "confidence_label"]

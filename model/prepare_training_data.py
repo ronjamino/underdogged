@@ -206,14 +206,19 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
             market_competitiveness = 1 - abs(home_true_prob - away_true_prob)
             odds_spread = max(home_odds, away_odds) - min(home_odds, away_odds)
         else:
-            # Fallback values when no odds available
-            home_true_prob = 0.45 if home_form_winrate > away_form_winrate else 0.30
-            away_true_prob = 0.45 if away_form_winrate > home_form_winrate else 0.30
-            draw_true_prob = 1.0 - home_true_prob - away_true_prob
-            market_draw_confidence = draw_true_prob
-            market_favorite_confidence = max(home_true_prob, away_true_prob)
-            market_competitiveness = 1 - abs(home_true_prob - away_true_prob)
-            odds_spread = 1.0
+            # No real odds available - use NaN to avoid training on synthetic values
+            home_true_prob = np.nan
+            draw_true_prob = np.nan
+            away_true_prob = np.nan
+            market_draw_confidence = np.nan
+            market_favorite_confidence = np.nan
+            market_competitiveness = np.nan
+            odds_spread = np.nan
+
+        # --- Interaction features ---
+        form_x_goals = form_differential * expected_total_goals
+        momentum_interaction = home_momentum * away_momentum
+        draw_affinity = league_draw_rate * combined_draw_rate
 
         feature_rows.append({
             "home_team": home,
@@ -259,7 +264,12 @@ def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
             "market_favorite_confidence": market_favorite_confidence,
             "market_competitiveness": market_competitiveness,
             "odds_spread": odds_spread,
-            
+
+            # Interaction features
+            "form_x_goals": form_x_goals,
+            "momentum_interaction": momentum_interaction,
+            "draw_affinity": draw_affinity,
+
             # Target
             "result": row["result"],
         })
