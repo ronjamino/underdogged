@@ -1,8 +1,8 @@
-from rate_limit_fix import fetch_fixtures_for_pipeline
 import subprocess
 
 steps = [
     ("📅 Fetching upcoming fixtures", "fetch.fetch_fixtures"),
+    ("💰 Fetching live odds", "fetch.fetch_odds"),
     ("🧱 Preparing training data", "model.prepare_training_data"),
     ("🧠 Training model", "model.train_model"),
     ("🔁 Backtesting model", "predict.backtest"),

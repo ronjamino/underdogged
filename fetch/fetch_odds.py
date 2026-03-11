@@ -169,30 +169,34 @@ def fetch_odds_for_league(league_code, region="uk"):
         print(f"❌ Unexpected error: {e}")
         return pd.DataFrame()
 
-def fetch_all_odds(leagues=None, save_to_csv=True):
+def fetch_all_odds(leagues=None, save_to_csv=True, pipeline_mode=False):
     """
     Fetch odds for multiple leagues
-    
+
     Args:
         leagues: List of league codes to fetch
         save_to_csv: Whether to save results
-    
+        pipeline_mode: If True, skip interactive prompts (always proceed)
+
     Returns:
         Combined DataFrame with all odds
     """
     if leagues is None:
         leagues = ["PL", "ELC", "BL1", "SA", "PD"]
-    
+
     print(f"🎯 Fetching odds for {len(leagues)} leagues...")
     print(f"💰 Estimated cost: {len(leagues)} credits")
-    
+
     # Check budget first
     remaining = check_api_usage()
     if remaining and remaining < len(leagues):
         print(f"⚠️ Warning: Only {remaining} credits remaining, need {len(leagues)}")
-        response = input("Continue anyway? (y/n): ")
-        if response.lower() != 'y':
-            return pd.DataFrame()
+        if not pipeline_mode:
+            response = input("Continue anyway? (y/n): ")
+            if response.lower() != 'y':
+                return pd.DataFrame()
+        else:
+            print("   Pipeline mode: proceeding anyway")
     
     all_odds = []
     total_matches = 0
@@ -308,72 +312,18 @@ def show_odds_summary(df):
     available_cols = [col for col in display_cols if col in df.columns]
     print(df[available_cols].head().to_string(index=False))
 
-# Main execution
+# Main execution — non-interactive when run as part of the pipeline
 if __name__ == "__main__":
-    print("🎯 Odds API Integration - Fixed Version")
-    print("=" * 45)
-    
-    # Check setup first
+    print("🎯 Fetching live odds for all leagues...")
+
     if not ODDS_API_KEY:
         print("❌ Missing ODDS_API_KEY in .env file")
-        print("   Add: ODDS_API_KEY=your_actual_key_here")
         exit(1)
-    
-    print("Setup check:")
-    print(f"✅ API Key: {'*' * 20}{ODDS_API_KEY[-8:]}")
-    
-    remaining = check_api_usage()
-    if remaining:
-        print(f"✅ API Credits: {remaining} remaining")
-    
-    print("\nChoose test mode:")
-    print("1. Premier League only (1 credit)")
-    print("2. All 5 leagues (5 credits)")
-    print("3. Custom leagues")
-    
-    choice = input("\nEnter choice (1-3): ").strip()
-    
-    if choice == "1":
-        # Test with just Premier League
-        print("\n🔄 Testing with Premier League only...")
-        odds_df = fetch_odds_for_league("PL")
-        
-        if not odds_df.empty:
-            enhanced_df = add_odds_features(odds_df)
-            show_odds_summary(enhanced_df)
-            
-            # Save just PL data
-            odds_df.to_csv("data/odds/pl_only_odds.csv", index=False)
-            print("💾 Saved Premier League odds")
-        
-    elif choice == "2":
-        # Full integration
-        print("\n🔄 Full integration - all 5 leagues...")
-        all_odds = fetch_all_odds()
-        
-        if not all_odds.empty:
-            enhanced_odds = add_odds_features(all_odds)
-            show_odds_summary(enhanced_odds)
-            print("\n🎉 SUCCESS! Your odds integration is complete!")
-            print("✅ You can now use odds features in your predictions")
-        
-    elif choice == "3":
-        # Custom leagues
-        available_leagues = list(LEAGUE_TO_ODDS_API.keys())
-        print(f"Available: {', '.join(available_leagues)}")
-        custom_leagues = input("Enter leagues (comma-separated): ").strip().upper().split(',')
-        custom_leagues = [l.strip() for l in custom_leagues if l.strip() in available_leagues]
-        
-        if custom_leagues:
-            print(f"\n🔄 Fetching {', '.join(custom_leagues)}...")
-            odds_df = fetch_all_odds(custom_leagues)
-            if not odds_df.empty:
-                enhanced_odds = add_odds_features(odds_df)
-                show_odds_summary(enhanced_odds)
-        else:
-            print("❌ No valid leagues selected")
-    
+
+    all_odds = fetch_all_odds(pipeline_mode=True)
+
+    if not all_odds.empty:
+        show_odds_summary(all_odds)
+        print("✅ Odds fetch complete!")
     else:
-        print("❌ Invalid choice")
-    
-    print(f"\n✅ Integration test complete!")
+        print("⚠️ No odds data retrieved — predictions will run without live odds")
