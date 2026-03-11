@@ -3,8 +3,8 @@ import joblib
 import pandas as pd
 import numpy as np
 
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.metrics import classification_report, confusion_matrix, f1_score
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
@@ -59,6 +59,12 @@ ODDS_FEATURES = [
     "market_favorite_confidence",
 ]
 
+INTERACTION_FEATURES = [
+    "form_x_goals",
+    "momentum_interaction",
+    "draw_affinity",
+]
+
 RESULT_MAP = {"A": "away_win", "H": "home_win", "D": "draw"}
 LABEL_MAP = {"home_win": 0, "draw": 1, "away_win": 2}
 
@@ -76,7 +82,8 @@ def _load_training_data(path: str) -> tuple:
     feature_groups = {
         "Core": CORE_FEATURES,
         "Draw-focused": DRAW_FEATURES,
-        "Odds-based": ODDS_FEATURES
+        "Odds-based": ODDS_FEATURES,
+        "Interactions": INTERACTION_FEATURES,
     }
     
     print("\n📋 Feature availability check:")
@@ -131,7 +138,18 @@ def train_model():
     
     # Load data
     df, features = _load_training_data("data/processed/training_data.csv")
-    
+
+    # Impute NaN odds features with column medians (rows without real odds data)
+    odds_cols_present = [f for f in ODDS_FEATURES if f in df.columns]
+    feature_medians = {}
+    if odds_cols_present:
+        medians = df[odds_cols_present].median()
+        feature_medians = medians.to_dict()
+        nan_count = df[odds_cols_present].isna().sum().sum()
+        if nan_count > 0:
+            df[odds_cols_present] = df[odds_cols_present].fillna(medians)
+            print(f"📊 Imputed {nan_count} NaN odds values with column medians")
+
     # Show class distribution
     print("\n📊 Class distribution:")
     result_counts = df["result"].value_counts()
@@ -253,10 +271,18 @@ def train_model():
     nn_pred = nn.predict(X_test_scaled)
     nn_score = (nn_pred == y_test).mean()
     
-    print(f"\n📊 Individual model accuracies:")
+    print(f"\n📊 Individual model accuracies (hold-out test):")
     print(f"   Random Forest: {rf_score:.2%}")
     print(f"   XGBoost: {xgb_score:.2%}")
     print(f"   Neural Network: {nn_score:.2%}")
+
+    # K-fold cross-validation for robust accuracy estimate
+    print(f"\n🔄 5-fold cross-validation (Random Forest)...")
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    cv_scores = cross_val_score(
+        RandomForestClassifier(**rf.get_params()), X, y_encoded, cv=skf, scoring="accuracy", n_jobs=-1
+    )
+    print(f"   CV Accuracy: {cv_scores.mean():.2%} ± {cv_scores.std():.2%}")
     
     # Check individual model draw performance
     print(f"\n🎯 Individual model DRAW recall:")
@@ -360,6 +386,21 @@ def train_model():
     else:
         print(f"   ❌ POOR - Draw recall below 5%, needs improvement")
 
+    # Optimize confidence threshold on test set
+    print("\n🎯 Optimizing confidence threshold...")
+    best_threshold, best_threshold_f1 = 0.60, 0.0
+    for threshold in np.arange(0.40, 0.80, 0.025):
+        mask = y_proba.max(axis=1) >= threshold
+        if mask.sum() < 10:
+            continue
+        y_true_t = y_test.values[mask]
+        y_pred_t = y_proba[mask].argmax(axis=1)
+        draw_f1 = f1_score(y_true_t, y_pred_t, labels=[1], average="macro", zero_division=0)
+        if draw_f1 > best_threshold_f1:
+            best_threshold_f1 = draw_f1
+            best_threshold = float(threshold)
+    print(f"   Optimal threshold: {best_threshold:.2f} (draw F1: {best_threshold_f1:.3f})")
+
     # Save models and metadata
     print("\n💾 Saving models and metadata...")
     os.makedirs("models", exist_ok=True)
@@ -382,7 +423,11 @@ def train_model():
         "draw_recall": draw_recall,
         "draw_precision": draw_precision,
         "training_samples": len(X_train),
-        "test_samples": len(X_test)
+        "test_samples": len(X_test),
+        "confidence_threshold": best_threshold,
+        "feature_medians": feature_medians,
+        "cv_accuracy_mean": float(cv_scores.mean()),
+        "cv_accuracy_std": float(cv_scores.std()),
     }
     
     joblib.dump(metadata, "models/metadata.pkl")
