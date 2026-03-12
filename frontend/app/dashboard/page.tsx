@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect } from 'react'
 import { LeagueSelector } from '@/components/dashboard/LeagueSelector'
 import { PredictionsTable } from '@/components/dashboard/PredictionsTable'
