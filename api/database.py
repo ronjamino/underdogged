@@ -1,25 +1,19 @@
 """
 Data access layer for the Underdogged API.
 
-Note: This project is CSV-based rather than SQLite. This module provides
-the DataStore class and get_db() dependency that the routers use to read
-predictions, odds, and backtest data from the existing CSV files.
-
-CSV files consumed (read-only):
-  data/predictions/latest_predictions.csv  — model predictions for upcoming fixtures
-  data/odds/latest_odds.csv                — bookmaker odds from The Odds API
-  data/backtest/summary.csv               — walk-forward backtest summary
+Reads from PostgreSQL (Supabase) via SQLAlchemy.
+Returns pandas DataFrames so the existing routers need no changes.
 """
 
 import hashlib
-import pandas as pd
-from pathlib import Path
+import math
 from typing import Generator
 
-DATA_DIR         = Path(__file__).parent.parent / "data"
-PREDICTIONS_PATH = DATA_DIR / "predictions" / "latest_predictions.csv"
-ODDS_PATH        = DATA_DIR / "odds"        / "latest_odds.csv"
-BACKTEST_PATH    = DATA_DIR / "backtest"    / "summary.csv"
+import pandas as pd
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from db.connection import SessionLocal, engine
 
 # Map internal predicted_result labels → standard outcome codes
 _OUTCOME_MAP = {"home_win": "H", "draw": "D", "away_win": "A"}
@@ -44,7 +38,6 @@ def _value_bet(
         return None
 
     try:
-        # Normalise bookmaker implied probabilities (remove overround)
         inv_h = 1.0 / odds_home if odds_home else 0.0
         inv_d = 1.0 / odds_draw  if odds_draw  else 0.0
         inv_a = 1.0 / odds_away  if odds_away  else 0.0
@@ -69,50 +62,79 @@ def _value_bet(
 
 class DataStore:
     """
-    In-memory view of the CSV files. A new instance is created per request
-    so the API always serves the latest pipeline output without restart.
+    Loads predictions and odds from PostgreSQL into DataFrames.
+    A new instance is created per request via get_db().
     """
 
-    def __init__(self):
+    def __init__(self, session: Session):
+        self._session = session
         self.predictions: pd.DataFrame = pd.DataFrame()
         self.odds: pd.DataFrame = pd.DataFrame()
-        self.backtest: pd.DataFrame = pd.DataFrame()
         self._load()
 
-    # ------------------------------------------------------------------
     def _load(self):
-        if PREDICTIONS_PATH.exists():
-            df = pd.read_csv(PREDICTIONS_PATH, parse_dates=["match_date"])
+        # --- predictions ---
+        preds_sql = text("""
+            SELECT
+                id, match_date, home_team, away_team, league_code,
+                avg_goal_diff_h2h, h2h_home_winrate, home_form_winrate, away_form_winrate,
+                home_avg_goals_scored, home_avg_goals_conceded,
+                away_avg_goals_scored, away_avg_goals_conceded,
+                h2h_draw_rate, h2h_total_goals,
+                home_draw_rate, away_draw_rate, combined_draw_rate,
+                home_venue_draw_rate, away_venue_draw_rate, current_season_draw_rate,
+                form_differential, goals_differential, expected_total_goals,
+                home_total_goals_avg, away_total_goals_avg,
+                league_avg_goals, league_draw_rate, league_home_adv,
+                home_momentum, away_momentum, momentum_differential,
+                is_low_scoring, is_defensive_match, has_odds,
+                form_x_goals, momentum_interaction, draw_affinity,
+                home_true_prob, draw_true_prob, away_true_prob,
+                market_draw_confidence, market_favorite_confidence,
+                market_competitiveness, odds_spread,
+                predicted_result,
+                prob_home, prob_draw, prob_away,
+                max_proba, confidence_label, prob_label,
+                updated_at
+            FROM predictions
+            ORDER BY match_date ASC
+        """)
+        rows = self._session.execute(preds_sql).mappings().all()
+        if rows:
+            df = pd.DataFrame(rows)
+            df["match_date"] = pd.to_datetime(df["match_date"], utc=True, errors="coerce")
 
-            # Stable match_id
+            # Aliases expected by the routers
+            df["home_win"] = df["prob_home"]
+            df["draw"]     = df["prob_draw"]
+            df["away_win"] = df["prob_away"]
+            df["league"]   = df["league_code"]
+
+            # Stable match_id (routers use this for /predictions/{match_id})
             df["match_id"] = df.apply(
                 lambda r: _make_match_id(
-                    r["home_team"],
-                    r["away_team"],
-                    str(r["match_date"].date())
-                    if hasattr(r["match_date"], "date")
-                    else str(r["match_date"])[:10],
+                    r["home_team"], r["away_team"],
+                    r["match_date"].strftime("%Y-%m-%d") if hasattr(r["match_date"], "strftime") else str(r["match_date"])[:10],
                 ),
                 axis=1,
             )
 
-            # Standardise outcome code
             df["predicted_outcome"] = df["predicted_result"].map(_OUTCOME_MAP)
-
             self.predictions = df
 
-        if ODDS_PATH.exists():
-            self.odds = pd.read_csv(ODDS_PATH)
+        # --- odds ---
+        odds_sql = text("""
+            SELECT match_id, commence_time,
+                   home_team, away_team, league,
+                   home_odds, away_odds, draw_odds, num_bookmakers, fetch_timestamp
+            FROM odds
+        """)
+        odds_rows = self._session.execute(odds_sql).mappings().all()
+        if odds_rows:
+            self.odds = pd.DataFrame(odds_rows)
 
-        if BACKTEST_PATH.exists():
-            self.backtest = pd.read_csv(BACKTEST_PATH)
-
-    # ------------------------------------------------------------------
     def get_merged(self) -> pd.DataFrame:
-        """
-        Return the predictions DataFrame enriched with bookmaker odds columns.
-        Merged on (home_team, away_team); unmatched rows get NaN odds.
-        """
+        """Predictions DataFrame enriched with bookmaker odds columns."""
         df = self.predictions.copy()
 
         if not self.odds.empty:
@@ -139,21 +161,27 @@ class DataStore:
 
         return df
 
-    # ------------------------------------------------------------------
     def get_last_updated(self) -> str:
-        """ISO timestamp of the most recently modified source CSV."""
-        paths = [PREDICTIONS_PATH, ODDS_PATH]
-        mtimes = [p.stat().st_mtime for p in paths if p.exists()]
-        if not mtimes:
+        """ISO timestamp of the most recently updated prediction row."""
+        result = self._session.execute(
+            text("SELECT MAX(updated_at) FROM predictions")
+        ).scalar()
+        if result is None:
             return "unknown"
         import datetime
-        ts = datetime.datetime.fromtimestamp(max(mtimes), tz=datetime.timezone.utc)
-        return ts.strftime("%Y-%m-%dT%H:%M:%SZ")
+        if hasattr(result, "strftime"):
+            if result.tzinfo is None:
+                result = result.replace(tzinfo=datetime.timezone.utc)
+            return result.strftime("%Y-%m-%dT%H:%M:%SZ")
+        return str(result)
 
 
-def get_db() -> DataStore:
+def get_db() -> Generator[DataStore, None, None]:
     """
-    FastAPI dependency. Returns a fresh DataStore so every request
-    reflects the latest pipeline output.
+    FastAPI dependency. Yields a DataStore backed by a fresh SQLAlchemy session.
     """
-    return DataStore()
+    session = SessionLocal()
+    try:
+        yield DataStore(session)
+    finally:
+        session.close()

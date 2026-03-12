@@ -488,10 +488,83 @@ def predict_fixtures(leagues=None):
         display_cols = ["home_team", "away_team", "league", "predicted_result", "confidence_label"]
         print(top_picks[display_cols].to_string(index=False))
 
-    # Save predictions
+    # Save predictions to CSV
     os.makedirs("data/predictions", exist_ok=True)
     features_df.to_csv("data/predictions/latest_predictions.csv", index=False)
     print(f"\n✅ All {len(features_df)} predictions saved to data/predictions/latest_predictions.csv")
+
+    # Persist to PostgreSQL
+    try:
+        from db.connection import engine
+        from sqlalchemy import text
+
+        insert_sql = text("""
+            INSERT INTO predictions (
+                match_date, home_team, away_team, league_code,
+                avg_goal_diff_h2h, h2h_home_winrate, home_form_winrate, away_form_winrate,
+                home_avg_goals_scored, home_avg_goals_conceded,
+                away_avg_goals_scored, away_avg_goals_conceded,
+                h2h_draw_rate, h2h_total_goals,
+                home_draw_rate, away_draw_rate, combined_draw_rate,
+                home_venue_draw_rate, away_venue_draw_rate, current_season_draw_rate,
+                form_differential, goals_differential, expected_total_goals,
+                home_total_goals_avg, away_total_goals_avg,
+                league_avg_goals, league_draw_rate, league_home_adv,
+                home_momentum, away_momentum, momentum_differential,
+                is_low_scoring, is_defensive_match, has_odds,
+                form_x_goals, momentum_interaction, draw_affinity,
+                home_true_prob, draw_true_prob, away_true_prob,
+                market_draw_confidence, market_favorite_confidence,
+                market_competitiveness, odds_spread,
+                predicted_result, prob_home, prob_draw, prob_away,
+                max_proba, confidence_label, prob_label
+            ) VALUES (
+                :match_date, :home_team, :away_team, :league_code,
+                :avg_goal_diff_h2h, :h2h_home_winrate, :home_form_winrate, :away_form_winrate,
+                :home_avg_goals_scored, :home_avg_goals_conceded,
+                :away_avg_goals_scored, :away_avg_goals_conceded,
+                :h2h_draw_rate, :h2h_total_goals,
+                :home_draw_rate, :away_draw_rate, :combined_draw_rate,
+                :home_venue_draw_rate, :away_venue_draw_rate, :current_season_draw_rate,
+                :form_differential, :goals_differential, :expected_total_goals,
+                :home_total_goals_avg, :away_total_goals_avg,
+                :league_avg_goals, :league_draw_rate, :league_home_adv,
+                :home_momentum, :away_momentum, :momentum_differential,
+                :is_low_scoring, :is_defensive_match, :has_odds,
+                :form_x_goals, :momentum_interaction, :draw_affinity,
+                :home_true_prob, :draw_true_prob, :away_true_prob,
+                :market_draw_confidence, :market_favorite_confidence,
+                :market_competitiveness, :odds_spread,
+                :predicted_result, :prob_home, :prob_draw, :prob_away,
+                :max_proba, :confidence_label, :prob_label
+            )
+            ON CONFLICT (home_team, away_team, match_date) DO UPDATE SET
+                predicted_result            = EXCLUDED.predicted_result,
+                prob_home                   = EXCLUDED.prob_home,
+                prob_draw                   = EXCLUDED.prob_draw,
+                prob_away                   = EXCLUDED.prob_away,
+                max_proba                   = EXCLUDED.max_proba,
+                confidence_label            = EXCLUDED.confidence_label,
+                prob_label                  = EXCLUDED.prob_label,
+                updated_at                  = NOW()
+        """)
+
+        db_df = features_df.rename(columns={
+            "home_win": "prob_home",
+            "draw":     "prob_draw",
+            "away_win": "prob_away",
+        })
+        if "league" in db_df.columns and "league_code" not in db_df.columns:
+            db_df = db_df.rename(columns={"league": "league_code"})
+        elif "league" in db_df.columns:
+            db_df = db_df.drop(columns=["league"])
+
+        rows = db_df.to_dict("records")
+        with engine.begin() as conn:
+            conn.execute(insert_sql, rows)
+        print(f"✅ {len(rows)} predictions upserted to PostgreSQL")
+    except Exception as exc:
+        print(f"⚠️  PostgreSQL write failed (CSV still saved): {exc}")
 
 # ---------------- Convenience wrappers ----------------
 def predict_premier_league_only():

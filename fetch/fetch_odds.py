@@ -252,7 +252,44 @@ def fetch_all_odds(leagues=None, save_to_csv=True, pipeline_mode=False):
         print(f"   • {timestamped_file}")
         print(f"   • data/odds/latest_odds.csv")
         print(f"   • data/raw/odds.csv (replaced old test data)")
-    
+
+    # Persist to PostgreSQL
+    try:
+        from db.connection import engine
+        from sqlalchemy import text as _text
+
+        insert_sql = _text("""
+            INSERT INTO odds (
+                match_id, commence_time, home_team_raw, away_team_raw,
+                home_team, away_team, league, sport_key,
+                home_odds, away_odds, draw_odds, num_bookmakers, fetch_timestamp
+            ) VALUES (
+                :match_id, :commence_time, :home_team_raw, :away_team_raw,
+                :home_team, :away_team, :league, :sport_key,
+                :home_odds, :away_odds, :draw_odds, :num_bookmakers, :fetch_timestamp
+            )
+            ON CONFLICT (match_id) DO UPDATE SET
+                home_odds       = EXCLUDED.home_odds,
+                away_odds       = EXCLUDED.away_odds,
+                draw_odds       = EXCLUDED.draw_odds,
+                num_bookmakers  = EXCLUDED.num_bookmakers,
+                fetch_timestamp = EXCLUDED.fetch_timestamp,
+                updated_at      = NOW()
+        """)
+
+        odds_df = combined.copy()
+        if "fetch_timestamp" in odds_df.columns:
+            odds_df["fetch_timestamp"] = pd.to_datetime(odds_df["fetch_timestamp"], utc=True, errors="coerce")
+        if "commence_time" in odds_df.columns:
+            odds_df["commence_time"] = pd.to_datetime(odds_df["commence_time"], utc=True, errors="coerce")
+
+        rows = odds_df.to_dict("records")
+        with engine.begin() as conn:
+            conn.execute(insert_sql, rows)
+        print(f"✅ {len(rows)} odds rows upserted to PostgreSQL")
+    except Exception as exc:
+        print(f"⚠️  PostgreSQL write failed (CSV still saved): {exc}")
+
     return combined
 
 def add_odds_features(df):

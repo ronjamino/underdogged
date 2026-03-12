@@ -9,6 +9,10 @@ API docs:
     http://localhost:8000/redoc     (ReDoc)
 """
 
+from dotenv import load_dotenv
+
+load_dotenv()  # ensure DATABASE_URL is available before db.connection imports it
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
