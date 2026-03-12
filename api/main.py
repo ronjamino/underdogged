@@ -9,14 +9,20 @@ API docs:
     http://localhost:8000/redoc     (ReDoc)
 """
 
+import os
+
 from dotenv import load_dotenv
 
 load_dotenv()  # ensure DATABASE_URL is available before db.connection imports it
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from api.routers import fixtures, leagues, predictions
+from db.connection import get_db
 
 app = FastAPI(
     title="Underdogged API",
@@ -31,16 +37,21 @@ app = FastAPI(
 )
 
 # ---------------------------------------------------------------------------
-# CORS — allow the future Next.js frontend and local dev
+# CORS — allow the Next.js frontend and local dev
 # ---------------------------------------------------------------------------
+_frontend_url = os.getenv("FRONTEND_URL", "")
+_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://underdogged.com",
+    "https://www.underdogged.com",
+]
+if _frontend_url:
+    _origins.append(_frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "https://underdogged.com",        # update with real production domain
-        "https://www.underdogged.com",
-    ],
+    allow_origins=_origins,
     allow_credentials=True,
     allow_methods=["GET"],               # read-only API
     allow_headers=["*"],
@@ -55,12 +66,19 @@ app.include_router(leagues.router,     prefix="/leagues",     tags=["Leagues"])
 
 
 # ---------------------------------------------------------------------------
-# Health check
+# Health check — verifies DB connectivity for Railway health checks
 # ---------------------------------------------------------------------------
 @app.get("/health", tags=["Health"])
-def health():
-    """Returns {"status": "ok"} — used by Railway and load balancers."""
-    return {"status": "ok"}
+def health(db: Session = Depends(get_db)):
+    """Checks API and database connectivity. Used by Railway health checks."""
+    try:
+        db.execute(text("SELECT 1"))
+        return {"status": "ok", "database": "connected"}
+    except Exception as exc:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "error", "database": "unreachable", "detail": str(exc)},
+        )
 
 
 @app.get("/", tags=["Health"])
@@ -71,3 +89,12 @@ def root():
         "docs": "/docs",
         "health": "/health",
     }
+
+
+# ---------------------------------------------------------------------------
+# Local dev entry point
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("api.main:app", host="0.0.0.0", port=port, reload=False)
