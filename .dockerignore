@@ -3,6 +3,7 @@
 .env
 *.env
 __pycache__
+**/__pycache__
 *.pyc
 *.pyo
 *.pyd
@@ -17,8 +18,22 @@ env
 *.egg-info/
 dist/
 build/
-node_modules
 .DS_Store
 README.md
 notebooks/
 tests/
+debug/
+
+# Frontend — not needed in the API image
+frontend/
+node_modules
+
+# ML model files and data — API reads from PostgreSQL, not local files
+models/
+data/
+
+# Pipeline/training scripts — not needed for API serving
+streamlit_app.py
+run_pipeline.py
+setup_championship.py
+rate_limit_fix.py
