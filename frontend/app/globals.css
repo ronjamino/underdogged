@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-bg:           #0A0A0A;
+  --color-card:         #111111;
+  --color-hover:        #161616;
+  --color-border:       #1E1E1E;
+  --color-text:         #F0EDE8;
+  --color-muted:        #6B6B6B;
+  --color-accent:       #C8973A;
+  --color-green:        #4CAF6E;
+  --color-red:          #E05252;
+
+  --font-display: 'DM Serif Display', serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --font-body:    'Inter', sans-serif;
+}
+
+:root {
+  --bg:         #0A0A0A;
+  --bg-card:    #111111;
+  --bg-hover:   #161616;
+  --border:     #1E1E1E;
+  --text:       #F0EDE8;
+  --text-muted: #6B6B6B;
+  --accent:     #C8973A;
+  --accent-dim: rgba(200, 151, 58, 0.12);
+  --green:      #4CAF6E;
+  --green-dim:  rgba(76, 175, 110, 0.12);
+  --red:        #E05252;
+  --red-dim:    rgba(224, 82, 82, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Sharp corners everywhere — no pill shapes */
+*, *::before, *::after {
+  border-radius: 0px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+input, button, select, textarea {
+  font-family: 'JetBrains Mono', monospace;
+  outline: none;
+}
+
+input:focus {
+  border-color: var(--accent) !important;
+}
+
+.font-display { font-family: 'DM Serif Display', serif; }
+.font-mono    { font-family: 'JetBrains Mono', monospace; }
+.font-body    { font-family: 'Inter', sans-serif; }
+
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+.skeleton {
+  background: var(--bg-card);
+  animation: pulse-opacity 1.5s ease-in-out infinite;
+}
+
+@keyframes bar-grow {
+  from { width: 0%; }
+}
