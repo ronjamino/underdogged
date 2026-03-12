@@ -30,8 +30,19 @@ if not _DATABASE_URL:
         "Add it in Railway → your service → Variables."
     )
 
-# sslmode=require is already in the Supabase connection string;
+# Percent-encode special characters in the password portion of the URL
+# (e.g. '!' → '%21') so psycopg2 parses the URL correctly.
+from urllib.parse import urlsplit, urlunsplit, quote
+_parts = urlsplit(_DATABASE_URL)
+if _parts.password:
+    _encoded_password = quote(_parts.password, safe="")
+    _netloc = f"{_parts.username}:{_encoded_password}@{_parts.hostname}"
+    if _parts.port:
+        _netloc += f":{_parts.port}"
+    _DATABASE_URL = urlunsplit(_parts._replace(netloc=_netloc))
+
 # pool_pre_ping keeps connections alive across Railway container restarts.
+# sslmode=require is passed via connect_args for Supabase compatibility.
 engine = create_engine(
     _DATABASE_URL,
     pool_pre_ping=True,
