@@ -10,8 +10,17 @@ Called by Railway cron job (0 6 * * *) or triggered manually.
 """
 
 import logging
+import os
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
+
+# Ensure project root is on sys.path so fetch.*, predict.* etc. are importable
+# regardless of which directory the script is invoked from.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+os.chdir(_PROJECT_ROOT)
 
 logging.basicConfig(
     level=logging.INFO,
