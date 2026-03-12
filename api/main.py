@@ -45,6 +45,7 @@ _origins = [
     "http://localhost:3001",
     "https://underdogged.com",
     "https://www.underdogged.com",
+    "https://underdogged.vercel.app",
 ]
 if _frontend_url:
     _origins.append(_frontend_url)
