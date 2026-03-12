@@ -22,7 +22,13 @@ from sqlalchemy.orm import sessionmaker, Session
 
 load_dotenv()
 
-_DATABASE_URL = os.environ["DATABASE_URL"]
+_DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not _DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL environment variable is not set. "
+        "Add it in Railway → your service → Variables."
+    )
 
 # sslmode=require is already in the Supabase connection string;
 # pool_pre_ping keeps connections alive across Railway container restarts.
