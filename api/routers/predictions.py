@@ -148,10 +148,18 @@ def list_predictions(
 @router.get("/value", response_model=list[PredictionOut], summary="Value bets across all leagues")
 def get_value_bets(db: DB):
     """
-    Return all predictions where the model has a positive edge (≥5%) over
-    bookmaker odds, across all leagues, sorted by edge descending.
+    Return upcoming predictions (today → today+7) where the model has a
+    positive edge (≥5%) over bookmaker odds, across all leagues.
     """
     df = _get_df(db)
+
+    today = date.today()
+    _to = today + timedelta(days=7)
+    if "match_date" in df.columns:
+        df["_date_only"] = df["match_date"].dt.date
+        df = df[(df["_date_only"] >= today) & (df["_date_only"] <= _to)]
+        df = df.drop(columns=["_date_only"])
+
     rows = []
     for _, r in df.iterrows():
         pred = _row_to_prediction(r)
