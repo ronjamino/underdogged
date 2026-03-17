@@ -47,3 +47,11 @@ export async function fetchTopPicks(): Promise<Prediction[]> {
   if (!res.ok) throw new Error('Failed to fetch top picks')
   return res.json()
 }
+
+export async function fetchValueBets(): Promise<Prediction[]> {
+  const res = await fetch(`${API_BASE}/predictions/value`, {
+    next: { revalidate: 1800 },
+  })
+  if (!res.ok) throw new Error('Failed to fetch value bets')
+  return res.json()
+}

@@ -145,6 +145,22 @@ def list_predictions(
     return [_row_to_prediction(r) for _, r in df.iterrows()]
 
 
+@router.get("/value", response_model=list[PredictionOut], summary="Value bets across all leagues")
+def get_value_bets(db: DB):
+    """
+    Return all predictions where the model has a positive edge (≥5%) over
+    bookmaker odds, across all leagues, sorted by edge descending.
+    """
+    df = _get_df(db)
+    rows = []
+    for _, r in df.iterrows():
+        pred = _row_to_prediction(r)
+        if pred.value_bet is not None:
+            rows.append((pred, r["max_proba"]))
+    rows.sort(key=lambda x: x[1], reverse=True)
+    return [pred for pred, _ in rows]
+
+
 @router.get("/{match_id}", response_model=PredictionOut, summary="Single prediction")
 def get_prediction(match_id: str, db: DB):
     """
