@@ -30,7 +30,11 @@ node_modules
 
 # ML model files and data — API reads from PostgreSQL, not local files
 models/
-data/
+data/odds/
+data/raw/
+data/predictions/
+data/processed/
+# data/backtest/ is included — performance endpoint reads summary.csv
 
 # Pipeline/training scripts — not needed for API serving
 streamlit_app.py

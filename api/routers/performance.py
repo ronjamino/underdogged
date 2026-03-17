@@ -47,7 +47,7 @@ def get_performance():
     if not _SUMMARY_PATH.exists():
         raise HTTPException(
             status_code=503,
-            detail=f"Backtest data unavailable. Looked at: {_SUMMARY_PATH}",
+            detail="Backtest data unavailable. Run predict.backtest to generate it.",
         )
 
     df = pd.read_csv(_SUMMARY_PATH)
