@@ -53,11 +53,6 @@ function ValueBetRow({ p }: { p: Prediction }) {
         {dateStr}
       </td>
 
-      {/* League */}
-      <td style={{ padding: '0 16px', color: 'var(--text-muted)', fontSize: '11px', width: '60px' }}>
-        {p.league}
-      </td>
-
       {/* Match */}
       <td style={{ padding: '0 16px' }}>
         <span style={{ fontWeight: 600, color: 'var(--text)' }}>{p.home_team}</span>
@@ -103,7 +98,7 @@ function ValueBetRow({ p }: { p: Prediction }) {
 function SkeletonRow() {
   return (
     <tr style={{ borderBottom: '1px solid var(--border)', height: '48px' }}>
-      {[80, 60, 300, 100, 70, 90, 80].map((w, i) => (
+      {[80, 300, 100, 70, 90, 80].map((w, i) => (
         <td key={i} style={{ padding: '0 16px', width: `${w}px` }}>
           <div className="skeleton" style={{ height: '12px', width: '70%' }} />
         </td>
@@ -118,7 +113,7 @@ export function ValueBetsTable({ predictions, loading, error }: Props) {
       <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            {['Date', 'League', 'Match', 'Bet', 'Odds', 'Model', 'Edge'].map(col => (
+            {['Date', 'Match', 'Bet', 'Odds', 'Model', 'Edge'].map(col => (
               <th key={col} style={{
                 padding: '10px 16px',
                 textAlign: 'left',
@@ -138,7 +133,7 @@ export function ValueBetsTable({ predictions, loading, error }: Props) {
 
           {!loading && error && (
             <tr>
-              <td colSpan={7} style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--red)', fontSize: '12px' }}>
+              <td colSpan={6} style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--red)', fontSize: '12px' }}>
                 {error}
               </td>
             </tr>
@@ -146,7 +141,7 @@ export function ValueBetsTable({ predictions, loading, error }: Props) {
 
           {!loading && !error && predictions.length === 0 && (
             <tr>
-              <td colSpan={7} style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
+              <td colSpan={6} style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
                 No value bets found this gameweek.
               </td>
             </tr>

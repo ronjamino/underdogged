@@ -15,8 +15,9 @@ type Tab = 'predictions' | 'value'
 export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>('predictions')
   const [activeLeague, setActiveLeague] = useState(DEFAULT_LEAGUE)
+  const [valueLeague, setValueLeague] = useState(DEFAULT_LEAGUE)
   const [predictions, setPredictions] = useState<Prediction[]>([])
-  const [valueBets, setValueBets] = useState<Prediction[]>([])
+  const [allValueBets, setAllValueBets] = useState<Prediction[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -32,30 +33,35 @@ export default function DashboardPage() {
       setLoading(true)
       setError('')
       fetchValueBets()
-        .then(setValueBets)
+        .then(setAllValueBets)
         .catch(() => setError('Failed to load value bets. Check API connection.'))
         .finally(() => setLoading(false))
     }
   }, [tab, activeLeague])
 
+  const valueBets = allValueBets.filter(p => p.league.toUpperCase() === valueLeague)
+
   const tabStyle = (t: Tab) => ({
-    padding: '6px 16px',
+    padding: '14px 20px',
     fontSize: '11px',
-    letterSpacing: '0.08em',
+    letterSpacing: '0.1em',
     textTransform: 'uppercase' as const,
     fontWeight: 500,
     cursor: 'pointer',
     background: 'none',
     border: 'none',
-    borderBottom: tab === t ? '1px solid var(--accent)' : '1px solid transparent',
+    borderBottom: tab === t ? '2px solid var(--accent)' : '2px solid transparent',
     color: tab === t ? 'var(--accent)' : 'var(--text-muted)',
     transition: 'color 0.15s',
+    fontFamily: 'JetBrains Mono, monospace',
+    whiteSpace: 'nowrap' as const,
+    marginBottom: '-1px',
   })
 
   return (
     <main style={{ padding: '24px 0' }}>
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: '4px', borderBottom: '1px solid var(--border)', marginBottom: '24px' }}>
+      {/* Top-level tab bar */}
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: '24px' }}>
         <button style={tabStyle('predictions')} onClick={() => setTab('predictions')}>
           Predictions
         </button>
@@ -74,7 +80,12 @@ export default function DashboardPage() {
       )}
 
       {tab === 'value' && (
-        <ValueBetsTable predictions={valueBets} loading={loading} error={error} />
+        <>
+          <LeagueSelector active={valueLeague} onChange={setValueLeague} />
+          <div style={{ marginTop: '24px' }}>
+            <ValueBetsTable predictions={valueBets} loading={loading} error={error} />
+          </div>
+        </>
       )}
     </main>
   )
