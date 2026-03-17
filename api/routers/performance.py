@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 router = APIRouter()
 
-_SUMMARY_PATH = Path("data/backtest/summary.csv")
+_SUMMARY_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "backtest" / "summary.csv"
 
 
 class WindowResult(BaseModel):
