@@ -6,11 +6,12 @@ import { useState, useEffect } from 'react'
 import { LeagueSelector } from '@/components/dashboard/LeagueSelector'
 import { PredictionsTable } from '@/components/dashboard/PredictionsTable'
 import { ValueBetsTable } from '@/components/dashboard/ValueBetsTable'
-import { fetchPredictions, fetchValueBets } from '@/lib/api'
-import type { Prediction } from '@/lib/api'
+import { PerformanceTab } from '@/components/dashboard/PerformanceTab'
+import { fetchPredictions, fetchValueBets, fetchPerformance } from '@/lib/api'
+import type { Prediction, PerformanceSummary } from '@/lib/api'
 
 const DEFAULT_LEAGUE = 'PL'
-type Tab = 'predictions' | 'value'
+type Tab = 'predictions' | 'value' | 'performance'
 
 export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>('predictions')
@@ -18,23 +19,27 @@ export default function DashboardPage() {
   const [valueLeague, setValueLeague] = useState(DEFAULT_LEAGUE)
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [allValueBets, setAllValueBets] = useState<Prediction[]>([])
+  const [performance, setPerformance] = useState<PerformanceSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
+    setLoading(true)
+    setError('')
     if (tab === 'predictions') {
-      setLoading(true)
-      setError('')
       fetchPredictions(activeLeague)
         .then(setPredictions)
         .catch(() => setError('Failed to load predictions. Check API connection.'))
         .finally(() => setLoading(false))
-    } else {
-      setLoading(true)
-      setError('')
+    } else if (tab === 'value') {
       fetchValueBets()
         .then(setAllValueBets)
         .catch(() => setError('Failed to load value bets. Check API connection.'))
+        .finally(() => setLoading(false))
+    } else {
+      fetchPerformance()
+        .then(setPerformance)
+        .catch(() => setError('Failed to load performance data.'))
         .finally(() => setLoading(false))
     }
   }, [tab, activeLeague])
@@ -68,6 +73,9 @@ export default function DashboardPage() {
         <button style={tabStyle('value')} onClick={() => setTab('value')}>
           Value Bets
         </button>
+        <button style={tabStyle('performance')} onClick={() => setTab('performance')}>
+          Performance
+        </button>
       </div>
 
       {tab === 'predictions' && (
@@ -86,6 +94,10 @@ export default function DashboardPage() {
             <ValueBetsTable predictions={valueBets} loading={loading} error={error} />
           </div>
         </>
+      )}
+
+      {tab === 'performance' && (
+        <PerformanceTab data={performance} loading={loading} error={error} />
       )}
     </main>
   )

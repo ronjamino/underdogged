@@ -21,7 +21,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from api.routers import fixtures, leagues, predictions
+from api.routers import fixtures, leagues, predictions, performance
 from db.connection import get_db
 
 app = FastAPI(
@@ -61,9 +61,10 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 # Routers
 # ---------------------------------------------------------------------------
-app.include_router(predictions.router, prefix="/predictions", tags=["Predictions"])
-app.include_router(fixtures.router,    prefix="/fixtures",    tags=["Fixtures"])
-app.include_router(leagues.router,     prefix="/leagues",     tags=["Leagues"])
+app.include_router(predictions.router,  prefix="/predictions",  tags=["Predictions"])
+app.include_router(fixtures.router,     prefix="/fixtures",     tags=["Fixtures"])
+app.include_router(leagues.router,      prefix="/leagues",      tags=["Leagues"])
+app.include_router(performance.router,  prefix="/performance",  tags=["Performance"])
 
 
 # ---------------------------------------------------------------------------
@@ -79,6 +80,12 @@ def health(db: Session = Depends(get_db)):
     except Exception as exc:
         db_status = f"unreachable: {exc}"
     return {"status": "ok", "database": db_status}
+
+
+@app.get("/ping", tags=["Health"])
+def ping():
+    """Lightweight liveness probe — no DB dependency."""
+    return {"pong": True}
 
 
 @app.get("/", tags=["Health"])

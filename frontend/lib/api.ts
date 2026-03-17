@@ -48,6 +48,34 @@ export async function fetchTopPicks(): Promise<Prediction[]> {
   return res.json()
 }
 
+export interface WindowResult {
+  window: number
+  start_date: string
+  end_date: string
+  test_size: number
+  accuracy: number
+  draw_recall: number
+  draw_precision: number
+  n_confident_bets: number
+  hit_rate: number | null
+  roi_pct: number | null
+}
+
+export interface PerformanceSummary {
+  avg_accuracy: number
+  avg_hit_rate: number
+  overall_roi_pct: number
+  total_bets: number
+  total_matches_tested: number
+  windows: WindowResult[]
+}
+
+export async function fetchPerformance(): Promise<PerformanceSummary> {
+  const res = await fetch(`${API_BASE}/performance`, { next: { revalidate: 86400 } })
+  if (!res.ok) throw new Error('Failed to fetch performance data')
+  return res.json()
+}
+
 export async function fetchValueBets(): Promise<Prediction[]> {
   const res = await fetch(`${API_BASE}/predictions/value`, {
     next: { revalidate: 1800 },
