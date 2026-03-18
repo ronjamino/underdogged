@@ -63,6 +63,15 @@ def run():
         logger.error(f"Prediction generation failed: {exc}", exc_info=True)
         sys.exit(1)
 
+    # Step 3: LLM enrichment — web-search context + BACK/MONITOR/SKIP verdicts
+    logger.info("Step 3/3 — Running LLM enrichment …")
+    try:
+        import llm_enrichment
+        n = llm_enrichment.run()
+        logger.info(f"LLM enrichment complete — {n} records upserted.")
+    except Exception as exc:
+        logger.warning(f"LLM enrichment failed (non-fatal): {exc}", exc_info=True)
+
     logger.info("Pipeline finished successfully.")
 
 

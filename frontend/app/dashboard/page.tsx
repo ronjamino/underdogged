@@ -9,6 +9,7 @@ import { ValueBetsTable } from '@/components/dashboard/ValueBetsTable'
 import { PerformanceTab } from '@/components/dashboard/PerformanceTab'
 import { fetchPredictions, fetchValueBets, fetchPerformance, fetchLiveRecord } from '@/lib/api'
 import type { Prediction, PerformanceSummary, LiveRecord } from '@/lib/api'
+import { EnrichmentBrief } from '@/components/dashboard/EnrichmentBrief'
 
 const DEFAULT_LEAGUE = 'PL'
 type Tab = 'predictions' | 'value' | 'performance'
@@ -102,6 +103,7 @@ export default function DashboardPage() {
 
       {tab === 'predictions' && (
         <>
+          <EnrichmentBrief section="predictions" />
           <LeagueSelector active={activeLeague} onChange={setActiveLeague} />
           <div style={{ marginTop: '24px' }}>
             <PredictionsTable predictions={predictions} loading={loading} error={error} />
@@ -111,6 +113,7 @@ export default function DashboardPage() {
 
       {tab === 'value' && (
         <>
+          <EnrichmentBrief section="value-bets" />
           <LeagueSelector active={valueLeague} onChange={setValueLeague} />
           <div style={{ marginTop: '24px' }}>
             <ValueBetsTable predictions={valueBets} loading={loading} error={error} />

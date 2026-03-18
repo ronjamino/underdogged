@@ -116,6 +116,29 @@ export async function fetchPerformance(): Promise<PerformanceSummary> {
   return res.json()
 }
 
+export interface EnrichmentItem {
+  match_id:         string | null
+  home_team:        string
+  away_team:        string
+  section:          string
+  verdict:          'BACK' | 'MONITOR' | 'SKIP'
+  commentary:       string
+  model_confidence: number | null
+  edge_pct:         number | null
+  market:           string | null
+}
+
+export interface EnrichmentResponse {
+  run_date: string
+  items:    EnrichmentItem[]
+}
+
+export async function fetchEnrichment(section: 'predictions' | 'value-bets'): Promise<EnrichmentResponse> {
+  const res = await fetch(`${API_BASE}/enrichment/${section}`, { next: { revalidate: 1800 } })
+  if (!res.ok) throw new Error('Failed to fetch enrichment')
+  return res.json()
+}
+
 export async function fetchValueBets(): Promise<Prediction[]> {
   const res = await fetch(`${API_BASE}/predictions/value`, {
     next: { revalidate: 1800 },

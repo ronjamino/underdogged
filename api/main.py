@@ -21,7 +21,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from api.routers import fixtures, leagues, predictions, performance
+from api.routers import fixtures, leagues, predictions, performance, enrichment
 from db.connection import get_db
 
 app = FastAPI(
@@ -65,6 +65,7 @@ app.include_router(predictions.router,  prefix="/predictions",  tags=["Predictio
 app.include_router(fixtures.router,     prefix="/fixtures",     tags=["Fixtures"])
 app.include_router(leagues.router,      prefix="/leagues",      tags=["Leagues"])
 app.include_router(performance.router,  prefix="/performance",  tags=["Performance"])
+app.include_router(enrichment.router,  prefix="/enrichment",   tags=["Enrichment"])
 
 
 # ---------------------------------------------------------------------------
