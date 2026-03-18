@@ -56,9 +56,11 @@ function ValueBetRow({ p }: { p: Prediction }) {
         </td>
         <td style={{ padding: '0 16px', width: '100px', whiteSpace: 'nowrap' }}>
           <span style={{
-            display: 'inline-block', padding: '3px 8px',
+            display: 'inline-block', padding: '3px 10px',
             background: OUTCOME_BG[vb], color: OUTCOME_COLOR[vb],
-            fontSize: '11px', letterSpacing: '0.04em', textTransform: 'uppercase', fontWeight: 500,
+            border: `1px solid ${vb === 'H' ? 'rgba(16,217,122,0.2)' : vb === 'D' ? 'rgba(245,166,35,0.2)' : 'rgba(242,85,85,0.2)'}`,
+            fontSize: '10px', letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 600,
+            borderRadius: '4px',
           }}>
             {OUTCOME_LABEL[vb]}
           </span>
@@ -87,10 +89,10 @@ function ValueBetRow({ p }: { p: Prediction }) {
 
 function SkeletonRow() {
   return (
-    <tr style={{ borderBottom: '1px solid var(--border)', height: '48px' }}>
+    <tr style={{ borderBottom: '1px solid var(--border)', height: '52px' }}>
       {[80, 300, 100, 70, 90, 80].map((w, i) => (
         <td key={i} style={{ padding: '0 16px', width: `${w}px` }}>
-          <div className="skeleton" style={{ height: '12px', width: '70%' }} />
+          <div className="skeleton" style={{ height: '10px', width: '70%', borderRadius: '3px' }} />
         </td>
       ))}
     </tr>
@@ -99,15 +101,21 @@ function SkeletonRow() {
 
 export function ValueBetsTable({ predictions, loading, error }: Props) {
   return (
-    <div style={{ overflowX: 'auto' }}>
+    <div style={{
+      overflowX: 'auto',
+      border: '1px solid var(--border)',
+      borderRadius: '8px',
+      background: 'var(--bg-card)',
+    }}>
       <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
             {['Date', 'Match', 'Bet', 'Odds', 'Model', 'Edge'].map(col => (
               <th key={col} style={{
-                padding: '10px 16px', textAlign: 'left',
+                padding: '12px 16px', textAlign: 'left',
                 color: 'var(--text-muted)', fontSize: '10px',
-                letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 500,
+                letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500,
+                background: 'rgba(28,32,64,0.3)',
               }}>
                 {col}
               </th>

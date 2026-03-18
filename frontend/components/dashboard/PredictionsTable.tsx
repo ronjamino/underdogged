@@ -11,10 +11,10 @@ interface Props {
 
 function SkeletonRow() {
   return (
-    <tr style={{ borderBottom: '1px solid var(--border)', height: '48px' }}>
+    <tr style={{ borderBottom: '1px solid var(--border)', height: '52px' }}>
       {[80, 60, 300, 140, 130].map((w, i) => (
         <td key={i} style={{ padding: '0 16px', width: `${w}px` }}>
-          <div className="skeleton" style={{ height: '12px', width: '70%' }} />
+          <div className="skeleton" style={{ height: '10px', width: '70%', borderRadius: '3px' }} />
         </td>
       ))}
     </tr>
@@ -23,7 +23,12 @@ function SkeletonRow() {
 
 export function PredictionsTable({ predictions, loading, error }: Props) {
   return (
-    <div style={{ overflowX: 'auto' }}>
+    <div style={{
+      overflowX: 'auto',
+      border: '1px solid var(--border)',
+      borderRadius: '8px',
+      background: 'var(--bg-card)',
+    }}>
       <table style={{
         width: '100%',
         borderCollapse: 'collapse',
@@ -33,13 +38,14 @@ export function PredictionsTable({ predictions, loading, error }: Props) {
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
             {['Date', 'Kickoff', 'Match', 'Prediction', 'Confidence'].map(col => (
               <th key={col} style={{
-                padding: '10px 16px',
+                padding: '12px 16px',
                 textAlign: 'left',
                 color: 'var(--text-muted)',
                 fontSize: '10px',
-                letterSpacing: '0.1em',
+                letterSpacing: '0.12em',
                 textTransform: 'uppercase',
                 fontWeight: 500,
+                background: 'rgba(28,32,64,0.3)',
               }}>
                 {col}
               </th>

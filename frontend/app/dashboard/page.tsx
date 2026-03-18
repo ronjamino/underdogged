@@ -13,6 +13,12 @@ import type { Prediction, PerformanceSummary, LiveRecord } from '@/lib/api'
 const DEFAULT_LEAGUE = 'PL'
 type Tab = 'predictions' | 'value' | 'performance'
 
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'predictions', label: 'Predictions' },
+  { id: 'value',       label: 'Value Bets'  },
+  { id: 'performance', label: 'Performance' },
+]
+
 export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>('predictions')
   const [activeLeague, setActiveLeague] = useState(DEFAULT_LEAGUE)
@@ -47,36 +53,51 @@ export default function DashboardPage() {
 
   const valueBets = allValueBets.filter(p => p.league.toUpperCase() === valueLeague)
 
-  const tabStyle = (t: Tab) => ({
-    padding: '14px 20px',
-    fontSize: '11px',
-    letterSpacing: '0.1em',
-    textTransform: 'uppercase' as const,
-    fontWeight: 500,
-    cursor: 'pointer',
-    background: 'none',
-    border: 'none',
-    borderBottom: tab === t ? '2px solid var(--accent)' : '2px solid transparent',
-    color: tab === t ? 'var(--accent)' : 'var(--text-muted)',
-    transition: 'color 0.15s',
-    fontFamily: 'JetBrains Mono, monospace',
-    whiteSpace: 'nowrap' as const,
-    marginBottom: '-1px',
-  })
-
   return (
-    <main style={{ padding: '24px 0' }}>
+    <main style={{ padding: '28px 0' }}>
       {/* Top-level tab bar */}
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: '24px' }}>
-        <button style={tabStyle('predictions')} onClick={() => setTab('predictions')}>
-          Predictions
-        </button>
-        <button style={tabStyle('value')} onClick={() => setTab('value')}>
-          Value Bets
-        </button>
-        <button style={tabStyle('performance')} onClick={() => setTab('performance')}>
-          Performance
-        </button>
+      <div style={{
+        display: 'flex',
+        borderBottom: '1px solid var(--border)',
+        marginBottom: '28px',
+        gap: '4px',
+      }}>
+        {TABS.map(({ id, label }) => {
+          const isActive = tab === id
+          return (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              style={{
+                padding: '14px 22px',
+                fontSize: '11px',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                fontWeight: 500,
+                cursor: 'pointer',
+                background: 'none',
+                border: 'none',
+                borderBottom: isActive
+                  ? '2px solid var(--accent)'
+                  : '2px solid transparent',
+                color: isActive ? 'var(--accent)' : 'var(--text-muted)',
+                textShadow: isActive ? '0 0 20px var(--accent-glow)' : 'none',
+                transition: 'color 0.15s, text-shadow 0.15s',
+                fontFamily: 'JetBrains Mono, monospace',
+                whiteSpace: 'nowrap',
+                marginBottom: '-1px',
+              }}
+              onMouseEnter={e => {
+                if (!isActive) e.currentTarget.style.color = 'var(--text)'
+              }}
+              onMouseLeave={e => {
+                if (!isActive) e.currentTarget.style.color = 'var(--text-muted)'
+              }}
+            >
+              {label}
+            </button>
+          )
+        })}
       </div>
 
       {tab === 'predictions' && (

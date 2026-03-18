@@ -9,10 +9,10 @@ interface Props {
   prediction: Prediction
 }
 
-const OUTCOME_STYLES: Record<string, { bg: string; color: string; label: (p: Prediction) => string }> = {
-  H: { bg: 'var(--green-dim)', color: 'var(--green)',  label: p => p.home_team },
-  D: { bg: 'var(--accent-dim)', color: 'var(--accent)', label: _ => 'Draw' },
-  A: { bg: 'var(--red-dim)',   color: 'var(--red)',    label: p => p.away_team },
+const OUTCOME_STYLES: Record<string, { bg: string; border: string; color: string; label: (p: Prediction) => string }> = {
+  H: { bg: 'var(--green-dim)', border: 'rgba(16,217,122,0.2)',  color: 'var(--green)',  label: p => p.home_team },
+  D: { bg: 'var(--accent-dim)', border: 'rgba(245,166,35,0.2)', color: 'var(--accent)', label: _ => 'Draw' },
+  A: { bg: 'var(--red-dim)',    border: 'rgba(242,85,85,0.2)',  color: 'var(--red)',    label: p => p.away_team },
 }
 
 const COL_SPAN = 5
@@ -32,7 +32,7 @@ export function PredictionRow({ prediction: p }: Props) {
         onClick={() => setExpanded(e => !e)}
         style={{
           borderBottom: expanded ? 'none' : '1px solid var(--border)',
-          transition: 'background 0.1s',
+          transition: 'background 0.15s',
           cursor: 'pointer',
         }}
         onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-hover)'}
@@ -59,13 +59,15 @@ export function PredictionRow({ prediction: p }: Props) {
         <td style={{ padding: '0 16px', width: '140px', whiteSpace: 'nowrap' }}>
           <span style={{
             display: 'inline-block',
-            padding: '3px 8px',
+            padding: '3px 10px',
             background: outcome.bg,
+            border: `1px solid ${outcome.border}`,
             color: outcome.color,
-            fontSize: '11px',
-            letterSpacing: '0.04em',
+            fontSize: '10px',
+            letterSpacing: '0.06em',
             textTransform: 'uppercase',
-            fontWeight: 500,
+            fontWeight: 600,
+            borderRadius: '4px',
           }}>
             {label}
           </span>

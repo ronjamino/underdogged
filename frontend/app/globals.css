@@ -3,15 +3,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg:           #0A0A0A;
-  --color-card:         #111111;
-  --color-hover:        #161616;
-  --color-border:       #1E1E1E;
-  --color-text:         #F0EDE8;
-  --color-muted:        #6B6B6B;
-  --color-accent:       #C8973A;
-  --color-green:        #4CAF6E;
-  --color-red:          #E05252;
+  --color-bg:           #07080F;
+  --color-card:         #0C0E1A;
+  --color-hover:        #12152A;
+  --color-border:       #1C2040;
+  --color-text:         #E8ECF4;
+  --color-muted:        #4E567A;
+  --color-accent:       #F5A623;
+  --color-green:        #10D97A;
+  --color-red:          #F25555;
 
   --font-display: 'DM Serif Display', serif;
   --font-mono:    'JetBrains Mono', monospace;
@@ -19,27 +19,24 @@
 }
 
 :root {
-  --bg:         #0A0A0A;
-  --bg-card:    #111111;
-  --bg-hover:   #161616;
-  --border:     #1E1E1E;
-  --text:       #F0EDE8;
-  --text-muted: #6B6B6B;
-  --accent:     #C8973A;
-  --accent-dim: rgba(200, 151, 58, 0.12);
-  --green:      #4CAF6E;
-  --green-dim:  rgba(76, 175, 110, 0.12);
-  --red:        #E05252;
-  --red-dim:    rgba(224, 82, 82, 0.12);
+  --bg:           #07080F;
+  --bg-card:      #0C0E1A;
+  --bg-hover:     #12152A;
+  --border:       #1C2040;
+  --text:         #E8ECF4;
+  --text-muted:   #4E567A;
+  --accent:       #F5A623;
+  --accent-dim:   rgba(245, 166, 35, 0.1);
+  --accent-glow:  rgba(245, 166, 35, 0.25);
+  --green:        #10D97A;
+  --green-dim:    rgba(16, 217, 122, 0.1);
+  --green-glow:   rgba(16, 217, 122, 0.2);
+  --red:          #F25555;
+  --red-dim:      rgba(242, 85, 85, 0.1);
 }
 
 * {
   box-sizing: border-box;
-}
-
-/* Sharp corners everywhere — no pill shapes */
-*, *::before, *::after {
-  border-radius: 0px;
 }
 
 body {
@@ -58,22 +55,45 @@ input, button, select, textarea {
 
 input:focus {
   border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-dim);
 }
 
 .font-display { font-family: 'DM Serif Display', serif; }
 .font-mono    { font-family: 'JetBrains Mono', monospace; }
 .font-body    { font-family: 'Inter', sans-serif; }
 
-@keyframes pulse-opacity {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.35; }
+/* ── Skeleton shimmer ──────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400% 0; }
+  100% { background-position:  400% 0; }
 }
 
 .skeleton {
-  background: var(--bg-card);
-  animation: pulse-opacity 1.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 0%,
+    rgba(28, 32, 64, 0.6) 40%,
+    rgba(40, 48, 100, 0.4) 50%,
+    rgba(28, 32, 64, 0.6) 60%,
+    var(--bg-card) 100%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 2s ease-in-out infinite;
 }
 
+/* ── Bar grow ──────────────────────────────────────────────── */
 @keyframes bar-grow {
-  from { width: 0%; }
+  from { width: 0%; opacity: 0; }
 }
+
+/* ── Glow pulse (optional utility) ────────────────────────── */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--accent-glow); }
+  50%       { box-shadow: 0 0 20px var(--accent-glow); }
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar               { width: 6px; height: 6px; }
+::-webkit-scrollbar-track         { background: var(--bg); }
+::-webkit-scrollbar-thumb         { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover   { background: var(--text-muted); }

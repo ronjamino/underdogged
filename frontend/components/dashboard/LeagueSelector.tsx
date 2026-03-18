@@ -27,25 +27,32 @@ export function LeagueSelector({ active, onChange }: Props) {
             key={league.id}
             onClick={() => onChange(league.id)}
             style={{
-              padding: '14px 20px',
-              background: 'none',
+              padding: '10px 18px',
+              background: isActive ? 'rgba(245,166,35,0.06)' : 'none',
               border: 'none',
               borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
               color: isActive ? 'var(--accent)' : 'var(--text-muted)',
-              fontSize: '11px',
+              fontSize: '10px',
               fontFamily: 'JetBrains Mono, monospace',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               cursor: 'pointer',
-              transition: 'color 0.15s',
+              transition: 'color 0.15s, background 0.15s',
               whiteSpace: 'nowrap',
               marginBottom: '-1px',
+              textShadow: isActive ? '0 0 16px var(--accent-glow)' : 'none',
             }}
             onMouseEnter={e => {
-              if (!isActive) (e.target as HTMLButtonElement).style.color = 'var(--text)'
+              if (!isActive) {
+                e.currentTarget.style.color = 'var(--text)'
+                e.currentTarget.style.background = 'rgba(28,32,64,0.4)'
+              }
             }}
             onMouseLeave={e => {
-              if (!isActive) (e.target as HTMLButtonElement).style.color = 'var(--text-muted)'
+              if (!isActive) {
+                e.currentTarget.style.color = 'var(--text-muted)'
+                e.currentTarget.style.background = 'none'
+              }
             }}
           >
             <span className="hidden sm:inline">{league.name}</span>
