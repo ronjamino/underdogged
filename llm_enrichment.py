@@ -17,6 +17,7 @@ import logging
 import math
 import os
 import sys
+import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -37,7 +38,8 @@ logger = logging.getLogger(__name__)
 _OUTCOME_MAP  = {"home_win": "H", "draw": "D", "away_win": "A"}
 _OUTCOME_LABEL = {"H": "Home Win", "D": "Draw", "A": "Away Win"}
 _MODEL = "claude-sonnet-4-6"
-_MAX_PREDICTIONS = 8   # cap per section to control cost
+_MAX_PREDICTIONS = 5   # cap per section to control cost
+_CALL_DELAY_S    = 60  # seconds between API calls to respect 30K TPM rate limit
 _MIN_CONFIDENCE  = 0.55
 _MIN_EDGE        = 0.05
 
@@ -278,17 +280,14 @@ def run(dry_run: bool = False) -> int:
     client = anthropic.Anthropic()
     records = []
 
-    for match in predictions:
-        logger.info("Enriching prediction: %s vs %s", match["home_team"], match["away_team"])
-        result = _enrich_one(client, match, "predictions")
+    all_matches = [("predictions", m) for m in predictions] + [("value_bets", m) for m in value_bets]
+    for i, (section, match) in enumerate(all_matches):
+        logger.info("Enriching %s: %s vs %s", section, match["home_team"], match["away_team"])
+        result = _enrich_one(client, match, section)
         if result:
             records.append(result)
-
-    for match in value_bets:
-        logger.info("Enriching value bet: %s vs %s", match["home_team"], match["away_team"])
-        result = _enrich_one(client, match, "value_bets")
-        if result:
-            records.append(result)
+        if i < len(all_matches) - 1:
+            time.sleep(_CALL_DELAY_S)
 
     if not records:
         logger.warning("All enrichment calls failed.")
