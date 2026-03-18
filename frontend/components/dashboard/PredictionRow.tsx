@@ -15,7 +15,7 @@ const OUTCOME_STYLES: Record<string, { bg: string; color: string; label: (p: Pre
   A: { bg: 'var(--red-dim)',   color: 'var(--red)',    label: p => p.away_team },
 }
 
-const COL_SPAN = 5
+const COL_SPAN = 6
 
 export function PredictionRow({ prediction: p }: Props) {
   const [expanded, setExpanded] = useState(false)
@@ -69,6 +69,26 @@ export function PredictionRow({ prediction: p }: Props) {
           }}>
             {label}
           </span>
+        </td>
+
+        {/* Result badge */}
+        <td style={{ padding: '0 16px', width: '70px' }}>
+          {p.actual_result != null ? (
+            <span style={{
+              display: 'inline-block',
+              padding: '2px 7px',
+              fontSize: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              background: p.actual_result === p.predicted_outcome ? 'var(--green-dim)' : 'var(--red-dim)',
+              color: p.actual_result === p.predicted_outcome ? 'var(--green)' : 'var(--red)',
+            }}>
+              {p.actual_result === p.predicted_outcome ? '✓' : '✗'}
+              {' '}{p.home_score}–{p.away_score}
+            </span>
+          ) : (
+            <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>—</span>
+          )}
         </td>
 
         {/* Confidence + expand chevron */}

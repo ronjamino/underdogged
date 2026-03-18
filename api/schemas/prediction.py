@@ -17,6 +17,11 @@ class PredictionOut(BaseModel):
     odds_away: float | None
     value_bet: str | None       # "H", "D", "A", or None (positive EV outcome)
 
+    # Actual result (populated after match is played)
+    actual_result: str | None = None   # 'H', 'D', 'A' or None
+    home_score: int | None = None
+    away_score: int | None = None
+
     # Form
     home_form_winrate: float | None = None
     away_form_winrate: float | None = None

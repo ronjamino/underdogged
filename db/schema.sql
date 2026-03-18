@@ -67,6 +67,12 @@ CREATE TABLE IF NOT EXISTS predictions (
     confidence_label    TEXT,
     prob_label          TEXT,
 
+    -- actual result (populated after match is played)
+    actual_result   TEXT,       -- 'home_win','draw','away_win' or NULL if not yet played
+    home_score      INTEGER,
+    away_score      INTEGER,
+    result_fetched_at TIMESTAMPTZ,
+
     -- housekeeping
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),

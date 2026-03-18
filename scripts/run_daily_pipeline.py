@@ -33,6 +33,16 @@ logger = logging.getLogger(__name__)
 def run():
     logger.info(f"Pipeline started at {datetime.now(timezone.utc).isoformat()}")
 
+    # Step 0: Fetch actual results for past predictions → PostgreSQL
+    logger.info("Step 0/2 — Fetching results for past predictions …")
+    try:
+        from fetch.fetch_results import fetch_results
+        n = fetch_results()
+        logger.info(f"Results fetch complete — {n} predictions updated.")
+    except Exception as exc:
+        logger.warning(f"Results fetch failed (non-fatal): {exc}", exc_info=True)
+        # Non-fatal: pipeline continues even if results fetch fails
+
     # Step 1: Fetch latest odds from The Odds API → CSV + PostgreSQL
     logger.info("Step 1/2 — Fetching latest odds …")
     try:

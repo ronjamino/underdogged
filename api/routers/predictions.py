@@ -12,7 +12,7 @@ from datetime import date, timedelta
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
 
-from api.database import DataStore, _value_bet
+from api.database import DataStore, _value_bet, _OUTCOME_MAP
 from api.dependencies import DB, VALID_LEAGUES
 from api.schemas.prediction import PredictionOut
 
@@ -73,6 +73,9 @@ def _row_to_prediction(row: pd.Series) -> PredictionOut:
         odds_draw=round(odds_draw, 2) if odds_draw else None,
         odds_away=round(odds_away, 2) if odds_away else None,
         value_bet=value,
+        actual_result=_OUTCOME_MAP.get(str(row.get("actual_result") or ""), None),
+        home_score=int(row["home_score"]) if row.get("home_score") is not None else None,
+        away_score=int(row["away_score"]) if row.get("away_score") is not None else None,
         home_form_winrate=_f("home_form_winrate"),
         away_form_winrate=_f("away_form_winrate"),
         home_momentum=_f("home_momentum"),

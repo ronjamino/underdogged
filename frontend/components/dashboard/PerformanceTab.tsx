@@ -1,9 +1,10 @@
 'use client'
 
-import type { PerformanceSummary } from '@/lib/api'
+import type { PerformanceSummary, LiveRecord } from '@/lib/api'
 
 interface Props {
   data: PerformanceSummary | null
+  live: LiveRecord | null
   loading: boolean
   error: string
 }
@@ -40,7 +41,7 @@ function SkeletonCard() {
   )
 }
 
-export function PerformanceTab({ data, loading, error }: Props) {
+export function PerformanceTab({ data, live, loading, error }: Props) {
   if (error) {
     return (
       <div style={{ padding: '48px 0', textAlign: 'center', color: 'var(--red)', fontSize: '12px' }}>
@@ -80,6 +81,35 @@ export function PerformanceTab({ data, loading, error }: Props) {
           </>
         ) : null}
       </div>
+
+      {/* Live record */}
+      {live && live.total_predicted > 0 && (
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ color: 'var(--text-muted)', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>
+            Live Record
+          </div>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
+            <StatCard
+              label="Live Accuracy"
+              value={live.accuracy != null ? `${(live.accuracy * 100).toFixed(1)}%` : '—'}
+              sub={`${live.correct} correct / ${live.total_predicted} resolved`}
+            />
+            {(['H', 'D', 'A'] as const).map(o => {
+              const s = live.by_outcome[o]
+              const label = o === 'H' ? 'Home Win' : o === 'D' ? 'Draw' : 'Away Win'
+              const acc = s?.predicted ? `${Math.round(s.correct / s.predicted * 100)}%` : '—'
+              return (
+                <StatCard key={o} label={label} value={acc} sub={`${s?.correct ?? 0}/${s?.predicted ?? 0} correct`} />
+              )
+            })}
+            <StatCard
+              label="Pending"
+              value={String(live.pending)}
+              sub="matches not yet played"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Per-window table */}
       <div style={{ color: 'var(--text-muted)', fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>

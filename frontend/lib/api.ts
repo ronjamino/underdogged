@@ -23,6 +23,10 @@ export interface Prediction {
   odds_draw: number | null
   odds_away: number | null
   value_bet: string | null
+  // Actual result
+  actual_result: string | null   // 'H', 'D', 'A' or null
+  home_score: number | null
+  away_score: number | null
   // Form
   home_form_winrate: number | null
   away_form_winrate: number | null
@@ -85,6 +89,21 @@ export interface PerformanceSummary {
   total_bets: number
   total_matches_tested: number
   windows: WindowResult[]
+}
+
+export interface LiveRecord {
+  total_predicted: number
+  correct: number
+  incorrect: number
+  pending: number
+  accuracy: number | null
+  by_outcome: Record<string, { predicted: number; correct: number }>
+}
+
+export async function fetchLiveRecord(): Promise<LiveRecord> {
+  const res = await fetch(`${API_BASE}/performance/live`, { next: { revalidate: 3600 } })
+  if (!res.ok) throw new Error('Failed to fetch live record')
+  return res.json()
 }
 
 export async function fetchPerformance(): Promise<PerformanceSummary> {

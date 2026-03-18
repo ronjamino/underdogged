@@ -11,6 +11,8 @@ import pandas as pd
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from api.dependencies import DB
+
 router = APIRouter()
 
 _SUMMARY_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "backtest" / "summary.csv"
@@ -36,6 +38,15 @@ class PerformanceSummary(BaseModel):
     total_bets: int
     total_matches_tested: int
     windows: list[WindowResult]
+
+
+class LiveRecord(BaseModel):
+    total_predicted: int
+    correct: int
+    incorrect: int
+    pending: int
+    accuracy: float | None       # None if no results yet
+    by_outcome: dict             # {"H": {"predicted": N, "correct": N}, ...}
 
 
 @router.get("", response_model=PerformanceSummary, summary="Backtest performance summary")
@@ -74,11 +85,56 @@ def get_performance():
     overall_roi = round(float(total_profit / total_bets * 100), 1) if total_bets else 0.0
     total_matches = int(df["test_size"].sum())
 
-    return PerformanceSummary(
+    return PerformanceSummary(  # type: ignore[call-arg]
         avg_accuracy=avg_accuracy,
         avg_hit_rate=avg_hit_rate,
         overall_roi_pct=overall_roi,
         total_bets=total_bets,
         total_matches_tested=total_matches,
         windows=windows,
+    )
+
+
+@router.get("/live", response_model=LiveRecord, summary="Live prediction accuracy record")
+def get_live_record(db: DB):
+    """
+    Compute accuracy over predictions that have actual results recorded.
+    """
+    df = db.predictions
+    if df.empty:
+        return LiveRecord(total_predicted=0, correct=0, incorrect=0, pending=0, accuracy=None, by_outcome={})
+
+    # Only past matches
+    import datetime
+    now = datetime.datetime.now(datetime.timezone.utc)
+    past = df[df["match_date"] < now].copy()
+
+    resolved   = past[past["actual_result"].notna()]
+    pending_n  = int(past["actual_result"].isna().sum())
+
+    outcome_remap = {"home_win": "H", "draw": "D", "away_win": "A"}
+    resolved = resolved.copy()
+    resolved["pred_code"]   = resolved["predicted_result"].map(outcome_remap)
+    resolved["actual_code"] = resolved["actual_result"].map(outcome_remap)
+    resolved["correct"]     = resolved["pred_code"] == resolved["actual_code"]
+
+    total     = len(resolved)
+    correct_n = int(resolved["correct"].sum())
+    accuracy  = round(correct_n / total, 3) if total else None
+
+    by_outcome: dict = {}
+    for outcome_label in ["H", "D", "A"]:
+        subset = resolved[resolved["pred_code"] == outcome_label]
+        by_outcome[outcome_label] = {
+            "predicted": len(subset),
+            "correct":   int(subset["correct"].sum()),
+        }
+
+    return LiveRecord(
+        total_predicted=total,
+        correct=correct_n,
+        incorrect=total - correct_n,
+        pending=pending_n,
+        accuracy=accuracy,
+        by_outcome=by_outcome,
     )
