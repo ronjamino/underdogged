@@ -1,6 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import { ConfidenceBar } from './ConfidenceBar'
+import { ExpandedDetail } from './ExpandedDetail'
 import type { Prediction } from '@/lib/api'
 
 interface Props {
@@ -13,7 +15,10 @@ const OUTCOME_STYLES: Record<string, { bg: string; color: string; label: (p: Pre
   A: { bg: 'var(--red-dim)',   color: 'var(--red)',    label: p => p.away_team },
 }
 
+const COL_SPAN = 5
+
 export function PredictionRow({ prediction: p }: Props) {
+  const [expanded, setExpanded] = useState(false)
   const outcome = OUTCOME_STYLES[p.predicted_outcome] ?? OUTCOME_STYLES['D']
   const label = outcome.label(p)
 
@@ -22,50 +27,70 @@ export function PredictionRow({ prediction: p }: Props) {
   const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 
   return (
-    <tr style={{
-      borderBottom: '1px solid var(--border)',
-      transition: 'background 0.1s',
-    }}
-      onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-hover)'}
-      onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
-    >
-      {/* Date */}
-      <td style={{ padding: '0 16px', color: 'var(--text-muted)', fontSize: '11px', width: '80px', whiteSpace: 'nowrap' }}>
-        {dateStr}
-      </td>
+    <>
+      <tr
+        onClick={() => setExpanded(e => !e)}
+        style={{
+          borderBottom: expanded ? 'none' : '1px solid var(--border)',
+          transition: 'background 0.1s',
+          cursor: 'pointer',
+        }}
+        onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = 'var(--bg-hover)'}
+        onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'}
+      >
+        {/* Date */}
+        <td style={{ padding: '0 16px', color: 'var(--text-muted)', fontSize: '11px', width: '80px', whiteSpace: 'nowrap' }}>
+          {dateStr}
+        </td>
 
-      {/* Kickoff */}
-      <td style={{ padding: '0 16px', color: 'var(--text-muted)', fontSize: '11px', width: '60px', whiteSpace: 'nowrap' }}>
-        {timeStr}
-      </td>
+        {/* Kickoff */}
+        <td style={{ padding: '0 16px', color: 'var(--text-muted)', fontSize: '11px', width: '60px', whiteSpace: 'nowrap' }}>
+          {timeStr}
+        </td>
 
-      {/* Match */}
-      <td style={{ padding: '0 16px' }}>
-        <span style={{ fontWeight: 600, color: 'var(--text)' }}>{p.home_team}</span>
-        <span style={{ color: 'var(--text-muted)', margin: '0 8px' }}>vs</span>
-        <span style={{ color: 'var(--text)' }}>{p.away_team}</span>
-      </td>
+        {/* Match */}
+        <td style={{ padding: '0 16px' }}>
+          <span style={{ fontWeight: 600, color: 'var(--text)' }}>{p.home_team}</span>
+          <span style={{ color: 'var(--text-muted)', margin: '0 8px' }}>vs</span>
+          <span style={{ color: 'var(--text)' }}>{p.away_team}</span>
+        </td>
 
-      {/* Prediction badge */}
-      <td style={{ padding: '0 16px', width: '140px', whiteSpace: 'nowrap' }}>
-        <span style={{
-          display: 'inline-block',
-          padding: '3px 8px',
-          background: outcome.bg,
-          color: outcome.color,
-          fontSize: '11px',
-          letterSpacing: '0.04em',
-          textTransform: 'uppercase',
-          fontWeight: 500,
-        }}>
-          {label}
-        </span>
-      </td>
+        {/* Prediction badge */}
+        <td style={{ padding: '0 16px', width: '140px', whiteSpace: 'nowrap' }}>
+          <span style={{
+            display: 'inline-block',
+            padding: '3px 8px',
+            background: outcome.bg,
+            color: outcome.color,
+            fontSize: '11px',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            fontWeight: 500,
+          }}>
+            {label}
+          </span>
+        </td>
 
-      {/* Confidence */}
-      <td style={{ padding: '0 16px', width: '130px' }}>
-        <ConfidenceBar value={p.confidence} />
-      </td>
-    </tr>
+        {/* Confidence + expand chevron */}
+        <td style={{ padding: '0 16px', width: '130px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ flex: 1 }}>
+              <ConfidenceBar value={p.confidence} />
+            </div>
+            <span style={{
+              color: 'var(--text-muted)',
+              fontSize: '10px',
+              transform: expanded ? 'rotate(180deg)' : 'none',
+              transition: 'transform 0.2s',
+              flexShrink: 0,
+            }}>
+              ▾
+            </span>
+          </div>
+        </td>
+      </tr>
+
+      {expanded && <ExpandedDetail p={p} colSpan={COL_SPAN} />}
+    </>
   )
 }

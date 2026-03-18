@@ -23,6 +23,23 @@ export interface Prediction {
   odds_draw: number | null
   odds_away: number | null
   value_bet: string | null
+  // Form
+  home_form_winrate: number | null
+  away_form_winrate: number | null
+  home_momentum: number | null
+  away_momentum: number | null
+  home_venue_draw_rate: number | null
+  away_venue_draw_rate: number | null
+  // H2H
+  h2h_home_winrate: number | null
+  h2h_draw_rate: number | null
+  h2h_total_goals: number | null
+  // Goals
+  home_avg_goals_scored: number | null
+  home_avg_goals_conceded: number | null
+  away_avg_goals_scored: number | null
+  away_avg_goals_conceded: number | null
+  expected_total_goals: number | null
 }
 
 export async function fetchLeagues(): Promise<League[]> {

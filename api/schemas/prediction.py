@@ -17,6 +17,26 @@ class PredictionOut(BaseModel):
     odds_away: float | None
     value_bet: str | None       # "H", "D", "A", or None (positive EV outcome)
 
+    # Form
+    home_form_winrate: float | None = None
+    away_form_winrate: float | None = None
+    home_momentum: float | None = None
+    away_momentum: float | None = None
+    home_venue_draw_rate: float | None = None
+    away_venue_draw_rate: float | None = None
+
+    # Head to head
+    h2h_home_winrate: float | None = None
+    h2h_draw_rate: float | None = None
+    h2h_total_goals: float | None = None
+
+    # Goals
+    home_avg_goals_scored: float | None = None
+    home_avg_goals_conceded: float | None = None
+    away_avg_goals_scored: float | None = None
+    away_avg_goals_conceded: float | None = None
+    expected_total_goals: float | None = None
+
     @model_validator(mode="after")
     def check_probs_sum(self) -> "PredictionOut":
         total = self.prob_home + self.prob_draw + self.prob_away

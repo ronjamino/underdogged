@@ -50,6 +50,14 @@ def _row_to_prediction(row: pd.Series) -> PredictionOut:
     else:
         match_date_str = str(md)
 
+    def _f(key: str) -> float | None:
+        v = row.get(key)
+        try:
+            f = float(v)
+            return round(f, 4) if (f == f and abs(f) != float("inf")) else None
+        except (TypeError, ValueError):
+            return None
+
     return PredictionOut(
         match_id=str(row["match_id"]),
         home_team=row["home_team"],
@@ -65,6 +73,20 @@ def _row_to_prediction(row: pd.Series) -> PredictionOut:
         odds_draw=round(odds_draw, 2) if odds_draw else None,
         odds_away=round(odds_away, 2) if odds_away else None,
         value_bet=value,
+        home_form_winrate=_f("home_form_winrate"),
+        away_form_winrate=_f("away_form_winrate"),
+        home_momentum=_f("home_momentum"),
+        away_momentum=_f("away_momentum"),
+        home_venue_draw_rate=_f("home_venue_draw_rate"),
+        away_venue_draw_rate=_f("away_venue_draw_rate"),
+        h2h_home_winrate=_f("h2h_home_winrate"),
+        h2h_draw_rate=_f("h2h_draw_rate"),
+        h2h_total_goals=_f("h2h_total_goals"),
+        home_avg_goals_scored=_f("home_avg_goals_scored"),
+        home_avg_goals_conceded=_f("home_avg_goals_conceded"),
+        away_avg_goals_scored=_f("away_avg_goals_scored"),
+        away_avg_goals_conceded=_f("away_avg_goals_conceded"),
+        expected_total_goals=_f("expected_total_goals"),
     )
 
 
