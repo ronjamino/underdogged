@@ -31,6 +31,10 @@ _DATABASE_URL = urlunsplit(_parts._replace(netloc=_netloc))
 engine = create_engine(
     _DATABASE_URL,
     pool_pre_ping=True,
+    pool_size=2,
+    max_overflow=3,
+    pool_timeout=30,
+    pool_recycle=1800,
     connect_args={"sslmode": "require"},
 )
 

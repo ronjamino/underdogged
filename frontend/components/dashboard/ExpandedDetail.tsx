@@ -1,10 +1,11 @@
 'use client'
 
-import type { Prediction } from '@/lib/api'
+import type { Prediction, EnrichmentItem } from '@/lib/api'
 
 interface Props {
   p: Prediction
   colSpan: number
+  enrichment?: EnrichmentItem
 }
 
 type Result = 'W' | 'D' | 'L'
@@ -102,7 +103,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-export function ExpandedDetail({ p, colSpan }: Props) {
+const VERDICT_STYLE: Record<string, { color: string; bg: string; border: string; label: string }> = {
+  BACK:    { color: 'var(--green)',  bg: 'var(--green-dim)',  border: 'rgba(16,217,122,0.2)',  label: '↑ BACK'    },
+  MONITOR: { color: 'var(--accent)', bg: 'var(--accent-dim)', border: 'rgba(245,166,35,0.2)',  label: '◎ MONITOR' },
+  SKIP:    { color: 'var(--red)',    bg: 'var(--red-dim)',    border: 'rgba(242,85,85,0.2)',   label: '↓ SKIP'    },
+}
+
+export function ExpandedDetail({ p, colSpan, enrichment }: Props) {
   const hasForm  = p.home_form_winrate != null && p.away_form_winrate != null
   const hasH2H   = p.h2h_home_winrate != null
   const hasGoals = p.home_avg_goals_scored != null
@@ -151,6 +158,34 @@ export function ExpandedDetail({ p, colSpan }: Props) {
               })()}
             </Section>
           )}
+
+          {/* AI Brief */}
+          {enrichment && (() => {
+            const s = VERDICT_STYLE[enrichment.verdict] ?? VERDICT_STYLE['MONITOR']
+            return (
+              <Section title="AI Brief">
+                <div style={{ marginBottom: '10px' }}>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '3px 10px',
+                    background: s.bg,
+                    border: `1px solid ${s.border}`,
+                    color: s.color,
+                    fontSize: '10px',
+                    letterSpacing: '0.1em',
+                    fontWeight: 700,
+                    borderRadius: '3px',
+                    textTransform: 'uppercase',
+                  }}>
+                    💡 {s.label}
+                  </span>
+                </div>
+                <p style={{ color: 'var(--text-muted)', fontSize: '11px', lineHeight: 1.7, margin: 0 }}>
+                  {enrichment.commentary}
+                </p>
+              </Section>
+            )
+          })()}
 
           {/* Goals */}
           {hasGoals && (

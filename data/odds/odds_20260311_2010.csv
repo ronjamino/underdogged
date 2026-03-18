@@ -1,0 +1,109 @@
+match_id,commence_time,home_team_raw,away_team_raw,home_team,away_team,league,sport_key,home_odds,away_odds,draw_odds,num_bookmakers,fetch_timestamp
+07e3e6c1966c98bce260a6608d692f73,2026-03-14T15:00:00Z,Burnley,Bournemouth,Burnley,Bournemouth,PL,soccer_epl,3.99,1.83,3.76,19,2026-03-11 20:10:48.333679+00:00
+9c44263754509bd50f8db5429ca3d264,2026-03-14T15:00:00Z,Sunderland,Brighton and Hove Albion,Sunderland,Brighton,PL,soccer_epl,3.32,2.19,3.26,19,2026-03-11 20:10:48.333679+00:00
+0962092236bc521dd9eb0ea41ef8b8c0,2026-03-14T17:30:00Z,Arsenal,Everton,Arsenal,Everton,PL,soccer_epl,1.35,9.05,4.74,19,2026-03-11 20:10:48.333679+00:00
+2beaea2705eda4c075d7aa55a068d5ab,2026-03-14T17:30:00Z,Chelsea,Newcastle United,Chelsea,Newcastle,PL,soccer_epl,1.77,3.89,4.05,19,2026-03-11 20:10:48.333679+00:00
+da5bec9f0dc4903170736d22277ee47e,2026-03-14T20:00:00Z,West Ham United,Manchester City,West Ham,Man City,PL,soccer_epl,4.55,1.64,4.21,19,2026-03-11 20:10:48.333679+00:00
+18e2b8ff6e7459881bc8ea82284bfa81,2026-03-15T14:00:00Z,Manchester United,Aston Villa,Man United,Aston Villa,PL,soccer_epl,1.72,4.25,3.98,19,2026-03-11 20:10:48.333679+00:00
+44df3d0dc87a1d7970d9ec5f2bf03c25,2026-03-15T14:00:00Z,Crystal Palace,Leeds United,Crystal Palace,Leeds,PL,soccer_epl,2.33,3.07,3.23,19,2026-03-11 20:10:48.333679+00:00
+1b704b460cca3f7bf6cc31f0a7ef5d22,2026-03-15T14:00:00Z,Nottingham Forest,Fulham,Nottm Forest,Fulham,PL,soccer_epl,2.16,3.29,3.35,19,2026-03-11 20:10:48.333679+00:00
+0ca99a22a42a6d974f58b6de06c2617f,2026-03-15T16:30:00Z,Liverpool,Tottenham Hotspur,Liverpool,Tottenham,PL,soccer_epl,1.31,8.11,5.47,18,2026-03-11 20:10:48.333679+00:00
+5d742adbd3eb4cc8128387cc6353e1fe,2026-03-16T20:00:00Z,Brentford,Wolverhampton Wanderers,Brentford,Wolves,PL,soccer_epl,1.55,5.54,4.16,17,2026-03-11 20:10:48.333679+00:00
+97ab90a603a65929bd77565a95e00644,2026-03-20T20:00:00Z,Bournemouth,Manchester United,Bournemouth,Man United,PL,soccer_epl,2.94,2.18,3.73,15,2026-03-11 20:10:48.333679+00:00
+6f6891624dbf3d13a1e41a24d2c7bf4c,2026-03-21T12:30:00Z,Brighton and Hove Albion,Liverpool,Brighton,Liverpool,PL,soccer_epl,3.14,2.08,3.68,15,2026-03-11 20:10:48.333679+00:00
+5a6fab8da714813d8037b9754f082f7f,2026-03-21T15:00:00Z,Fulham,Burnley,Fulham,Burnley,PL,soccer_epl,1.51,5.95,4.08,15,2026-03-11 20:10:48.333679+00:00
+70a4161c6b699d029c5e4a2ebdf61fbc,2026-03-21T17:30:00Z,Everton,Chelsea,Everton,Chelsea,PL,soccer_epl,3.62,1.93,3.62,15,2026-03-11 20:10:48.333679+00:00
+997cc590268f6d24e0d2e8d84a6e3389,2026-03-21T20:00:00Z,Leeds United,Brentford,Leeds,Brentford,PL,soccer_epl,2.49,2.67,3.36,15,2026-03-11 20:10:48.333679+00:00
+3def90dc9d468dd46508a5afae2d5546,2026-03-22T12:00:00Z,Newcastle United,Sunderland,Newcastle,Sunderland,PL,soccer_epl,1.61,5.05,3.93,14,2026-03-11 20:10:48.333679+00:00
+1efa28912151d6adc43453fb2302a610,2026-03-22T14:15:00Z,Aston Villa,West Ham United,Aston Villa,West Ham,PL,soccer_epl,1.78,4.11,3.72,14,2026-03-11 20:10:48.333679+00:00
+81dd92df69b61ff2716351eea3bd457c,2026-03-22T14:15:00Z,Tottenham Hotspur,Nottingham Forest,Tottenham,Nottm Forest,PL,soccer_epl,2.47,2.77,3.31,14,2026-03-11 20:10:48.333679+00:00
+8ce31ee950679119d9bc6c21eff894a2,2026-03-11T19:45:00Z,Birmingham City,Queens Park Rangers,Birmingham City,QPR,ELC,soccer_efl_champ,1.19,15.65,6.11,17,2026-03-11 20:10:48.333679+00:00
+0bc7c8838a4590a007c1a915a6ba0f97,2026-03-11T19:45:00Z,Oxford United,Blackburn Rovers,Oxford,Blackburn,ELC,soccer_efl_champ,2.67,3.17,2.63,17,2026-03-11 20:10:48.333679+00:00
+c2e7d4d20ceb9741664addc5a4d86440,2026-03-11T19:45:00Z,Middlesbrough,Charlton Athletic,Middlesbrough,Charlton Athletic,ELC,soccer_efl_champ,1.3,9.76,4.96,17,2026-03-11 20:10:48.333679+00:00
+eeb88b3e1f64ecdc9bbcb098785a48c4,2026-03-11T19:45:00Z,Norwich City,Sheffield United,Norwich,Sheffield Utd,ELC,soccer_efl_champ,5.2,1.64,3.69,17,2026-03-11 20:10:48.333679+00:00
+13762299a32b89c06b3c45ba63a43884,2026-03-11T19:45:00Z,West Bromwich Albion,Southampton,West Brom,Southampton,ELC,soccer_efl_champ,3.22,2.34,3.01,17,2026-03-11 20:10:48.333679+00:00
+a1862c84c3d4445449d10c82c14e0477,2026-03-11T20:00:00Z,Coventry City,Preston North End,Coventry,Preston,ELC,soccer_efl_champ,1.48,6.17,4.27,19,2026-03-11 20:10:48.333679+00:00
+ba6a2e5c03ef15dc9b9a84d7ec3ed2f2,2026-03-13T20:00:00Z,Wrexham AFC,Swansea City,Wrexham,Swansea,ELC,soccer_efl_champ,2.25,3.13,3.27,19,2026-03-11 20:10:48.333679+00:00
+affc87d073f5df7c421a5ea8df22a713,2026-03-14T12:30:00Z,Middlesbrough,Bristol City,Middlesbrough,Bristol City,ELC,soccer_efl_champ,1.56,5.02,3.96,18,2026-03-11 20:10:48.333679+00:00
+99b6e8b8cce7f1699ac053e7fcb5c448,2026-03-14T12:30:00Z,Oxford United,Charlton Athletic,Oxford,Charlton Athletic,ELC,soccer_efl_champ,2.2,3.15,3.01,17,2026-03-11 20:10:48.333679+00:00
+73ba0767bf650794ef91ca9387f61b8b,2026-03-14T12:30:00Z,Coventry City,Southampton,Coventry,Southampton,ELC,soccer_efl_champ,1.8,3.81,3.66,18,2026-03-11 20:10:48.333679+00:00
+65615a6d23890cd8fbf3d06a6bbeec15,2026-03-14T15:00:00Z,Birmingham City,Sheffield United,Birmingham City,Sheffield Utd,ELC,soccer_efl_champ,2.21,2.7,3.33,17,2026-03-11 20:10:48.333679+00:00
+dcb6cbd9610e40664edc80ac594fa5f7,2026-03-14T15:00:00Z,Millwall,Blackburn Rovers,Millwall,Blackburn,ELC,soccer_efl_champ,1.69,4.45,3.45,17,2026-03-11 20:10:48.333679+00:00
+3f91a8c3d0d1cc194bc0371169c2bede,2026-03-14T15:00:00Z,West Bromwich Albion,Hull City,West Brom,Hull City,ELC,soccer_efl_champ,2.13,3.25,3.29,18,2026-03-11 20:10:48.333679+00:00
+274e7a3cd789b29a58ead148c617c387,2026-03-14T15:00:00Z,Sheffield Wednesday,Ipswich Town,Sheffield Wed,Ipswich,ELC,soccer_efl_champ,11.92,1.22,6.04,18,2026-03-11 20:10:48.333679+00:00
+60da1aea89df2546056d6864b534e10e,2026-03-14T15:00:00Z,Leicester City,Queens Park Rangers,Leicester,QPR,ELC,soccer_efl_champ,2.14,3.05,3.29,17,2026-03-11 20:10:48.333679+00:00
+be325d84002e89c5047b45f0e0a1293e,2026-03-14T15:00:00Z,Norwich City,Preston North End,Norwich,Preston,ELC,soccer_efl_champ,1.63,4.72,3.76,17,2026-03-11 20:10:48.333679+00:00
+1c38c88f07ca1358c1d5d5006d413e1a,2026-03-14T15:00:00Z,Stoke City,Watford,Stoke,Watford,ELC,soccer_efl_champ,2.59,2.67,3.25,18,2026-03-11 20:10:48.333679+00:00
+72d951f9d395df1d156e204b6eaeb2f5,2026-03-16T20:00:00Z,Portsmouth,Derby County,Portsmouth,Derby,ELC,soccer_efl_champ,2.19,3.27,3.14,18,2026-03-11 20:10:48.333679+00:00
+e2112d49fde92b3c1dfc5532f5dbbc81,2026-03-17T19:45:00Z,Watford,Wrexham AFC,Watford,Wrexham,ELC,soccer_efl_champ,2.02,3.07,3.16,14,2026-03-11 20:10:48.333679+00:00
+4340f06fd34c9022815f32e49b09469a,2026-03-18T19:45:00Z,Southampton,Norwich City,Southampton,Norwich,ELC,soccer_efl_champ,1.8,3.78,3.75,5,2026-03-11 20:10:48.333679+00:00
+a6da786cfb7f08ba7ce2768b8514a981,2026-03-20T20:00:00Z,Preston North End,Stoke City,Preston,Stoke,ELC,soccer_efl_champ,2.43,2.7,3.27,5,2026-03-11 20:10:48.333679+00:00
+43eb9eef3da28fa5a25e23d13fdb4451,2026-03-21T12:30:00Z,Derby County,Birmingham City,Derby,Birmingham City,ELC,soccer_efl_champ,2.7,2.4,3.32,5,2026-03-11 20:10:48.333679+00:00
+2eeee243544cf24210e861aada827622,2026-03-21T12:30:00Z,Blackburn Rovers,Middlesbrough,Blackburn,Middlesbrough,ELC,soccer_efl_champ,3.72,1.89,3.43,5,2026-03-11 20:10:48.333679+00:00
+9b1424569ed7e80026d3115efb206f30,2026-03-21T12:30:00Z,Ipswich Town,Millwall,Ipswich,Millwall,ELC,soccer_efl_champ,1.68,4.5,3.68,5,2026-03-11 20:10:48.333679+00:00
+e31457930d5c95c9c14ba860d6e1aa7d,2026-03-21T15:00:00Z,Bristol City,West Bromwich Albion,Bristol City,West Brom,ELC,soccer_efl_champ,2.13,3.12,3.37,5,2026-03-11 20:10:48.333679+00:00
+42f4aa0bb2d704d57044d4b885fa8dea,2026-03-21T15:00:00Z,Charlton Athletic,Norwich City,Charlton Athletic,Norwich,ELC,soccer_efl_champ,2.9,2.25,3.37,5,2026-03-11 20:10:48.333679+00:00
+7e4a4b71cf75f27790fa6d9dee774f56,2026-03-21T15:00:00Z,Hull City,Sheffield Wednesday,Hull City,Sheffield Wed,ELC,soccer_efl_champ,1.29,8.8,5.1,5,2026-03-11 20:10:48.333679+00:00
+7e76cdfc3b09781b76e38c06b6401589,2026-03-21T15:00:00Z,Watford,Leicester City,Watford,Leicester,ELC,soccer_efl_champ,1.89,3.62,3.52,5,2026-03-11 20:10:48.333679+00:00
+8c0add8201244df641711b04cb11b460,2026-03-21T15:00:00Z,Southampton,Oxford United,Southampton,Oxford,ELC,soccer_efl_champ,1.46,5.96,4.27,5,2026-03-11 20:10:48.333679+00:00
+c8abd21cb76f279c1e14c08472bb84a6,2026-03-21T15:00:00Z,Queens Park Rangers,Portsmouth,QPR,Portsmouth,ELC,soccer_efl_champ,2.35,2.88,3.2,5,2026-03-11 20:10:48.333679+00:00
+de33e5d4de9e5cef9b7283fd4f57a0e9,2026-03-21T15:00:00Z,Sheffield United,Wrexham AFC,Sheffield Utd,Wrexham,ELC,soccer_efl_champ,1.76,4.02,3.68,5,2026-03-11 20:10:48.333679+00:00
+d744123def5c0e9df567b11c190880ef,2026-03-21T17:15:00Z,Swansea City,Coventry City,Swansea,Coventry,ELC,soccer_efl_champ,3.1,2.09,3.52,5,2026-03-11 20:10:48.333679+00:00
+9a9954faf09684f6ca5b1ae9b936927c,2026-03-13T19:30:00Z,Borussia Monchengladbach,FC St. Pauli,Monchengladbach,St Pauli,BL1,soccer_germany_bundesliga,1.97,3.85,3.32,19,2026-03-11 20:10:48.333679+00:00
+bde011cff04e24f928df2c6266f1c920,2026-03-14T14:30:00Z,Eintracht Frankfurt,1. FC Heidenheim,Frankfurt,Heidenheim,BL1,soccer_germany_bundesliga,1.51,5.47,4.37,19,2026-03-11 20:10:48.333679+00:00
+cd1f4990172de08522ec54068cac55dd,2026-03-14T14:30:00Z,Borussia Dortmund,Augsburg,Dortmund,Augsburg,BL1,soccer_germany_bundesliga,1.39,6.95,4.82,19,2026-03-11 20:10:48.333679+00:00
+0e5ee3ef51b0e910ac994237f8f23d81,2026-03-14T14:30:00Z,Bayer Leverkusen,Bayern Munich,Bayer Leverkusen,Bayern Munich,BL1,soccer_germany_bundesliga,4.83,1.56,4.47,19,2026-03-11 20:10:48.333679+00:00
+34cf04a07cd90d492706174988646aa8,2026-03-14T14:30:00Z,TSG Hoffenheim,VfL Wolfsburg,Hoffenheim,Wolfsburg,BL1,soccer_germany_bundesliga,1.44,5.95,4.71,19,2026-03-11 20:10:48.333679+00:00
+cb2fae95599db71fb7acda3643c65105,2026-03-14T17:30:00Z,Hamburger SV,1. FC Köln,Hamburg,Koln,BL1,soccer_germany_bundesliga,2.1,3.25,3.49,19,2026-03-11 20:10:48.333679+00:00
+16f91394e11641dd9c0f72c8e0419e1f,2026-03-15T14:30:00Z,Werder Bremen,FSV Mainz 05,Werder Bremen,Mainz,BL1,soccer_germany_bundesliga,2.22,2.97,3.45,19,2026-03-11 20:10:48.333679+00:00
+2848770d3fa2e8b2d84827eb75535311,2026-03-15T16:30:00Z,SC Freiburg,Union Berlin,Freiburg,Union Berlin,BL1,soccer_germany_bundesliga,2.11,3.44,3.21,19,2026-03-11 20:10:48.333679+00:00
+7a6c7a7a701d8afe374576614c3a26bd,2026-03-15T18:30:00Z,VfB Stuttgart,RB Leipzig,Stuttgart,Leipzig,BL1,soccer_germany_bundesliga,2.2,2.77,3.87,19,2026-03-11 20:10:48.333679+00:00
+cae17bdabcbbb67a29265094fa0e6554,2026-03-20T19:30:00Z,RB Leipzig,TSG Hoffenheim,Leipzig,Hoffenheim,BL1,soccer_germany_bundesliga,1.88,3.38,3.9,15,2026-03-11 20:10:48.333679+00:00
+2c1a49b5906328b977abe07e9c8aebb1,2026-03-21T14:30:00Z,1. FC Heidenheim,Bayer Leverkusen,Heidenheim,Bayer Leverkusen,BL1,soccer_germany_bundesliga,5.24,1.54,4.24,15,2026-03-11 20:10:48.333679+00:00
+5d7743970aa447210c0de6f4cf3ebf27,2026-03-21T14:30:00Z,1. FC Köln,Borussia Monchengladbach,Koln,Monchengladbach,BL1,soccer_germany_bundesliga,2.2,2.89,3.5,15,2026-03-11 20:10:48.333679+00:00
+9a8eadf4547bbf5819c311dc86c15c20,2026-03-21T14:30:00Z,Bayern Munich,Union Berlin,Bayern Munich,Union Berlin,BL1,soccer_germany_bundesliga,1.16,13.37,7.35,15,2026-03-11 20:10:48.333679+00:00
+a2895efbb8e51812c34d8a6701dc308d,2026-03-21T14:30:00Z,VfL Wolfsburg,Werder Bremen,Wolfsburg,Werder Bremen,BL1,soccer_germany_bundesliga,2.49,2.52,3.55,15,2026-03-11 20:10:48.333679+00:00
+3cfeaaa222d922bab3e92bd574597a1d,2026-03-21T17:30:00Z,Borussia Dortmund,Hamburger SV,Dortmund,Hamburg,BL1,soccer_germany_bundesliga,1.37,7.11,4.85,15,2026-03-11 20:10:48.333679+00:00
+6a9b287c5519d99149aea0aa07e97457,2026-03-22T14:30:00Z,FSV Mainz 05,Eintracht Frankfurt,Mainz,Frankfurt,BL1,soccer_germany_bundesliga,2.09,3.12,3.54,14,2026-03-11 20:10:48.333679+00:00
+ce0eceba4b74a3f07e1cc01da96c68ad,2026-03-22T16:30:00Z,FC St. Pauli,SC Freiburg,St Pauli,Freiburg,BL1,soccer_germany_bundesliga,2.51,2.8,3.1,14,2026-03-11 20:10:48.333679+00:00
+da4455c899002999e47291f77d06a5f6,2026-03-22T18:30:00Z,Augsburg,VfB Stuttgart,Augsburg,Stuttgart,BL1,soccer_germany_bundesliga,3.49,1.9,3.76,14,2026-03-11 20:10:48.333679+00:00
+ef60d004abfdc26e4042f2fc52b9cb27,2026-03-13T19:45:00Z,Torino,Parma,Torino,Parma,SA,soccer_italy_serie_a,2.17,3.57,3.03,19,2026-03-11 20:10:48.333679+00:00
+149bf3d7cdfaf508e3b825ef893553db,2026-03-14T14:00:00Z,Inter Milan,Atalanta BC,Inter Milan,Atalanta,SA,soccer_italy_serie_a,1.51,5.59,4.28,19,2026-03-11 20:10:48.333679+00:00
+691cf70b931a264be8aef21d5672dbe0,2026-03-14T17:00:00Z,Napoli,Lecce,Napoli,Lecce,SA,soccer_italy_serie_a,1.33,10.05,4.59,19,2026-03-11 20:10:48.333679+00:00
+c7952639faac69b3723e469fc0d685a8,2026-03-14T19:45:00Z,Udinese,Juventus,Udinese,Juventus,SA,soccer_italy_serie_a,5.91,1.54,3.97,19,2026-03-11 20:10:48.333679+00:00
+e2f168b93547326ea541a0a64a7cd4cd,2026-03-15T11:30:00Z,Hellas Verona,Genoa,Verona,Genoa,SA,soccer_italy_serie_a,3.2,2.37,2.98,19,2026-03-11 20:10:48.333679+00:00
+95f272d9c24b65d20dfa25825addecaf,2026-03-15T14:00:00Z,Sassuolo,Bologna,Sassuolo,Bologna,SA,soccer_italy_serie_a,2.61,2.66,3.19,19,2026-03-11 20:10:48.333679+00:00
+ec0c89d96d903f9cdda4225ce246c0ff,2026-03-15T14:00:00Z,Pisa,Cagliari,Pisa,Cagliari,SA,soccer_italy_serie_a,2.48,2.96,2.97,19,2026-03-11 20:10:48.333679+00:00
+1ac62103305808a97da5678e533b3630,2026-03-15T17:00:00Z,Como,AS Roma,Como,Roma,SA,soccer_italy_serie_a,2.12,3.4,3.26,18,2026-03-11 20:10:48.333679+00:00
+75c15cfdc958448043de7fdfbe03d54c,2026-03-15T19:45:00Z,Lazio,AC Milan,Lazio,Milan,SA,soccer_italy_serie_a,3.81,2.0,3.22,19,2026-03-11 20:10:48.333679+00:00
+0ac68379b2b5718d286565263bb93a26,2026-03-16T19:45:00Z,Cremonese,Fiorentina,Cremonese,Fiorentina,SA,soccer_italy_serie_a,3.73,1.95,3.48,18,2026-03-11 20:10:48.333679+00:00
+a1e4f38c15f9eec3731b96923b93d736,2026-03-20T17:30:00Z,Cagliari,Napoli,Cagliari,Napoli,SA,soccer_italy_serie_a,5.85,1.58,3.55,13,2026-03-11 20:10:48.333679+00:00
+5056aab4e896208d92943d5a556da229,2026-03-20T19:45:00Z,Genoa,Udinese,Genoa,Udinese,SA,soccer_italy_serie_a,2.14,3.54,2.99,13,2026-03-11 20:10:48.333679+00:00
+0840c5a6565facfcc3a277183563b457,2026-03-21T14:00:00Z,Parma,Cremonese,Parma,Cremonese,SA,soccer_italy_serie_a,1.99,3.43,2.89,12,2026-03-11 20:10:48.333679+00:00
+1c05f8f6741555318b7438e75c56fed1,2026-03-21T17:00:00Z,AC Milan,Torino,Milan,Torino,SA,soccer_italy_serie_a,1.31,7.63,4.38,12,2026-03-11 20:10:48.333679+00:00
+0522ae9277f528011e5c72202d6e70b4,2026-03-21T19:45:00Z,Juventus,Sassuolo,Juventus,Sassuolo,SA,soccer_italy_serie_a,1.29,8.52,4.52,12,2026-03-11 20:10:48.333679+00:00
+48cd4a39c0810a3056ff749a952c9487,2026-03-22T11:30:00Z,Como,Pisa,Como,Pisa,SA,soccer_italy_serie_a,1.24,10.76,5.25,11,2026-03-11 20:10:48.333679+00:00
+3bc9cbb26c4be23f3fc825473a812cd6,2026-03-22T14:00:00Z,Atalanta BC,Hellas Verona,Atalanta,Verona,SA,soccer_italy_serie_a,1.36,8.1,4.41,11,2026-03-11 20:10:48.333679+00:00
+bb09769af11fbcbd90d7551bdf373852,2026-03-22T14:00:00Z,Bologna,Lazio,Bologna,Lazio,SA,soccer_italy_serie_a,2.21,3.34,2.96,11,2026-03-11 20:10:48.333679+00:00
+0a8bec48d5dc3a811d6ccd82ff02523d,2026-03-22T17:00:00Z,AS Roma,Lecce,Roma,Lecce,SA,soccer_italy_serie_a,1.34,8.85,4.44,11,2026-03-11 20:10:48.333679+00:00
+6b8f3db7b6971a49c1b32412e54060c2,2026-03-22T19:45:00Z,Fiorentina,Inter Milan,Fiorentina,Inter Milan,SA,soccer_italy_serie_a,4.79,1.6,3.89,11,2026-03-11 20:10:48.333679+00:00
+ff3474b7c0d65e14c403b596082de276,2026-03-13T20:00:00Z,Alavés,Villarreal,Alaves,Villarreal,PD,soccer_spain_la_liga,3.33,2.11,3.35,18,2026-03-11 20:10:48.333679+00:00
+d86fe8a3c8f1ad3640c6447f169f40f7,2026-03-14T13:00:00Z,Girona,Athletic Bilbao,Girona,Athletic Bilbao,PD,soccer_spain_la_liga,2.67,2.57,3.25,18,2026-03-11 20:10:48.333679+00:00
+1e66e501f63c90370f120c7b8c8e6b94,2026-03-14T15:15:00Z,Atlético Madrid,Getafe,Atletico Madrid,Getafe,PD,soccer_spain_la_liga,1.54,7.07,3.64,18,2026-03-11 20:10:48.333679+00:00
+88e089fbfba337cb56c86d0a02b6fd03,2026-03-14T17:30:00Z,Oviedo,Valencia,Real Oviedo,Valencia,PD,soccer_spain_la_liga,2.78,2.56,3.12,18,2026-03-11 20:10:48.333679+00:00
+901ebdbf0a063ebe729b6cf925711692,2026-03-14T20:00:00Z,Real Madrid,Elche CF,Real Madrid,Elche,PD,soccer_spain_la_liga,1.23,10.3,6.34,18,2026-03-11 20:10:48.333679+00:00
+5e7bd13acd8e297a21ec72c548b898ee,2026-03-15T13:00:00Z,Mallorca,Espanyol,Mallorca,Espanyol,PD,soccer_spain_la_liga,2.31,3.23,3.04,18,2026-03-11 20:10:48.333679+00:00
+05f3d9ec88353f2dea9e56cd509acc9a,2026-03-15T15:15:00Z,Barcelona,Sevilla,Barcelona,Sevilla,PD,soccer_spain_la_liga,1.23,10.22,6.43,18,2026-03-11 20:10:48.333679+00:00
+fbe88881ea46e08b70a42b8142554a7c,2026-03-15T17:30:00Z,Real Betis,Celta Vigo,Real Betis,Celta Vigo,PD,soccer_spain_la_liga,2.15,3.31,3.26,17,2026-03-11 20:10:48.333679+00:00
+a872d2a909eeac8056f7a5933eae11df,2026-03-15T20:00:00Z,Real Sociedad,CA Osasuna,Real Sociedad,Osasuna,PD,soccer_spain_la_liga,1.89,4.01,3.41,18,2026-03-11 20:10:48.333679+00:00
+a04edfadea847f5fa2f31246dd11e143,2026-03-16T20:00:00Z,Rayo Vallecano,Levante,Rayo Vallecano,Levante,PD,soccer_spain_la_liga,1.66,5.07,3.75,17,2026-03-11 20:10:48.333679+00:00
+cb9d0d5daff8d62f0222a2128327e482,2026-03-20T20:00:00Z,Villarreal,Real Sociedad,Villarreal,Real Sociedad,PD,soccer_spain_la_liga,1.81,3.9,3.61,11,2026-03-11 20:10:48.333679+00:00
+6b904feabfc1e1ed40ecd26f689a1d4f,2026-03-21T13:00:00Z,Elche CF,Mallorca,Elche,Mallorca,PD,soccer_spain_la_liga,1.84,3.46,3.11,10,2026-03-11 20:10:48.333679+00:00
+a60515528a2ca996651e2bf69d577e76,2026-03-21T15:15:00Z,Espanyol,Getafe,Espanyol,Getafe,PD,soccer_spain_la_liga,2.22,2.96,2.74,10,2026-03-11 20:10:48.333679+00:00
+c93581c8f00e7d38ab08d57df1ef7270,2026-03-21T17:30:00Z,CA Osasuna,Girona,Osasuna,Girona,PD,soccer_spain_la_liga,1.95,3.34,3.01,11,2026-03-11 20:10:48.333679+00:00
+4eec0660aefd71f457242be8af29857c,2026-03-21T17:30:00Z,Levante,Oviedo,Levante,Real Oviedo,PD,soccer_spain_la_liga,1.97,3.17,3.08,11,2026-03-11 20:10:48.333679+00:00
+18d38c78193436d288a2ceb5781ee9b5,2026-03-21T20:00:00Z,Sevilla,Valencia,Sevilla,Valencia,PD,soccer_spain_la_liga,2.13,3.4,3.15,10,2026-03-11 20:10:48.333679+00:00
+b8d4230d0027d66519d07bacf5273b38,2026-03-22T13:00:00Z,Barcelona,Rayo Vallecano,Barcelona,Rayo Vallecano,PD,soccer_spain_la_liga,1.2,9.88,6.43,10,2026-03-11 20:10:48.333679+00:00
+4ce102fccaf8df0dd0f6d3c5135ad344,2026-03-22T15:15:00Z,Celta Vigo,Alavés,Celta Vigo,Alaves,PD,soccer_spain_la_liga,1.72,4.81,3.32,9,2026-03-11 20:10:48.333679+00:00
+3e70ca35d4b4d33cfaa0a8eac1528b8e,2026-03-22T17:30:00Z,Athletic Bilbao,Real Betis,Athletic Bilbao,Real Betis,PD,soccer_spain_la_liga,2.06,3.45,3.2,10,2026-03-11 20:10:48.333679+00:00
+fe967658b51c7308f6e0987c8b428c5f,2026-03-22T20:00:00Z,Real Madrid,Atlético Madrid,Real Madrid,Atletico Madrid,PD,soccer_spain_la_liga,1.84,3.65,3.84,11,2026-03-11 20:10:48.333679+00:00

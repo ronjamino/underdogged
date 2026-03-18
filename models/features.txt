@@ -18,12 +18,16 @@ is_defensive_match
 h2h_total_goals
 home_draw_rate
 away_draw_rate
+home_venue_draw_rate
+away_venue_draw_rate
+current_season_draw_rate
 home_total_goals_avg
 away_total_goals_avg
 league_avg_goals
 league_home_adv
 home_momentum
 away_momentum
+has_odds
 home_true_prob
 draw_true_prob
 away_true_prob
@@ -31,3 +35,6 @@ market_draw_confidence
 market_competitiveness
 odds_spread
 market_favorite_confidence
+form_x_goals
+momentum_interaction
+draw_affinity

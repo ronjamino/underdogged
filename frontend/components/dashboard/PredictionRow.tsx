@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { ConfidenceBar } from './ConfidenceBar'
 import { ExpandedDetail } from './ExpandedDetail'
-import type { Prediction } from '@/lib/api'
+import type { Prediction, EnrichmentItem } from '@/lib/api'
 
 interface Props {
   prediction: Prediction
+  enrichment?: EnrichmentItem
 }
 
 const OUTCOME_STYLES: Record<string, { bg: string; border: string; color: string; label: (p: Prediction) => string }> = {
@@ -15,9 +16,15 @@ const OUTCOME_STYLES: Record<string, { bg: string; border: string; color: string
   A: { bg: 'var(--red-dim)',    border: 'rgba(242,85,85,0.2)',  color: 'var(--red)',    label: p => p.away_team },
 }
 
+const VERDICT_COLOR: Record<string, string> = {
+  BACK:    'var(--green)',
+  MONITOR: 'var(--accent)',
+  SKIP:    'var(--red)',
+}
+
 const COL_SPAN = 5
 
-export function PredictionRow({ prediction: p }: Props) {
+export function PredictionRow({ prediction: p, enrichment }: Props) {
   const [expanded, setExpanded] = useState(false)
   const outcome = OUTCOME_STYLES[p.predicted_outcome] ?? OUTCOME_STYLES['D']
   const label = outcome.label(p)
@@ -73,12 +80,25 @@ export function PredictionRow({ prediction: p }: Props) {
           </span>
         </td>
 
-        {/* Confidence + expand chevron */}
+        {/* Confidence + lightbulb + chevron */}
         <td style={{ padding: '0 16px', width: '130px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ flex: 1 }}>
               <ConfidenceBar value={p.confidence} />
             </div>
+            {enrichment && (
+              <span
+                title={`${enrichment.verdict}: ${enrichment.commentary}`}
+                style={{
+                  fontSize: '13px',
+                  color: VERDICT_COLOR[enrichment.verdict] ?? 'var(--text-muted)',
+                  flexShrink: 0,
+                  filter: `drop-shadow(0 0 4px ${VERDICT_COLOR[enrichment.verdict] ?? 'transparent'})`,
+                }}
+              >
+                💡
+              </span>
+            )}
             <span style={{
               color: 'var(--text-muted)',
               fontSize: '10px',
@@ -92,7 +112,7 @@ export function PredictionRow({ prediction: p }: Props) {
         </td>
       </tr>
 
-      {expanded && <ExpandedDetail p={p} colSpan={COL_SPAN} />}
+      {expanded && <ExpandedDetail p={p} colSpan={COL_SPAN} enrichment={enrichment} />}
     </>
   )
 }

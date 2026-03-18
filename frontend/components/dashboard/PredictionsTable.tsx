@@ -1,12 +1,13 @@
 'use client'
 
 import { PredictionRow } from './PredictionRow'
-import type { Prediction } from '@/lib/api'
+import type { Prediction, EnrichmentItem } from '@/lib/api'
 
 interface Props {
   predictions: Prediction[]
   loading: boolean
   error: string
+  enrichmentMap: Map<string, EnrichmentItem>
 }
 
 function SkeletonRow() {
@@ -21,7 +22,7 @@ function SkeletonRow() {
   )
 }
 
-export function PredictionsTable({ predictions, loading, error }: Props) {
+export function PredictionsTable({ predictions, loading, error, enrichmentMap }: Props) {
   return (
     <div style={{
       overflowX: 'auto',
@@ -57,12 +58,7 @@ export function PredictionsTable({ predictions, loading, error }: Props) {
 
           {!loading && error && (
             <tr>
-              <td colSpan={5} style={{
-                padding: '48px 16px',
-                textAlign: 'center',
-                color: 'var(--red)',
-                fontSize: '12px',
-              }}>
+              <td colSpan={5} style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--red)', fontSize: '12px' }}>
                 {error}
               </td>
             </tr>
@@ -70,19 +66,18 @@ export function PredictionsTable({ predictions, loading, error }: Props) {
 
           {!loading && !error && predictions.length === 0 && (
             <tr>
-              <td colSpan={5} style={{
-                padding: '48px 16px',
-                textAlign: 'center',
-                color: 'var(--text-muted)',
-                fontSize: '12px',
-              }}>
+              <td colSpan={5} style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
                 No predictions available for this gameweek.
               </td>
             </tr>
           )}
 
           {!loading && !error && predictions.map(p => (
-            <PredictionRow key={p.match_id} prediction={p} />
+            <PredictionRow
+              key={p.match_id}
+              prediction={p}
+              enrichment={enrichmentMap.get(`${p.home_team}|${p.away_team}`)}
+            />
           ))}
         </tbody>
       </table>
