@@ -92,6 +92,16 @@ input:focus {
   50%       { box-shadow: 0 0 20px var(--accent-glow); }
 }
 
+/* ── Mobile utilities ──────────────────────────────────────── */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+@media (max-width: 640px) {
+  .landing-hero    { padding: 48px 20px 40px !important; }
+  .landing-section { padding: 48px 20px !important; }
+  .landing-nav     { padding: 0 20px !important; }
+  .landing-footer  { padding: 20px !important; }
+}
+
 /* ── Scrollbar ─────────────────────────────────────────────── */
 ::-webkit-scrollbar               { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track         { background: var(--bg); }

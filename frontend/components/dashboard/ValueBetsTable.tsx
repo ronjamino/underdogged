@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ExpandedDetail } from './ExpandedDetail'
+import { useIsMobile } from '@/lib/hooks/useIsMobile'
 import type { Prediction, EnrichmentItem } from '@/lib/api'
 
 interface Props {
@@ -102,6 +103,78 @@ function ValueBetRow({ p, enrichment }: { p: Prediction; enrichment?: Enrichment
   )
 }
 
+function MobileValueBetCard({ p, enrichment }: { p: Prediction; enrichment?: EnrichmentItem }) {
+  const [expanded, setExpanded] = useState(false)
+  const vb = p.value_bet!
+  const modelProb = vb === 'H' ? p.prob_home : vb === 'D' ? p.prob_draw : p.prob_away
+  const odds = vb === 'H' ? p.odds_home : vb === 'D' ? p.odds_draw : p.odds_away
+  const edgePct = odds ? edge(modelProb, odds) : null
+
+  const date = new Date(p.match_date)
+  const dateStr = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
+
+  return (
+    <div
+      onClick={() => setExpanded(e => !e)}
+      style={{
+        borderBottom: '1px solid var(--border)',
+        padding: '14px 16px',
+        cursor: 'pointer',
+        transition: 'background 0.15s',
+      }}
+      onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-hover)'}
+      onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = 'transparent'}
+    >
+      {/* Date + chevron */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>{dateStr}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {enrichment && (
+            <span style={{
+              fontSize: '12px',
+              color: VERDICT_COLOR[enrichment.verdict] ?? 'var(--text-muted)',
+              filter: `drop-shadow(0 0 4px ${VERDICT_COLOR[enrichment.verdict] ?? 'transparent'})`,
+            }}>💡</span>
+          )}
+          <span style={{
+            color: 'var(--text-muted)', fontSize: '10px',
+            transform: expanded ? 'rotate(180deg)' : 'none',
+            transition: 'transform 0.2s',
+          }}>▾</span>
+        </div>
+      </div>
+
+      {/* Match name */}
+      <div style={{ marginBottom: '10px' }}>
+        <span style={{ fontWeight: 600, color: 'var(--text)' }}>{p.home_team}</span>
+        <span style={{ color: 'var(--text-muted)', margin: '0 8px' }}>vs</span>
+        <span style={{ color: 'var(--text)' }}>{p.away_team}</span>
+      </div>
+
+      {/* Outcome badge + odds + edge inline */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+        <span style={{
+          display: 'inline-block', padding: '3px 10px',
+          background: OUTCOME_BG[vb], color: OUTCOME_COLOR[vb],
+          border: `1px solid ${OUTCOME_BORDER[vb]}`,
+          fontSize: '10px', letterSpacing: '0.06em', textTransform: 'uppercase',
+          fontWeight: 600, borderRadius: '4px', flexShrink: 0,
+        }}>
+          {OUTCOME_LABEL[vb]}
+        </span>
+        <span style={{ color: 'var(--text)', fontSize: '12px', fontVariantNumeric: 'tabular-nums' }}>
+          {odds != null ? odds.toFixed(2) : '—'}
+        </span>
+        <span style={{ color: edgePct != null && edgePct > 0 ? 'var(--green)' : 'var(--text-muted)', fontSize: '12px', fontVariantNumeric: 'tabular-nums' }}>
+          {edgePct != null ? `+${edgePct.toFixed(1)}%` : '—'}
+        </span>
+      </div>
+
+      {expanded && <ExpandedDetail p={p} colSpan={1} enrichment={enrichment} variant="card" />}
+    </div>
+  )
+}
+
 function SkeletonRow() {
   return (
     <tr style={{ borderBottom: '1px solid var(--border)', height: '52px' }}>
@@ -114,7 +187,53 @@ function SkeletonRow() {
   )
 }
 
+function MobileSkeletonCard() {
+  return (
+    <div style={{ borderBottom: '1px solid var(--border)', padding: '14px 16px' }}>
+      <div className="skeleton" style={{ height: '10px', width: '25%', marginBottom: '10px', borderRadius: '3px' }} />
+      <div className="skeleton" style={{ height: '12px', width: '65%', marginBottom: '10px', borderRadius: '3px' }} />
+      <div className="skeleton" style={{ height: '24px', width: '55%', borderRadius: '3px' }} />
+    </div>
+  )
+}
+
 export function ValueBetsTable({ predictions, loading, error, enrichmentMap }: Props) {
+  const isMobile = useIsMobile()
+
+  const enrichmentFor = (p: Prediction) =>
+    enrichmentMap.get(`${p.home_team}|${p.away_team}`)
+
+  if (isMobile) {
+    return (
+      <div style={{
+        border: '1px solid var(--border)',
+        borderRadius: '8px',
+        background: 'var(--bg-card)',
+        overflow: 'hidden',
+      }}>
+        {loading && Array.from({ length: 5 }).map((_, i) => <MobileSkeletonCard key={i} />)}
+
+        {!loading && error && (
+          <div style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--red)', fontSize: '12px' }}>{error}</div>
+        )}
+
+        {!loading && !error && predictions.length === 0 && (
+          <div style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
+            No value bets found this gameweek.
+          </div>
+        )}
+
+        {!loading && !error && predictions.map(p => (
+          <MobileValueBetCard
+            key={p.match_id}
+            p={p}
+            enrichment={enrichmentFor(p)}
+          />
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div style={{
       overflowX: 'auto',
@@ -152,7 +271,7 @@ export function ValueBetsTable({ predictions, loading, error, enrichmentMap }: P
             <ValueBetRow
               key={p.match_id}
               p={p}
-              enrichment={enrichmentMap.get(`${p.home_team}|${p.away_team}`)}
+              enrichment={enrichmentFor(p)}
             />
           ))}
         </tbody>

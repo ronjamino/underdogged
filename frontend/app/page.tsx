@@ -5,7 +5,7 @@ export default function LandingPage() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', fontFamily: 'JetBrains Mono, monospace' }}>
 
       {/* Nav */}
-      <nav style={{
+      <nav className="landing-nav" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 32px', height: '56px',
         borderBottom: '1px solid var(--border)',
@@ -32,7 +32,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section style={{
+      <section className="landing-hero" style={{
         maxWidth: '1100px', margin: '0 auto', padding: '80px 32px 60px',
         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
       }}>
@@ -92,7 +92,7 @@ export default function LandingPage() {
       </div>
 
       {/* Feature cards */}
-      <section style={{ maxWidth: '1100px', margin: '0 auto', padding: '72px 32px' }}>
+      <section className="landing-section" style={{ maxWidth: '1100px', margin: '0 auto', padding: '72px 32px' }}>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
@@ -141,7 +141,7 @@ export default function LandingPage() {
       </div>
 
       {/* Footer */}
-      <footer style={{
+      <footer className="landing-footer" style={{
         maxWidth: '1100px', margin: '0 auto', padding: '28px 32px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px',
       }}>

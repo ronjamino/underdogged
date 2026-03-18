@@ -6,6 +6,7 @@ interface Props {
   p: Prediction
   colSpan: number
   enrichment?: EnrichmentItem
+  variant?: 'table' | 'card'
 }
 
 type Result = 'W' | 'D' | 'L'
@@ -109,19 +110,13 @@ const VERDICT_STYLE: Record<string, { color: string; bg: string; border: string;
   SKIP:    { color: 'var(--red)',    bg: 'var(--red-dim)',    border: 'rgba(242,85,85,0.2)',   label: '↓ SKIP'    },
 }
 
-export function ExpandedDetail({ p, colSpan, enrichment }: Props) {
+export function ExpandedDetail({ p, colSpan, enrichment, variant = 'table' }: Props) {
   const hasForm  = p.home_form_winrate != null && p.away_form_winrate != null
   const hasH2H   = p.h2h_home_winrate != null
   const hasGoals = p.home_avg_goals_scored != null
 
-  return (
-    <tr>
-      <td colSpan={colSpan} style={{
-        padding: 0,
-        background: 'rgba(12,14,26,0.8)',
-        borderBottom: '1px solid var(--border)',
-      }}>
-        <div style={{ padding: '20px 24px', display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+  const inner = (
+    <div style={{ padding: '16px 20px', display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
 
           {/* Form */}
           {hasForm && (
@@ -212,7 +207,21 @@ export function ExpandedDetail({ p, colSpan, enrichment }: Props) {
             </Section>
           )}
 
-        </div>
+    </div>
+  )
+
+  if (variant === 'card') {
+    return (
+      <div style={{ background: 'rgba(12,14,26,0.8)', borderTop: '1px solid var(--border)', margin: '12px -16px -14px' }}>
+        {inner}
+      </div>
+    )
+  }
+
+  return (
+    <tr>
+      <td colSpan={colSpan} style={{ padding: 0, background: 'rgba(12,14,26,0.8)', borderBottom: '1px solid var(--border)' }}>
+        {inner}
       </td>
     </tr>
   )

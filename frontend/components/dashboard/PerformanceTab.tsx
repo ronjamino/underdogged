@@ -188,13 +188,13 @@ export function PerformanceTab({ data, live, loading, error }: Props) {
 
           {/* Confusion matrix + accuracy bars side by side */}
           <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap', marginBottom: '12px' }}>
-            <div style={{ flex: '1 1 360px' }}>
+            <div style={{ flex: '1 1 280px', minWidth: 0 }}>
               <div style={{ color: 'var(--text-muted)', fontSize: '10px', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '12px' }}>
                 Predicted vs Actual
               </div>
               <ConfusionMatrix confusion={live.confusion} />
             </div>
-            <div style={{ flex: '1 1 220px' }}>
+            <div style={{ flex: '1 1 180px' }}>
               <div style={{ color: 'var(--text-muted)', fontSize: '10px', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '12px' }}>
                 Accuracy by Outcome
               </div>

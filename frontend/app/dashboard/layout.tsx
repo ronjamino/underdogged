@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         top: 0,
         left: '50%',
         transform: 'translateX(-50%)',
-        width: '800px',
+        width: 'min(800px, 100vw)',
         height: '300px',
         background: 'radial-gradient(ellipse at 50% 0%, rgba(245,166,35,0.06) 0%, transparent 70%)',
         pointerEvents: 'none',
@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 28px',
+        padding: '0 16px',
         position: 'sticky',
         top: 0,
         background: 'rgba(7,8,15,0.75)',
@@ -111,7 +111,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
-        padding: '0 24px',
+        padding: '0 16px',
         position: 'relative',
         zIndex: 1,
       }}>

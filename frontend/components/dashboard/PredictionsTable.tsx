@@ -1,6 +1,7 @@
 'use client'
 
 import { PredictionRow } from './PredictionRow'
+import { useIsMobile } from '@/lib/hooks/useIsMobile'
 import type { Prediction, EnrichmentItem } from '@/lib/api'
 
 interface Props {
@@ -22,7 +23,54 @@ function SkeletonRow() {
   )
 }
 
+function MobileSkeletonCard() {
+  return (
+    <div style={{ borderBottom: '1px solid var(--border)', padding: '14px 16px' }}>
+      <div className="skeleton" style={{ height: '10px', width: '35%', marginBottom: '10px', borderRadius: '3px' }} />
+      <div className="skeleton" style={{ height: '12px', width: '70%', marginBottom: '10px', borderRadius: '3px' }} />
+      <div className="skeleton" style={{ height: '24px', width: '45%', borderRadius: '3px' }} />
+    </div>
+  )
+}
+
 export function PredictionsTable({ predictions, loading, error, enrichmentMap }: Props) {
+  const isMobile = useIsMobile()
+
+  const enrichmentFor = (p: Prediction) =>
+    enrichmentMap.get(`${p.home_team}|${p.away_team}`)
+
+  if (isMobile) {
+    return (
+      <div style={{
+        border: '1px solid var(--border)',
+        borderRadius: '8px',
+        background: 'var(--bg-card)',
+        overflow: 'hidden',
+      }}>
+        {loading && Array.from({ length: 8 }).map((_, i) => <MobileSkeletonCard key={i} />)}
+
+        {!loading && error && (
+          <div style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--red)', fontSize: '12px' }}>{error}</div>
+        )}
+
+        {!loading && !error && predictions.length === 0 && (
+          <div style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
+            No predictions available for this gameweek.
+          </div>
+        )}
+
+        {!loading && !error && predictions.map(p => (
+          <PredictionRow
+            key={p.match_id}
+            prediction={p}
+            enrichment={enrichmentFor(p)}
+            mobile
+          />
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div style={{
       overflowX: 'auto',
@@ -76,7 +124,7 @@ export function PredictionsTable({ predictions, loading, error, enrichmentMap }:
             <PredictionRow
               key={p.match_id}
               prediction={p}
-              enrichment={enrichmentMap.get(`${p.home_team}|${p.away_team}`)}
+              enrichment={enrichmentFor(p)}
             />
           ))}
         </tbody>

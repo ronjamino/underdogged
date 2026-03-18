@@ -75,13 +75,16 @@ export default function DashboardPage() {
   const valueBets = allValueBets.filter(p => p.league.toUpperCase() === valueLeague)
 
   return (
-    <main style={{ padding: '28px 0' }}>
+    <main style={{ padding: '20px 0' }}>
       {/* Top-level tab bar */}
       <div style={{
         display: 'flex',
         borderBottom: '1px solid var(--border)',
-        marginBottom: '28px',
+        marginBottom: '24px',
         gap: '4px',
+        overflowX: 'auto',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
       }}>
         {TABS.map(({ id, label }) => {
           const isActive = tab === id
@@ -90,7 +93,7 @@ export default function DashboardPage() {
               key={id}
               onClick={() => setTab(id)}
               style={{
-                padding: '14px 22px',
+                padding: '12px 16px',
                 fontSize: '11px',
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',

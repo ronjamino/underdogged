@@ -8,6 +8,7 @@ import type { Prediction, EnrichmentItem } from '@/lib/api'
 interface Props {
   prediction: Prediction
   enrichment?: EnrichmentItem
+  mobile?: boolean
 }
 
 const OUTCOME_STYLES: Record<string, { bg: string; border: string; color: string; label: (p: Prediction) => string }> = {
@@ -24,7 +25,7 @@ const VERDICT_COLOR: Record<string, string> = {
 
 const COL_SPAN = 5
 
-export function PredictionRow({ prediction: p, enrichment }: Props) {
+export function PredictionRow({ prediction: p, enrichment, mobile = false }: Props) {
   const [expanded, setExpanded] = useState(false)
   const outcome = OUTCOME_STYLES[p.predicted_outcome] ?? OUTCOME_STYLES['D']
   const label = outcome.label(p)
@@ -32,6 +33,65 @@ export function PredictionRow({ prediction: p, enrichment }: Props) {
   const date = new Date(p.match_date)
   const dateStr = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
   const timeStr = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+
+  if (mobile) {
+    return (
+      <div
+        onClick={() => setExpanded(e => !e)}
+        style={{
+          borderBottom: '1px solid var(--border)',
+          padding: '14px 16px',
+          cursor: 'pointer',
+          transition: 'background 0.15s',
+        }}
+        onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-hover)'}
+        onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = 'transparent'}
+      >
+        {/* Date + chevron row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>{dateStr} · {timeStr}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {enrichment && (
+              <span style={{
+                fontSize: '12px',
+                color: VERDICT_COLOR[enrichment.verdict] ?? 'var(--text-muted)',
+                filter: `drop-shadow(0 0 4px ${VERDICT_COLOR[enrichment.verdict] ?? 'transparent'})`,
+              }}>💡</span>
+            )}
+            <span style={{
+              color: 'var(--text-muted)', fontSize: '10px',
+              transform: expanded ? 'rotate(180deg)' : 'none',
+              transition: 'transform 0.2s',
+            }}>▾</span>
+          </div>
+        </div>
+
+        {/* Match name */}
+        <div style={{ marginBottom: '10px' }}>
+          <span style={{ fontWeight: 600, color: 'var(--text)' }}>{p.home_team}</span>
+          <span style={{ color: 'var(--text-muted)', margin: '0 8px' }}>vs</span>
+          <span style={{ color: 'var(--text)' }}>{p.away_team}</span>
+        </div>
+
+        {/* Outcome badge + confidence bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{
+            display: 'inline-block', padding: '3px 10px', flexShrink: 0,
+            background: outcome.bg, border: `1px solid ${outcome.border}`, color: outcome.color,
+            fontSize: '10px', letterSpacing: '0.06em', textTransform: 'uppercase',
+            fontWeight: 600, borderRadius: '4px',
+          }}>
+            {label}
+          </span>
+          <div style={{ flex: 1 }}>
+            <ConfidenceBar value={p.confidence} />
+          </div>
+        </div>
+
+        {expanded && <ExpandedDetail p={p} colSpan={1} enrichment={enrichment} variant="card" />}
+      </div>
+    )
+  }
 
   return (
     <>
