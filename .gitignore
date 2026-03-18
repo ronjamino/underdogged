@@ -2,3 +2,12 @@ venv/
 .env
 frontend/.env.local
 frontend/.env*.local
+# Python cache
+__pycache__/
+*.pyc
+
+# Generated data files
+data/odds/odds_*.csv
+data/predictions/
+data/processed/
+data/raw/
