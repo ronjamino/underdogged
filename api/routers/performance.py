@@ -45,8 +45,9 @@ class LiveRecord(BaseModel):
     correct: int
     incorrect: int
     pending: int
-    accuracy: float | None       # None if no results yet
-    by_outcome: dict             # {"H": {"predicted": N, "correct": N}, ...}
+    accuracy: float | None
+    # confusion[predicted][actual] = count  e.g. confusion["H"]["D"] = 3
+    confusion: dict
 
 
 @router.get("", response_model=PerformanceSummary, summary="Backtest performance summary")
@@ -122,13 +123,14 @@ def get_live_record(db: DB):
     correct_n = int(resolved["correct"].sum())
     accuracy  = round(correct_n / total, 3) if total else None
 
-    by_outcome: dict = {}
-    for outcome_label in ["H", "D", "A"]:
-        subset = resolved[resolved["pred_code"] == outcome_label]
-        by_outcome[outcome_label] = {
-            "predicted": len(subset),
-            "correct":   int(subset["correct"].sum()),
-        }
+    # Build full 3×3 confusion matrix: confusion[predicted][actual] = count
+    labels = ["H", "D", "A"]
+    confusion: dict = {p: {a: 0 for a in labels} for p in labels}
+    for _, row in resolved.iterrows():
+        p = row["pred_code"]
+        a = row["actual_code"]
+        if p in labels and a in labels:
+            confusion[p][a] += 1
 
     return LiveRecord(
         total_predicted=total,
@@ -136,5 +138,5 @@ def get_live_record(db: DB):
         incorrect=total - correct_n,
         pending=pending_n,
         accuracy=accuracy,
-        by_outcome=by_outcome,
+        confusion=confusion,
     )

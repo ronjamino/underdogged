@@ -97,7 +97,8 @@ export interface LiveRecord {
   incorrect: number
   pending: number
   accuracy: number | null
-  by_outcome: Record<string, { predicted: number; correct: number }>
+  // confusion[predicted][actual] = count
+  confusion: Record<string, Record<string, number>>
 }
 
 export async function fetchLiveRecord(): Promise<LiveRecord> {

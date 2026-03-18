@@ -12,7 +12,7 @@ interface Props {
 function SkeletonRow() {
   return (
     <tr style={{ borderBottom: '1px solid var(--border)', height: '48px' }}>
-      {[80, 60, 300, 140, 70, 130].map((w, i) => (
+      {[80, 60, 300, 140, 130].map((w, i) => (
         <td key={i} style={{ padding: '0 16px', width: `${w}px` }}>
           <div className="skeleton" style={{ height: '12px', width: '70%' }} />
         </td>
@@ -31,7 +31,7 @@ export function PredictionsTable({ predictions, loading, error }: Props) {
       }}>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--border)' }}>
-            {['Date', 'Kickoff', 'Match', 'Prediction', 'Result', 'Confidence'].map(col => (
+            {['Date', 'Kickoff', 'Match', 'Prediction', 'Confidence'].map(col => (
               <th key={col} style={{
                 padding: '10px 16px',
                 textAlign: 'left',
@@ -51,7 +51,7 @@ export function PredictionsTable({ predictions, loading, error }: Props) {
 
           {!loading && error && (
             <tr>
-              <td colSpan={6} style={{
+              <td colSpan={5} style={{
                 padding: '48px 16px',
                 textAlign: 'center',
                 color: 'var(--red)',
@@ -64,7 +64,7 @@ export function PredictionsTable({ predictions, loading, error }: Props) {
 
           {!loading && !error && predictions.length === 0 && (
             <tr>
-              <td colSpan={6} style={{
+              <td colSpan={5} style={{
                 padding: '48px 16px',
                 textAlign: 'center',
                 color: 'var(--text-muted)',
