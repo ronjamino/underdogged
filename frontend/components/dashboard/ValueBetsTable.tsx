@@ -76,19 +76,18 @@ function ValueBetRow({ p, enrichment }: { p: Prediction; enrichment?: Enrichment
             <span style={{ color: edgePct != null && edgePct > 0 ? 'var(--green)' : 'var(--text-muted)' }}>
               {edgePct != null ? `+${edgePct.toFixed(1)}%` : '—'}
             </span>
-            {enrichment && (
-              <span
-                title={`${enrichment.verdict}: ${enrichment.commentary}`}
-                style={{
-                  fontSize: '13px',
-                  color: VERDICT_COLOR[enrichment.verdict] ?? 'var(--text-muted)',
-                  flexShrink: 0,
-                  filter: `drop-shadow(0 0 4px ${VERDICT_COLOR[enrichment.verdict] ?? 'transparent'})`,
-                }}
-              >
-                💡
-              </span>
-            )}
+            <span
+              title={enrichment ? `${enrichment.verdict}: ${enrichment.commentary}` : undefined}
+              style={{
+                width: '15px',
+                flexShrink: 0,
+                fontSize: '13px',
+                color: enrichment ? (VERDICT_COLOR[enrichment.verdict] ?? 'var(--text-muted)') : 'transparent',
+                filter: enrichment ? `drop-shadow(0 0 4px ${VERDICT_COLOR[enrichment.verdict] ?? 'transparent'})` : 'none',
+              }}
+            >
+              {enrichment ? '💡' : ''}
+            </span>
             <span style={{
               color: 'var(--text-muted)', fontSize: '10px',
               transform: expanded ? 'rotate(180deg)' : 'none',

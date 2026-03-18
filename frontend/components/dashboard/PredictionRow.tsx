@@ -146,19 +146,19 @@ export function PredictionRow({ prediction: p, enrichment, mobile = false }: Pro
             <div style={{ flex: 1 }}>
               <ConfidenceBar value={p.confidence} />
             </div>
-            {enrichment && (
-              <span
-                title={`${enrichment.verdict}: ${enrichment.commentary}`}
-                style={{
-                  fontSize: '13px',
-                  color: VERDICT_COLOR[enrichment.verdict] ?? 'var(--text-muted)',
-                  flexShrink: 0,
-                  filter: `drop-shadow(0 0 4px ${VERDICT_COLOR[enrichment.verdict] ?? 'transparent'})`,
-                }}
-              >
-                💡
-              </span>
-            )}
+            {/* Fixed-width slot so bar width is identical with or without lightbulb */}
+            <span
+              title={enrichment ? `${enrichment.verdict}: ${enrichment.commentary}` : undefined}
+              style={{
+                width: '15px',
+                flexShrink: 0,
+                fontSize: '13px',
+                color: enrichment ? (VERDICT_COLOR[enrichment.verdict] ?? 'var(--text-muted)') : 'transparent',
+                filter: enrichment ? `drop-shadow(0 0 4px ${VERDICT_COLOR[enrichment.verdict] ?? 'transparent'})` : 'none',
+              }}
+            >
+              {enrichment ? '💡' : ''}
+            </span>
             <span style={{
               color: 'var(--text-muted)',
               fontSize: '10px',
