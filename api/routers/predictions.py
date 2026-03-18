@@ -90,6 +90,9 @@ def _row_to_prediction(row: pd.Series) -> PredictionOut:
         away_avg_goals_scored=_f("away_avg_goals_scored"),
         away_avg_goals_conceded=_f("away_avg_goals_conceded"),
         expected_total_goals=_f("expected_total_goals"),
+        home_form=row.get("home_form") or None,
+        away_form=row.get("away_form") or None,
+        h2h_form=row.get("h2h_form") or None,
     )
 
 

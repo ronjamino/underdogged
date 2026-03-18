@@ -29,6 +29,10 @@ class PredictionOut(BaseModel):
     away_momentum: float | None = None
     home_venue_draw_rate: float | None = None
     away_venue_draw_rate: float | None = None
+    # Form sequences: comma-separated W/D/L oldest→newest, team's own perspective
+    home_form: str | None = None
+    away_form: str | None = None
+    h2h_form: str | None = None
 
     # Head to head
     h2h_home_winrate: float | None = None

@@ -96,6 +96,7 @@ class DataStore:
                 prob_home, prob_draw, prob_away,
                 max_proba, confidence_label, prob_label,
                 actual_result, home_score, away_score,
+                home_form, away_form, h2h_form,
                 updated_at
             FROM predictions
             ORDER BY match_date ASC

@@ -67,6 +67,11 @@ CREATE TABLE IF NOT EXISTS predictions (
     confidence_label    TEXT,
     prob_label          TEXT,
 
+    -- form sequences (comma-separated W/D/L, oldest→newest, team's own perspective)
+    home_form       TEXT,   -- e.g. "W,D,L,W,W" — home team's last 5 home games
+    away_form       TEXT,   -- e.g. "L,W,W,D,W" — away team's last 5 away games
+    h2h_form        TEXT,   -- H2H last 5 from home team's perspective
+
     -- actual result (populated after match is played)
     actual_result   TEXT,       -- 'home_win','draw','away_win' or NULL if not yet played
     home_score      INTEGER,

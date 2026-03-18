@@ -34,6 +34,9 @@ export interface Prediction {
   away_momentum: number | null
   home_venue_draw_rate: number | null
   away_venue_draw_rate: number | null
+  home_form: string | null   // e.g. "W,D,L,W,W" — last 5, oldest first
+  away_form: string | null
+  h2h_form: string | null    // H2H last 5 from home team's perspective
   // H2H
   h2h_home_winrate: number | null
   h2h_draw_rate: number | null

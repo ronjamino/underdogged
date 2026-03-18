@@ -225,6 +225,26 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
         else:
             away_momentum = 0.5
 
+        # --- Actual form sequences (oldest → newest, home/away perspective) ---
+        home_form_str = ",".join(
+            "W" if r == "H" else ("D" if r == "D" else "L")
+            for r in home_last_5["result"]
+        ) if len(home_last_5) else ""
+
+        away_form_str = ",".join(
+            "W" if r == "A" else ("D" if r == "D" else "L")
+            for r in away_last_5["result"]
+        ) if len(away_last_5) else ""
+
+        h2h_seq = []
+        if len(h2h) >= 2:
+            for _, match in h2h.iterrows():
+                if match["home_team"] == home:
+                    h2h_seq.append("W" if match["result"] == "H" else ("D" if match["result"] == "D" else "L"))
+                else:
+                    h2h_seq.append("W" if match["result"] == "A" else ("D" if match["result"] == "D" else "L"))
+        h2h_form_str = ",".join(h2h_seq)
+
         momentum_differential = float(abs(home_momentum - away_momentum))
 
         # --- Low-scoring indicators ---
@@ -282,6 +302,10 @@ def build_prediction_features(fixtures: pd.DataFrame, history: pd.DataFrame) -> 
             "form_x_goals": form_x_goals,
             "momentum_interaction": momentum_interaction,
             "draw_affinity": draw_affinity,
+            # Form sequences (for UI display)
+            "home_form": home_form_str,
+            "away_form": away_form_str,
+            "h2h_form": h2h_form_str,
         })
 
     return pd.DataFrame(rows)
@@ -517,7 +541,8 @@ def predict_fixtures(leagues=None):
                 market_draw_confidence, market_favorite_confidence,
                 market_competitiveness, odds_spread,
                 predicted_result, prob_home, prob_draw, prob_away,
-                max_proba, confidence_label, prob_label
+                max_proba, confidence_label, prob_label,
+                home_form, away_form, h2h_form
             ) VALUES (
                 :match_date, :home_team, :away_team, :league_code,
                 :avg_goal_diff_h2h, :h2h_home_winrate, :home_form_winrate, :away_form_winrate,
@@ -536,7 +561,8 @@ def predict_fixtures(leagues=None):
                 :market_draw_confidence, :market_favorite_confidence,
                 :market_competitiveness, :odds_spread,
                 :predicted_result, :prob_home, :prob_draw, :prob_away,
-                :max_proba, :confidence_label, :prob_label
+                :max_proba, :confidence_label, :prob_label,
+                :home_form, :away_form, :h2h_form
             )
             ON CONFLICT (home_team, away_team, match_date) DO UPDATE SET
                 predicted_result            = EXCLUDED.predicted_result,
@@ -546,6 +572,9 @@ def predict_fixtures(leagues=None):
                 max_proba                   = EXCLUDED.max_proba,
                 confidence_label            = EXCLUDED.confidence_label,
                 prob_label                  = EXCLUDED.prob_label,
+                home_form                   = EXCLUDED.home_form,
+                away_form                   = EXCLUDED.away_form,
+                h2h_form                    = EXCLUDED.h2h_form,
                 updated_at                  = NOW()
         """)
 

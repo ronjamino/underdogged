@@ -87,7 +87,8 @@ def _import_predictions(conn) -> int:
             market_draw_confidence, market_favorite_confidence,
             market_competitiveness, odds_spread,
             predicted_result, prob_home, prob_draw, prob_away,
-            max_proba, confidence_label, prob_label
+            max_proba, confidence_label, prob_label,
+            home_form, away_form, h2h_form
         ) VALUES (
             :match_date, :home_team, :away_team, :league_code,
             :avg_goal_diff_h2h, :h2h_home_winrate, :home_form_winrate, :away_form_winrate,
@@ -106,7 +107,8 @@ def _import_predictions(conn) -> int:
             :market_draw_confidence, :market_favorite_confidence,
             :market_competitiveness, :odds_spread,
             :predicted_result, :prob_home, :prob_draw, :prob_away,
-            :max_proba, :confidence_label, :prob_label
+            :max_proba, :confidence_label, :prob_label,
+            :home_form, :away_form, :h2h_form
         )
         ON CONFLICT (home_team, away_team, match_date) DO UPDATE SET
             predicted_result            = EXCLUDED.predicted_result,
@@ -116,6 +118,9 @@ def _import_predictions(conn) -> int:
             max_proba                   = EXCLUDED.max_proba,
             confidence_label            = EXCLUDED.confidence_label,
             prob_label                  = EXCLUDED.prob_label,
+            home_form                   = EXCLUDED.home_form,
+            away_form                   = EXCLUDED.away_form,
+            h2h_form                    = EXCLUDED.h2h_form,
             updated_at                  = NOW()
     """)
 
