@@ -55,6 +55,18 @@ export async function fetchLeagues(): Promise<League[]> {
   return res.json()
 }
 
+export async function fetchLastUpdated(): Promise<string | null> {
+  try {
+    const res = await fetch(`${API_BASE}/leagues`)
+    if (!res.ok) return null
+    const leagues: League[] = await res.json()
+    const timestamps = leagues.map(l => l.last_updated).filter(t => t && t !== 'unknown')
+    return timestamps.sort().at(-1) ?? null
+  } catch {
+    return null
+  }
+}
+
 // League IDs from the API are codes: PL, ELC, BL1, SA, PD
 export async function fetchPredictions(leagueId: string): Promise<Prediction[]> {
   const res = await fetch(`${API_BASE}/predictions?league=${leagueId}`, {

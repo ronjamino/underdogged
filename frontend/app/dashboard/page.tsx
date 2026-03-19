@@ -7,7 +7,7 @@ import { LeagueSelector } from '@/components/dashboard/LeagueSelector'
 import { PredictionsTable } from '@/components/dashboard/PredictionsTable'
 import { ValueBetsTable } from '@/components/dashboard/ValueBetsTable'
 import { PerformanceTab } from '@/components/dashboard/PerformanceTab'
-import { fetchPredictions, fetchValueBets, fetchPerformance, fetchLiveRecord, fetchEnrichment, fetchLeagues } from '@/lib/api'
+import { fetchPredictions, fetchValueBets, fetchPerformance, fetchLiveRecord, fetchEnrichment, fetchLastUpdated } from '@/lib/api'
 import type { Prediction, PerformanceSummary, LiveRecord, EnrichmentItem } from '@/lib/api'
 
 const DEFAULT_LEAGUE = 'PL'
@@ -39,10 +39,7 @@ export default function DashboardPage() {
 
   // Fetch last updated timestamp once on mount
   useEffect(() => {
-    fetchLeagues().then(leagues => {
-      const ts = leagues.map(l => l.last_updated).filter(Boolean).sort().at(-1)
-      if (ts) setLastUpdated(ts)
-    }).catch(() => {})
+    fetchLastUpdated().then(ts => { if (ts) setLastUpdated(ts) })
   }, [])
 
   // Fetch enrichment in background whenever tab switches to predictions or value
