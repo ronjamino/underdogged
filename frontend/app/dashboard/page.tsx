@@ -7,7 +7,7 @@ import { LeagueSelector } from '@/components/dashboard/LeagueSelector'
 import { PredictionsTable } from '@/components/dashboard/PredictionsTable'
 import { ValueBetsTable } from '@/components/dashboard/ValueBetsTable'
 import { PerformanceTab } from '@/components/dashboard/PerformanceTab'
-import { fetchPredictions, fetchValueBets, fetchPerformance, fetchLiveRecord, fetchEnrichment } from '@/lib/api'
+import { fetchPredictions, fetchValueBets, fetchPerformance, fetchLiveRecord, fetchEnrichment, fetchLeagues } from '@/lib/api'
 import type { Prediction, PerformanceSummary, LiveRecord, EnrichmentItem } from '@/lib/api'
 
 const DEFAULT_LEAGUE = 'PL'
@@ -35,6 +35,15 @@ export default function DashboardPage() {
   const [error, setError] = useState('')
   const [predEnrichment, setPredEnrichment] = useState<Map<string, EnrichmentItem>>(new Map())
   const [valueEnrichment, setValueEnrichment] = useState<Map<string, EnrichmentItem>>(new Map())
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null)
+
+  // Fetch last updated timestamp once on mount
+  useEffect(() => {
+    fetchLeagues().then(leagues => {
+      const ts = leagues.map(l => l.last_updated).filter(Boolean).sort().at(-1)
+      if (ts) setLastUpdated(ts)
+    }).catch(() => {})
+  }, [])
 
   // Fetch enrichment in background whenever tab switches to predictions or value
   useEffect(() => {
@@ -74,8 +83,24 @@ export default function DashboardPage() {
 
   const valueBets = allValueBets.filter(p => p.league.toUpperCase() === valueLeague)
 
+  const lastUpdatedStr = lastUpdated
+    ? new Date(lastUpdated).toLocaleString('en-GB', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', timeZone: 'UTC', timeZoneName: 'short',
+      })
+    : null
+
   return (
     <main style={{ padding: '20px 0' }}>
+      {/* Last updated */}
+      {lastUpdatedStr && (
+        <div style={{ textAlign: 'right', marginBottom: '8px' }}>
+          <span style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.04em' }}>
+            Updated {lastUpdatedStr}
+          </span>
+        </div>
+      )}
+
       {/* Top-level tab bar */}
       <div style={{
         display: 'flex',

@@ -1,6 +1,10 @@
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isLoggedIn = !!user
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', fontFamily: 'JetBrains Mono, monospace' }}>
 
@@ -21,13 +25,13 @@ export default function LandingPage() {
         }}>
           underdogged
         </span>
-        <Link href="/login" style={{
+        <Link href={isLoggedIn ? '/dashboard' : '/login'} style={{
           padding: '7px 18px', fontSize: '11px', letterSpacing: '0.08em',
           textTransform: 'uppercase', textDecoration: 'none',
           border: '1px solid var(--accent)', color: 'var(--accent)',
           borderRadius: '4px', background: 'rgba(245,166,35,0.06)',
         }}>
-          Sign in →
+          {isLoggedIn ? 'Dashboard →' : 'Sign in →'}
         </Link>
       </nav>
 
@@ -74,7 +78,7 @@ export default function LandingPage() {
         {/* ── Pitch graphic ── */}
         <PitchGraphic />
 
-        <Link href="/login" style={{
+        <Link href={isLoggedIn ? '/dashboard' : '/login'} style={{
           marginTop: '52px',
           display: 'inline-block', padding: '14px 40px',
           background: 'linear-gradient(135deg, #F5A623 0%, #E0920E 100%)',
@@ -82,7 +86,7 @@ export default function LandingPage() {
           textTransform: 'uppercase', fontWeight: 700, textDecoration: 'none',
           borderRadius: '5px', boxShadow: '0 0 36px rgba(245,166,35,0.28)',
         }}>
-          View predictions →
+          {isLoggedIn ? 'Go to dashboard →' : 'View predictions →'}
         </Link>
       </section>
 
