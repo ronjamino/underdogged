@@ -60,14 +60,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Glassmorphic nav */}
       <nav style={{
         height: '52px',
-        borderBottom: '1px solid rgba(28,32,64,0.8)',
+        borderBottom: '1px solid var(--border)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 16px',
         position: 'sticky',
         top: 0,
-        background: 'rgba(7,8,15,0.75)',
+        background: 'var(--bg-card)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         zIndex: 100,
@@ -116,7 +116,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button
             onClick={handleSignOut}
             style={{
-              background: 'rgba(28,32,64,0.5)',
+              background: 'var(--bg-hover)',
               border: '1px solid var(--border)',
               color: 'var(--text-muted)',
               padding: '5px 14px',
@@ -131,13 +131,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               const b = e.currentTarget
               b.style.color = 'var(--text)'
               b.style.borderColor = 'var(--text-muted)'
-              b.style.background = 'rgba(28,32,64,0.9)'
             }}
             onMouseLeave={e => {
               const b = e.currentTarget
               b.style.color = 'var(--text-muted)'
               b.style.borderColor = 'var(--border)'
-              b.style.background = 'rgba(28,32,64,0.5)'
             }}
           >
             sign out
