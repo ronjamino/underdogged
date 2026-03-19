@@ -115,3 +115,28 @@ CREATE TABLE IF NOT EXISTS odds (
 
 CREATE INDEX IF NOT EXISTS idx_odds_home_away ON odds (home_team, away_team);
 CREATE INDEX IF NOT EXISTS idx_odds_league    ON odds (league);
+
+-- -----------------------------------------------------------------------
+-- llm_enrichment
+-- One row per match per section (predictions / value_bets) per run_date.
+-- -----------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS llm_enrichment (
+    id                  SERIAL PRIMARY KEY,
+
+    run_date            DATE        NOT NULL,
+    match_id            TEXT,
+    home_team           TEXT        NOT NULL,
+    away_team           TEXT        NOT NULL,
+    section             TEXT        NOT NULL,   -- 'predictions' | 'value_bets'
+    verdict             TEXT        NOT NULL,   -- 'BACK' | 'MONITOR' | 'SKIP'
+    commentary          TEXT        NOT NULL,
+    model_confidence    REAL,
+    edge_pct            REAL,
+    market              TEXT,
+
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    UNIQUE (run_date, home_team, away_team, section)
+);
+
+CREATE INDEX IF NOT EXISTS idx_llm_enrichment_run_date ON llm_enrichment (run_date);
