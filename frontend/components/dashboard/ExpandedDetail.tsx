@@ -212,7 +212,7 @@ export function ExpandedDetail({ p, colSpan, enrichment, variant = 'table' }: Pr
 
   if (variant === 'card') {
     return (
-      <div style={{ background: 'rgba(12,14,26,0.8)', borderTop: '1px solid var(--border)', margin: '12px -16px -14px' }}>
+      <div style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border)', margin: '12px -16px -14px' }}>
         {inner}
       </div>
     )
@@ -220,7 +220,7 @@ export function ExpandedDetail({ p, colSpan, enrichment, variant = 'table' }: Pr
 
   return (
     <tr>
-      <td colSpan={colSpan} style={{ padding: 0, background: 'rgba(12,14,26,0.8)', borderBottom: '1px solid var(--border)' }}>
+      <td colSpan={colSpan} style={{ padding: 0, background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
         {inner}
       </td>
     </tr>
