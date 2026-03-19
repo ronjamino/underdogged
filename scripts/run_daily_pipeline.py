@@ -63,12 +63,14 @@ def run():
         logger.error(f"Prediction generation failed: {exc}", exc_info=True)
         sys.exit(1)
 
-    # Step 3: LLM enrichment — web-search context + BACK/MONITOR/SKIP verdicts
-    logger.info("Step 3/3 — Running LLM enrichment …")
+    # Step 3: LLM enrichment — web-search context + BACK/MONITOR/SKIP verdicts.
+    # Process the first 5 matches immediately; the enrichment cron job
+    # (runs every 5 min, batch-size 3) picks up the remainder throughout the day.
+    logger.info("Step 3/3 — Running LLM enrichment (initial batch of 5) …")
     try:
         import llm_enrichment
-        n = llm_enrichment.run()
-        logger.info(f"LLM enrichment complete — {n} records upserted.")
+        n = llm_enrichment.run(batch_size=5)
+        logger.info(f"LLM enrichment initial batch complete — {n} records upserted.")
     except Exception as exc:
         logger.warning(f"LLM enrichment failed (non-fatal): {exc}", exc_info=True)
 

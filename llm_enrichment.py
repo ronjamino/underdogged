@@ -8,7 +8,12 @@ Results are upserted to the llm_enrichment table and served by
 api/routers/enrichment.py to the frontend summary cards.
 
 Usage:
-    python llm_enrichment.py [--dry-run]
+    python llm_enrichment.py [--dry-run] [--batch-size N]
+
+    --batch-size N   Process at most N un-enriched matches then stop.
+                     Defaults to all un-enriched matches.
+                     Use small values (e.g. 3) when called from a frequent
+                     cron job to spread API calls over time.
 """
 
 import hashlib
@@ -35,12 +40,11 @@ from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 
-_OUTCOME_MAP  = {"home_win": "H", "draw": "D", "away_win": "A"}
+_OUTCOME_MAP   = {"home_win": "H", "draw": "D", "away_win": "A"}
 _OUTCOME_LABEL = {"H": "Home Win", "D": "Draw", "A": "Away Win"}
-_MODEL = "claude-sonnet-4-6"
-_MAX_PREDICTIONS = 5   # cap per section to control cost
-_CALL_DELAY_S    = 60  # seconds between API calls to respect 30K TPM rate limit
-_MIN_CONFIDENCE  = 0.55
+_MODEL           = "claude-sonnet-4-6"
+_CALL_DELAY_S    = 60   # seconds between API calls (30K TPM rate limit)
+_MIN_CONFIDENCE  = 0.60  # only enrich predictions with ≥60% model confidence
 _MIN_EDGE        = 0.05
 
 
@@ -59,6 +63,24 @@ def _make_match_id(home: str, away: str, date_str: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Already-enriched check
+# ---------------------------------------------------------------------------
+
+def _already_enriched(engine, run_date: date) -> set[tuple[str, str, str]]:
+    """
+    Return a set of (home_team, away_team, section) tuples that already have
+    an enrichment record for today. Used to skip completed matches so reruns
+    and batch crons don't duplicate API calls.
+    """
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text("SELECT home_team, away_team, section FROM llm_enrichment WHERE run_date = :d"),
+            {"d": run_date},
+        ).fetchall()
+    return {(r[0], r[1], r[2]) for r in rows}
+
+
+# ---------------------------------------------------------------------------
 # Data loading  (uses existing DataStore so merging / odds logic is shared)
 # ---------------------------------------------------------------------------
 
@@ -73,8 +95,6 @@ def _load_data(session) -> tuple[list[dict], list[dict]]:
         return [], []
 
     now = datetime.now(timezone.utc)
-    today = now.date()
-    week_out = today + timedelta(days=7)
 
     # Upcoming fixtures only
     df = df[df["match_date"] >= now].copy()
@@ -88,10 +108,10 @@ def _load_data(session) -> tuple[list[dict], list[dict]]:
         _MIN_EDGE,
     ), axis=1)
 
-    # --- Confident predictions ---
+    # --- Confident predictions (≥60%, no cap) ---
     preds_df = df[df["max_proba"] >= _MIN_CONFIDENCE].sort_values("max_proba", ascending=False)
     predictions = []
-    for _, r in preds_df.head(_MAX_PREDICTIONS).iterrows():
+    for _, r in preds_df.iterrows():
         predictions.append({
             "match_id":   _make_match_id(r["home_team"], r["away_team"], r["match_date_str"]),
             "home_team":  r["home_team"],
@@ -102,10 +122,10 @@ def _load_data(session) -> tuple[list[dict], list[dict]]:
             "confidence": round(float(r["max_proba"]) * 100, 1),
         })
 
-    # --- Value bets ---
+    # --- Value bets (all, no cap) ---
     vb_df = df[df["value_bet"].notna()].sort_values("max_proba", ascending=False)
     value_bets = []
-    for _, r in vb_df.head(_MAX_PREDICTIONS).iterrows():
+    for _, r in vb_df.iterrows():
         vb = r["value_bet"]
         model_prob = float(r["prob_home"] if vb == "H" else r["prob_draw"] if vb == "D" else r["prob_away"])
         odds       = _nan(r.get(f"bk_{'home' if vb == 'H' else 'draw' if vb == 'D' else 'away'}_odds"))
@@ -257,8 +277,18 @@ def _upsert(engine, records: list[dict]) -> int:
 # Main
 # ---------------------------------------------------------------------------
 
-def run(dry_run: bool = False) -> int:
-    """Run LLM enrichment. Returns number of records upserted."""
+def run(dry_run: bool = False, batch_size: int | None = None) -> int:
+    """
+    Run LLM enrichment. Returns number of records upserted.
+
+    Parameters
+    ----------
+    dry_run    : If True, log what would be enriched without calling the API.
+    batch_size : Maximum number of un-enriched matches to process in this
+                 invocation. None means process all. Use a small value (e.g. 3)
+                 when called from a frequent cron so API calls are spread over
+                 time without exceeding rate limits.
+    """
     from db.connection import engine, SessionLocal
 
     session = SessionLocal()
@@ -267,26 +297,49 @@ def run(dry_run: bool = False) -> int:
     finally:
         session.close()
 
-    logger.info("Enriching %d predictions and %d value bets", len(predictions), len(value_bets))
-
     if not predictions and not value_bets:
         logger.info("Nothing to enrich — no confident predictions or value bets found.")
         return 0
 
+    # Filter out matches already enriched today
+    done = _already_enriched(engine, date.today())
+    all_matches: list[tuple[str, dict]] = (
+        [("predictions", m) for m in predictions] +
+        [("value_bets",  m) for m in value_bets]
+    )
+    pending = [
+        (section, m) for section, m in all_matches
+        if (m["home_team"], m["away_team"], section) not in done
+    ]
+
+    logger.info(
+        "Enrichment status: %d total, %d already done, %d pending",
+        len(all_matches), len(done), len(pending),
+    )
+
+    if not pending:
+        logger.info("All matches already enriched for today.")
+        return 0
+
+    # Apply batch cap
+    batch = pending[:batch_size] if batch_size else pending
+    logger.info("Processing %d match(es) this run (batch_size=%s)", len(batch), batch_size)
+
     if dry_run:
-        logger.info("[DRY RUN] Would enrich: %s", [m["home_team"] + " v " + m["away_team"] for m in predictions + value_bets])
+        logger.info("[DRY RUN] Would enrich: %s", [
+            f"{m['home_team']} v {m['away_team']} [{s}]" for s, m in batch
+        ])
         return 0
 
     client = anthropic.Anthropic()
     records = []
 
-    all_matches = [("predictions", m) for m in predictions] + [("value_bets", m) for m in value_bets]
-    for i, (section, match) in enumerate(all_matches):
-        logger.info("Enriching %s: %s vs %s", section, match["home_team"], match["away_team"])
+    for i, (section, match) in enumerate(batch):
+        logger.info("Enriching [%d/%d] %s: %s vs %s", i + 1, len(batch), section, match["home_team"], match["away_team"])
         result = _enrich_one(client, match, section)
         if result:
             records.append(result)
-        if i < len(all_matches) - 1:
+        if i < len(batch) - 1:
             time.sleep(_CALL_DELAY_S)
 
     if not records:
@@ -294,7 +347,7 @@ def run(dry_run: bool = False) -> int:
         return 0
 
     n = _upsert(engine, records)
-    logger.info("Upserted %d enrichment records.", n)
+    logger.info("Upserted %d enrichment record(s). %d match(es) still pending.", n, len(pending) - len(batch))
     return n
 
 
@@ -302,6 +355,8 @@ if __name__ == "__main__":
     import argparse
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dry-run", action="store_true", help="Print matches without calling API")
+    parser.add_argument("--dry-run",    action="store_true", help="Print matches without calling API")
+    parser.add_argument("--batch-size", type=int, default=None, metavar="N",
+                        help="Process at most N un-enriched matches then stop")
     args = parser.parse_args()
-    run(dry_run=args.dry_run)
+    run(dry_run=args.dry_run, batch_size=args.batch_size)
