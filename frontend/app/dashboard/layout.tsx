@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [email, setEmail] = useState<string | null>(null)
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const router = useRouter()
   const supabase = createClient()
 
@@ -16,6 +17,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       setEmail(data.user?.email ?? null)
     })
   }, [])
+
+  useEffect(() => {
+    const stored = localStorage.getItem('theme')
+    const initial = stored === 'light' ? 'light'
+      : stored === 'dark' ? 'dark'
+      : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+    setTheme(initial)
+  }, [])
+
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    localStorage.setItem('theme', next)
+    if (next === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light')
+    } else {
+      document.documentElement.removeAttribute('data-theme')
+    }
+  }
 
   async function handleSignOut() {
     await supabase.auth.signOut()
@@ -75,6 +95,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {email}
             </span>
           )}
+          <button
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '15px',
+              lineHeight: 1,
+              padding: '4px',
+              opacity: 0.7,
+              transition: 'opacity 0.15s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '0.7')}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
           <button
             onClick={handleSignOut}
             style={{

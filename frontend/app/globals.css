@@ -35,6 +35,23 @@
   --red-dim:      rgba(242, 85, 85, 0.1);
 }
 
+[data-theme="light"] {
+  --bg:           #F4F5FA;
+  --bg-card:      #FFFFFF;
+  --bg-hover:     #ECEEF7;
+  --border:       #D8DCF0;
+  --text:         #0D0F1C;
+  --text-muted:   #6B739A;
+  --accent:       #D4880A;
+  --accent-dim:   rgba(212, 136, 10, 0.1);
+  --accent-glow:  rgba(212, 136, 10, 0.2);
+  --green:        #0BA85E;
+  --green-dim:    rgba(11, 168, 94, 0.1);
+  --green-glow:   rgba(11, 168, 94, 0.15);
+  --red:          #D93030;
+  --red-dim:      rgba(217, 48, 48, 0.1);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -72,9 +89,9 @@ input:focus {
   background: linear-gradient(
     90deg,
     var(--bg-card) 0%,
-    rgba(28, 32, 64, 0.6) 40%,
-    rgba(40, 48, 100, 0.4) 50%,
-    rgba(28, 32, 64, 0.6) 60%,
+    var(--bg-hover) 40%,
+    var(--border) 50%,
+    var(--bg-hover) 60%,
     var(--bg-card) 100%
   );
   background-size: 400% 100%;
