@@ -440,6 +440,23 @@ def train_model():
     print("\n🤖 Training stacking ensemble via train_pipeline()...")
     ensemble = train_pipeline(X_train, y_train, n_trials=50)
 
+    # --- Probability calibration on validation set (fixes draw over-prediction) ---
+    # Balanced class weights inflate prob_draw to ~0.38 for uncertain matches,
+    # while the true draw rate is ~0.27-0.30. Isotonic regression maps the raw
+    # probabilities to empirically observed frequencies on the held-out val set.
+    print("\n🎯 Calibrating probabilities on validation set...")
+    from sklearn.isotonic import IsotonicRegression
+    y_proba_val_raw = ensemble.predict_proba(X_val)
+    print(f"   Pre-calibration  — mean prob: H={y_proba_val_raw[:,0].mean():.3f}  D={y_proba_val_raw[:,1].mean():.3f}  A={y_proba_val_raw[:,2].mean():.3f}")
+    calibrators = []
+    for c in range(3):
+        iso = IsotonicRegression(out_of_bounds="clip")
+        iso.fit(y_proba_val_raw[:, c], (y_val.values == c).astype(float))
+        calibrators.append(iso)
+    ensemble.attach_calibrators(calibrators)
+    y_proba_val_cal = ensemble.predict_proba(X_val)
+    print(f"   Post-calibration — mean prob: H={y_proba_val_cal[:,0].mean():.3f}  D={y_proba_val_cal[:,1].mean():.3f}  A={y_proba_val_cal[:,2].mean():.3f}")
+
     # --- Show per-model metrics on test set ---
     print("\n📊 Individual model accuracies (hold-out test):")
     X_test_scaled = ensemble.scaler.transform(X_test)
@@ -519,18 +536,24 @@ def train_model():
     # --- Optimize confidence threshold on VALIDATION SET (Issue 6) ---
     print("\n🎯 Optimizing confidence threshold on validation set (not test set)...")
     y_proba_val = ensemble.predict_proba(X_val)
-    best_threshold, best_threshold_f1 = 0.60, 0.0
+    best_threshold, best_threshold_f1 = 0.50, 0.0
+    # Require at least 25% of validation matches to pass the threshold so that
+    # the threshold represents typical prediction scenarios, not just the handful
+    # of trivially-easy matches where any model is very confident.
+    min_coverage = max(10, int(len(y_val) * 0.25))
     for threshold in np.arange(0.40, 0.80, 0.025):
         mask = y_proba_val.max(axis=1) >= threshold
-        if mask.sum() < 10:
+        if mask.sum() < min_coverage:
             continue
         y_true_t = y_val.values[mask]
         y_pred_t = y_proba_val[mask].argmax(axis=1)
-        t_f1 = f1_score(y_true_t, y_pred_t, labels=[1], average="macro", zero_division=0)
+        # Optimise macro F1 across all classes (not draw-only) so the threshold
+        # reflects overall prediction quality rather than just draw recall.
+        t_f1 = f1_score(y_true_t, y_pred_t, average="macro", zero_division=0)
         if t_f1 > best_threshold_f1:
             best_threshold_f1 = t_f1
             best_threshold = float(threshold)
-    print(f"   Optimal threshold: {best_threshold:.2f} (val draw F1: {best_threshold_f1:.3f})")
+    print(f"   Optimal threshold: {best_threshold:.2f} (val macro F1: {best_threshold_f1:.3f}, coverage: {(y_proba_val.max(axis=1) >= best_threshold).sum()}/{len(y_val)})")
 
     # Report test set metrics with optimal threshold applied
     thresh_mask = y_proba.max(axis=1) >= best_threshold

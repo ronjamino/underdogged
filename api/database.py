@@ -48,14 +48,15 @@ def _value_bet(
         fair_d = inv_d / total
         fair_a = inv_a / total
 
-        candidates = [
-            ("H", prob_home, fair_h),
-            ("D", prob_draw, fair_d),
-            ("A", prob_away, fair_a),
-        ]
-        best = max(candidates, key=lambda x: x[1] - x[2])
-        label, model_p, fair_p = best
-        return label if (model_p - fair_p) >= min_edge else None
+        # Only bet on the outcome the model actually predicts (argmax).
+        # Checking all three outcomes independently would flag draws almost
+        # every time because balanced class weights make prob_draw
+        # systematically exceed the bookmaker's fair draw probability.
+        probs = {"H": prob_home, "D": prob_draw, "A": prob_away}
+        fair  = {"H": fair_h,   "D": fair_d,    "A": fair_a}
+        predicted = max(probs, key=probs.get)
+        edge = probs[predicted] - fair[predicted]
+        return predicted if edge >= min_edge else None
     except (ZeroDivisionError, TypeError):
         return None
 

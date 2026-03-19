@@ -27,6 +27,7 @@ def _canon(code_or_name: str) -> str:
     key = str(code_or_name).strip().upper()
     return LEAGUE_ALIASES.get(key, key)
 
+
 def build_features(df, h2h_window=5, form_window=10, separate_by_league=True):
     """
     ENHANCED: Generate features including draw-predictive features AND odds integration.

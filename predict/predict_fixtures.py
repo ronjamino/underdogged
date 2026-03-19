@@ -412,7 +412,7 @@ def predict_fixtures(leagues=None):
 
         # Load scaler if available
         scaler = joblib.load(SCALER_PATH) if os.path.exists(SCALER_PATH) else None
-        
+
     except Exception as e:
         print(f"❌ Error loading model: {e}")
         return
