@@ -25,6 +25,7 @@ function enrichmentKey(homeTeam: string, awayTeam: string) {
 
 export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>('predictions')
+  const [menuOpen, setMenuOpen] = useState(false)
   const [activeLeague, setActiveLeague] = useState(DEFAULT_LEAGUE)
   const [valueLeague, setValueLeague] = useState(DEFAULT_LEAGUE)
   const [predictions, setPredictions] = useState<Prediction[]>([])
@@ -41,6 +42,16 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchLastUpdated().then(ts => { if (ts) setLastUpdated(ts) })
   }, [])
+
+  // Close hamburger menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return
+    function handler(e: MouseEvent) {
+      if (!(e.target as Element).closest('#tab-menu')) setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
 
   // Fetch enrichment in background whenever tab switches to predictions or value
   useEffect(() => {
@@ -98,52 +109,61 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Top-level tab bar */}
-      <div style={{
-        display: 'flex',
-        borderBottom: '1px solid var(--border)',
-        marginBottom: '24px',
-        gap: '4px',
-        overflowX: 'auto',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-      }}>
-        {TABS.map(({ id, label }) => {
-          const isActive = tab === id
-          return (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              style={{
-                padding: '12px 16px',
-                fontSize: '11px',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                fontWeight: 500,
-                cursor: 'pointer',
-                background: 'none',
-                border: 'none',
-                borderBottom: isActive
-                  ? '2px solid var(--accent)'
-                  : '2px solid transparent',
-                color: isActive ? 'var(--accent)' : 'var(--text-muted)',
-                textShadow: isActive ? '0 0 20px var(--accent-glow)' : 'none',
-                transition: 'color 0.15s, text-shadow 0.15s',
-                fontFamily: 'JetBrains Mono, monospace',
-                whiteSpace: 'nowrap',
-                marginBottom: '-1px',
-              }}
-              onMouseEnter={e => {
-                if (!isActive) e.currentTarget.style.color = 'var(--text)'
-              }}
-              onMouseLeave={e => {
-                if (!isActive) e.currentTarget.style.color = 'var(--text-muted)'
-              }}
-            >
-              {label}
-            </button>
-          )
-        })}
+      {/* Hamburger menu */}
+      <div id="tab-menu" style={{ position: 'relative', display: 'inline-block', marginBottom: '20px' }}>
+        <button
+          onClick={() => setMenuOpen(o => !o)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            background: 'var(--bg-card)', border: '1px solid var(--border)',
+            borderRadius: '6px', padding: '7px 12px',
+            color: 'var(--text)', fontSize: '11px',
+            letterSpacing: '0.08em', textTransform: 'uppercase',
+            cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace',
+            transition: 'border-color 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--text-muted)' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)' }}
+        >
+          <span style={{ fontSize: '14px', lineHeight: 1 }}>☰</span>
+          {TABS.find(t => t.id === tab)?.label}
+        </button>
+
+        {menuOpen && (
+          <div style={{
+            position: 'absolute', top: 'calc(100% + 4px)', left: 0,
+            background: 'var(--bg-card)', border: '1px solid var(--border)',
+            borderRadius: '6px', overflow: 'hidden',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+            zIndex: 50, minWidth: '160px',
+          }}>
+            {TABS.map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => { setTab(id); setMenuOpen(false) }}
+                style={{
+                  display: 'block', width: '100%', textAlign: 'left',
+                  padding: '10px 14px', background: 'none', border: 'none',
+                  borderLeft: tab === id ? '2px solid var(--accent)' : '2px solid transparent',
+                  color: tab === id ? 'var(--accent)' : 'var(--text-muted)',
+                  fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase',
+                  cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace',
+                  transition: 'color 0.1s, background 0.1s',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'var(--bg-hover)'
+                  if (tab !== id) e.currentTarget.style.color = 'var(--text)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'none'
+                  if (tab !== id) e.currentTarget.style.color = 'var(--text-muted)'
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {tab === 'predictions' && (
