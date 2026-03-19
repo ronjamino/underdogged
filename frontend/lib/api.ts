@@ -57,11 +57,10 @@ export async function fetchLeagues(): Promise<League[]> {
 
 export async function fetchLastUpdated(): Promise<string | null> {
   try {
-    const res = await fetch(`${API_BASE}/leagues`)
+    const res = await fetch(`${API_BASE}/status`)
     if (!res.ok) return null
-    const leagues: League[] = await res.json()
-    const timestamps = leagues.map(l => l.last_updated).filter(t => t && t !== 'unknown')
-    return timestamps.sort().at(-1) ?? null
+    const data: { last_updated: string } = await res.json()
+    return data.last_updated && data.last_updated !== 'unknown' ? data.last_updated : null
   } catch {
     return null
   }

@@ -89,6 +89,14 @@ def ping():
     return {"pong": True}
 
 
+@app.get("/status", tags=["Health"])
+def status(db: Session = Depends(get_db)):
+    """Return last_updated timestamp of the predictions table."""
+    from api.database import DataStore
+    store = DataStore(db)
+    return {"last_updated": store.get_last_updated()}
+
+
 @app.get("/", tags=["Health"])
 def root():
     return {
