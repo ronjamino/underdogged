@@ -7,8 +7,8 @@ import { LeagueSelector } from '@/components/dashboard/LeagueSelector'
 import { PredictionsTable } from '@/components/dashboard/PredictionsTable'
 import { ValueBetsTable } from '@/components/dashboard/ValueBetsTable'
 import { PerformanceTab } from '@/components/dashboard/PerformanceTab'
-import { fetchPredictions, fetchValueBets, fetchPerformance, fetchLiveRecord, fetchEnrichment, fetchLastUpdated } from '@/lib/api'
-import type { Prediction, PerformanceSummary, LiveRecord, EnrichmentItem } from '@/lib/api'
+import { fetchPredictions, fetchValueBets, fetchPerformance, fetchLiveRecord, fetchLastUpdated } from '@/lib/api'
+import type { Prediction, PerformanceSummary, LiveRecord } from '@/lib/api'
 
 const DEFAULT_LEAGUE = 'PL'
 type Tab = 'predictions' | 'value' | 'performance'
@@ -19,9 +19,6 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'performance', label: 'Performance' },
 ]
 
-function enrichmentKey(homeTeam: string, awayTeam: string) {
-  return `${homeTeam}|${awayTeam}`
-}
 
 export default function DashboardPage() {
   const [tab, setTab] = useState<Tab>('predictions')
@@ -34,8 +31,6 @@ export default function DashboardPage() {
   const [liveRecord, setLiveRecord] = useState<LiveRecord | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [predEnrichment, setPredEnrichment] = useState<Map<string, EnrichmentItem>>(new Map())
-  const [valueEnrichment, setValueEnrichment] = useState<Map<string, EnrichmentItem>>(new Map())
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
 
   // Fetch last updated timestamp once on mount
@@ -53,20 +48,6 @@ export default function DashboardPage() {
     return () => document.removeEventListener('mousedown', handler)
   }, [menuOpen])
 
-  // Fetch enrichment in background whenever tab switches to predictions or value
-  useEffect(() => {
-    if (tab === 'predictions') {
-      fetchEnrichment('predictions').then(r => {
-        const map = new Map(r.items.map(i => [enrichmentKey(i.home_team, i.away_team), i]))
-        setPredEnrichment(map)
-      }).catch(() => {})
-    } else if (tab === 'value') {
-      fetchEnrichment('value-bets').then(r => {
-        const map = new Map(r.items.map(i => [enrichmentKey(i.home_team, i.away_team), i]))
-        setValueEnrichment(map)
-      }).catch(() => {})
-    }
-  }, [tab])
 
   useEffect(() => {
     setLoading(true)
@@ -174,7 +155,6 @@ export default function DashboardPage() {
               predictions={predictions}
               loading={loading}
               error={error}
-              enrichmentMap={predEnrichment}
             />
           </div>
         </>
@@ -188,7 +168,6 @@ export default function DashboardPage() {
               predictions={valueBets}
               loading={loading}
               error={error}
-              enrichmentMap={valueEnrichment}
             />
           </div>
         </>

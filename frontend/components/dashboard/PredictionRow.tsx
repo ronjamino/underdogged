@@ -3,11 +3,10 @@
 import { useState } from 'react'
 import { ConfidenceBar } from './ConfidenceBar'
 import { ExpandedDetail } from './ExpandedDetail'
-import type { Prediction, EnrichmentItem } from '@/lib/api'
+import type { Prediction } from '@/lib/api'
 
 interface Props {
   prediction: Prediction
-  enrichment?: EnrichmentItem
   mobile?: boolean
 }
 
@@ -17,15 +16,9 @@ const OUTCOME_STYLES: Record<string, { bg: string; border: string; color: string
   A: { bg: 'var(--red-dim)',    border: 'rgba(242,85,85,0.2)',  color: 'var(--red)',    label: p => p.away_team },
 }
 
-const VERDICT_COLOR: Record<string, string> = {
-  BACK:    'var(--green)',
-  MONITOR: 'var(--accent)',
-  SKIP:    'var(--red)',
-}
-
 const COL_SPAN = 5
 
-export function PredictionRow({ prediction: p, enrichment, mobile = false }: Props) {
+export function PredictionRow({ prediction: p, mobile = false }: Props) {
   const [expanded, setExpanded] = useState(false)
   const outcome = OUTCOME_STYLES[p.predicted_outcome] ?? OUTCOME_STYLES['D']
   const label = outcome.label(p)
@@ -51,13 +44,6 @@ export function PredictionRow({ prediction: p, enrichment, mobile = false }: Pro
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>{dateStr} · {timeStr}</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {enrichment && (
-              <span style={{
-                fontSize: '12px',
-                color: VERDICT_COLOR[enrichment.verdict] ?? 'var(--text-muted)',
-                filter: `drop-shadow(0 0 4px ${VERDICT_COLOR[enrichment.verdict] ?? 'transparent'})`,
-              }}>💡</span>
-            )}
             <span style={{
               color: 'var(--text-muted)', fontSize: '10px',
               transform: expanded ? 'rotate(180deg)' : 'none',
@@ -88,7 +74,7 @@ export function PredictionRow({ prediction: p, enrichment, mobile = false }: Pro
           </div>
         </div>
 
-        {expanded && <ExpandedDetail p={p} colSpan={1} enrichment={enrichment} variant="card" />}
+        {expanded && <ExpandedDetail p={p} colSpan={1} variant="card" />}
       </div>
     )
   }
@@ -146,19 +132,6 @@ export function PredictionRow({ prediction: p, enrichment, mobile = false }: Pro
             <div style={{ flex: 1 }}>
               <ConfidenceBar value={p.confidence} />
             </div>
-            {/* Fixed-width slot so bar width is identical with or without lightbulb */}
-            <span
-              title={enrichment ? `${enrichment.verdict}: ${enrichment.commentary}` : undefined}
-              style={{
-                width: '15px',
-                flexShrink: 0,
-                fontSize: '13px',
-                color: enrichment ? (VERDICT_COLOR[enrichment.verdict] ?? 'var(--text-muted)') : 'transparent',
-                filter: enrichment ? `drop-shadow(0 0 4px ${VERDICT_COLOR[enrichment.verdict] ?? 'transparent'})` : 'none',
-              }}
-            >
-              {enrichment ? '💡' : ''}
-            </span>
             <span style={{
               color: 'var(--text-muted)',
               fontSize: '10px',
@@ -172,7 +145,7 @@ export function PredictionRow({ prediction: p, enrichment, mobile = false }: Pro
         </td>
       </tr>
 
-      {expanded && <ExpandedDetail p={p} colSpan={COL_SPAN} enrichment={enrichment} />}
+      {expanded && <ExpandedDetail p={p} colSpan={COL_SPAN} />}
     </>
   )
 }

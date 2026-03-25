@@ -42,9 +42,9 @@ logger = logging.getLogger(__name__)
 
 _OUTCOME_MAP   = {"home_win": "H", "draw": "D", "away_win": "A"}
 _OUTCOME_LABEL = {"H": "Home Win", "D": "Draw", "A": "Away Win"}
-_MODEL           = "claude-sonnet-4-6"
+_MODEL           = "claude-haiku-4-5-20251001"
 _CALL_DELAY_S    = 60   # seconds between API calls (30K TPM rate limit)
-_MIN_CONFIDENCE  = 0.60  # only enrich predictions with ≥60% model confidence
+_MIN_CONFIDENCE  = 0.55  # only enrich predictions with ≥55% model confidence
 _MIN_EDGE        = 0.05
 
 

@@ -74,8 +74,8 @@ def _row_to_prediction(row: pd.Series) -> PredictionOut:
         odds_away=round(odds_away, 2) if odds_away else None,
         value_bet=value,
         actual_result=_OUTCOME_MAP.get(str(row.get("actual_result") or ""), None),
-        home_score=int(row["home_score"]) if row.get("home_score") is not None else None,
-        away_score=int(row["away_score"]) if row.get("away_score") is not None else None,
+        home_score=int(row["home_score"]) if row.get("home_score") is not None and not (isinstance(row["home_score"], float) and math.isnan(row["home_score"])) else None,
+        away_score=int(row["away_score"]) if row.get("away_score") is not None and not (isinstance(row["away_score"], float) and math.isnan(row["away_score"])) else None,
         home_form_winrate=_f("home_form_winrate"),
         away_form_winrate=_f("away_form_winrate"),
         home_momentum=_f("home_momentum"),
@@ -155,7 +155,7 @@ def list_predictions(
     # Default date window
     today = date.today()
     _from = from_date or today
-    _to   = to_date   or (today + timedelta(days=7))
+    _to   = to_date   or (today + timedelta(days=30))
 
     # Date filter — match_date is timezone-aware; compare to date only
     if "match_date" in df.columns:
@@ -182,7 +182,7 @@ def get_value_bets(db: DB):
     df = _get_df(db)
 
     today = date.today()
-    _to = today + timedelta(days=7)
+    _to = today + timedelta(days=30)
     if "match_date" in df.columns:
         df["_date_only"] = df["match_date"].dt.date
         df = df[(df["_date_only"] >= today) & (df["_date_only"] <= _to)]

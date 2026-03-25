@@ -2,13 +2,12 @@
 
 import { PredictionRow } from './PredictionRow'
 import { useIsMobile } from '@/lib/hooks/useIsMobile'
-import type { Prediction, EnrichmentItem } from '@/lib/api'
+import type { Prediction } from '@/lib/api'
 
 interface Props {
   predictions: Prediction[]
   loading: boolean
   error: string
-  enrichmentMap: Map<string, EnrichmentItem>
 }
 
 function SkeletonRow() {
@@ -33,11 +32,8 @@ function MobileSkeletonCard() {
   )
 }
 
-export function PredictionsTable({ predictions, loading, error, enrichmentMap }: Props) {
+export function PredictionsTable({ predictions, loading, error }: Props) {
   const isMobile = useIsMobile()
-
-  const enrichmentFor = (p: Prediction) =>
-    enrichmentMap.get(`${p.home_team}|${p.away_team}`)
 
   if (isMobile) {
     return (
@@ -63,7 +59,6 @@ export function PredictionsTable({ predictions, loading, error, enrichmentMap }:
           <PredictionRow
             key={p.match_id}
             prediction={p}
-            enrichment={enrichmentFor(p)}
             mobile
           />
         ))}
@@ -124,7 +119,6 @@ export function PredictionsTable({ predictions, loading, error, enrichmentMap }:
             <PredictionRow
               key={p.match_id}
               prediction={p}
-              enrichment={enrichmentFor(p)}
             />
           ))}
         </tbody>
